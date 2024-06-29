@@ -1,0 +1,38 @@
+// TODO: figure out a way to generate font faces on the fly. We're creating lot of font faces that browsers might not need.
+
+/*Fonts for rendering different Mushaf scripts*/
+@import url("https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Gulzar&display=swap");
+
+@font-face {
+  font-family: "IndoPak";
+  src: local("AlQuran IndoPak by QuranWBW"),
+    url("/fonts/quran/hafs/nastaleeq/indopak/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL.woff")
+      format("woff2"),
+    // url("/fonts/quran/hafs/nastaleeq/indopak/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL.woff2")
+      // format("woff"),
+    // url("/fonts/quran/hafs/nastaleeq/indopak/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL")
+    //   format("truetype");
+  // font-display: swap;
+}
+
+@font-face {
+  font-family: "UthmanicHafs";
+  src: local("KFGQPC HAFS Uthmanic Script"),
+    url("/fonts/quran/hafs/uthmanic_hafs/UthmanicHafs1Ver18.woff2")
+      format("woff2"),
+    url("/fonts/quran/hafs/uthmanic_hafs/UthmanicHafs1Ver18.ttf")
+      format("truetype");
+  font-display: swap;
+}
+
+// TODO: regenerate this font and add font-family name
+@font-face {
+  font-family: "surahnames";
+  src: url("/fonts/quran/surah-names/v1/sura_names.woff2"),
+    url("/fonts/quran/quran/surah-names/v1/sura_names.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

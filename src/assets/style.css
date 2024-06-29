@@ -1,0 +1,107 @@
+@import "./fonts.scss";
+
+:root {
+  --direct: rtl;
+  --quran-reader-font-family-Amiri: "Amiri", serif;
+  --quran-reader-font-family-Aref: "Aref Ruqaa", serif;
+  --quran-reader-font-family-IndoPak: "IndoPak";
+  --quran-reader-font-family-UthmanicHafs: "UthmanicHafs";
+  --quran-reader-font-family-Surahnames: "surahnames";
+  --quran-reader-font-weight: 400;
+  --quran-reader-font-weight-bold: 700;
+  --quran-reader-direction: rtl;
+  --quran-content-title: "Gulzar", serif;
+  --quran-font-size-1: 3.1vh;
+  --quran-font-size-2: 3.2vh;
+  --quran-font-size-3: 3.4vh;
+  --quran-font-size-4: 3.7vh;
+  --quran-font-size-5: 3.95vh;
+  --quran-font-size-6: 5.08vh;
+  --quran-font-size-7: 6.21vh;
+  --quran-font-size-8: 7.34vh;
+  --quran-font-size-9: 8.47vh;
+  --quran-font-size-10: 9.6vh;
+  --translation-font-size-1: 0.85rem;
+  --translation-font-size-2: 1rem;
+  --translation-font-size-3: 1.18rem;
+  --translation-font-size-4: 1.4rem;
+  --translation-font-size-5: 2rem;
+  --translation-font-size-6: 2.3rem;
+  --translation-font-size-7: 2.7rem;
+  --translation-font-size-8: 3rem;
+  --translation-font-size-9: 3.5rem;
+  --translation-font-size-10: 4rem;
+}
+
+.aref-ruqaa-regular {
+  font-family: "Aref Ruqaa", serif;
+  font-size: var(--quran-reader-font-size) !important;
+}
+
+.aref-ruqaa-bold {
+  font-family: "Aref Ruqaa", serif;
+  font-weight: var(--quran-reader-font-weight-bold);
+  font-size: var(--quran-reader-font-size) !important;
+}
+
+/*  */
+.amiri-regular {
+  font-family: "Amiri", serif;
+  font-weight: var(--quran-reader-font-weight);
+  font-size: var(--quran-reader-font-size) !important;
+}
+
+.amiri-bold {
+  font-family: "Amiri", serif;
+  font-weight: var(--quran-reader-font-weight-bold);
+  font-size: var(--quran-reader-font-size) !important;
+}
+
+.border-bottom {
+  border-bottom: 0.02em inset rgba(0, 0, 0, 0.5) !important;
+}
+
+.quran-word-glyph {
+  margin-right: 2px;
+  padding: 0 10px;
+  font-size: 0.875rem;
+  height: calc(var(--v-chip-height) + 0px);
+  border-color: rgba(var(--v-border-color), var(--v-border-opacity));
+  border-style: solid;
+  border-width: 0.02em;
+  border-radius: 9999px;
+}
+
+.quran-content .reading {
+  padding-bottom: 20px !important;
+}
+
+.quran-content .item {
+  padding: 0px !important;
+  margin: 0 !important;
+  padding-inline: 3px !important;
+  direction: rtl;
+  float: right;
+}
+
+.quran-content .title p:hover {
+  color: #2196f3;
+}
+
+/* .quran-content .item:last-child p::before {
+  content: "(";
+}
+
+.quran-content .item:last-child p::after {
+  content: ")";
+} */
+
+.quran-content-title {
+  font-family: var(--quran-content-title);
+  font-weight: var(--quran-reader-font-weight-bold);
+  font-size: 1.8rem !important;
+}
+
+.mouse-pointer {
+  cursor: pointer;
+}
