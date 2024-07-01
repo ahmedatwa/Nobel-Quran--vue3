@@ -48,7 +48,9 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:headerData": [value: HeaderData];
+  "update:chapterHeaderData": [value: HeaderData];
+  "update:juzHeaderData": [value: HeaderData];
+  "update:pageHeaderData": [value: HeaderData];
   "update:navigationDrawer": [value: boolean];
 }>();
 
@@ -98,27 +100,28 @@ onBeforeMount(() => {
 </script>
 <template>
   <navigation-component v-model:model-nav="navigationDrawer" :selected="selected"
-    @update:selected-tab="selectedTab = $event" :intersecting-verse-number="intersectingVerseNumber" :intersecting-juz-verse-number="intersectingJuzVerseNumber"
-    @update:selected-page="selectedPage = $event" :active-juz-number="activeJuzNumber"
+    @update:selected-tab="selectedTab = $event" :intersecting-verse-number="intersectingVerseNumber"
+    :intersecting-juz-verse-number="intersectingJuzVerseNumber" @update:selected-page="selectedPage = $event"
+    :active-juz-number="activeJuzNumber"
     @update:selected-verse-key-view="selectedVerseKeyView = $event"></navigation-component>
   <!-- Juz -->
   <juzs-component :selected="selectedTab === 'juz'" :selected-tab="selectedTab" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:translation-drawer="translationDrawer = $event"
     @update:intersecting-juz-verse-number="intersectingJuzVerseNumber = $event"
     :selected-verse-key-View="selectedVerseKeyView" @update:play-audio="playAudio"
-    @update:header-data="$emit('update:headerData', $event)"
+    @update:juz-header-data="$emit('update:juzHeaderData', $event)"
     @update:active-juz-number="activeJuzNumber = $event"></juzs-component>
   <!-- Chapters -->
   <chapters-component :selected="selectedTab === 'surah'" :audio-player="audioPlayer" :selected-tab="selectedTab"
     :selected-verse-key-View="selectedVerseKeyView" :setting-css-vars="settingCssVars"
     @update:intersecting-verse-number="intersectingVerseNumber = $event"
-    @update:header-data="$emit('update:headerData', $event)" @update:play-audio="playAudio">
+    @update:chapter-header-data="$emit('update:chapterHeaderData', $event)" @update:play-audio="playAudio">
   </chapters-component>
   <!-- Pages -->
   <pages-component :selected="selectedTab === 'page'" :selected-page="selectedPage" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:verse-id="intersectingVerseNumber = $event"
-    @update:translation-drawer="translationDrawer = $event" @update:header-data="$emit('update:headerData', $event)"
-    @update:play-audio="playAudio"></pages-component>
+    @update:translation-drawer="translationDrawer = $event"
+    @update:page-header-data="$emit('update:pageHeaderData', $event)" @update:play-audio="playAudio"></pages-component>
 
   <translation-list-component @update:selected-translations="updateTranslations"></translation-list-component>
 

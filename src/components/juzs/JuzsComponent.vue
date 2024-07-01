@@ -21,7 +21,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    "update:headerData": [value: HeaderData]
+    "update:juzHeaderData": [value: HeaderData]
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
     "update:intersectingJuzVerseNumber": [value: number]
     "update:activejuz_number": [value: number]
@@ -43,7 +43,7 @@ const emit = defineEmits<{
                 <juz-translations-view-component :is-audio-playing="audioPlayer"
                     :audio-experience="audioPlayerStore.audioExperience" :css-vars="settingCssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
-                    :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
+                    :verse-timing="audioPlayerStore.verseTiming" @update:juz-header-data="emit('update:juzHeaderData', $event)"
                     @update:intersecting-juz-verse-number="emit('update:intersectingJuzVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)"
                     @update:active-juz-number="$emit('update:activejuz_number', $event)">
@@ -51,7 +51,7 @@ const emit = defineEmits<{
             </v-tabs-window-item>
             <v-tabs-window-item value="readingTab">
                 <juz-reading-view-component :audio-player="audioPlayer" :css-vars="settingCssVars"
-                    :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
+                    :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:juzHeaderData', $event)"
                     @update:intersecting-juz-verse-number="emit('update:intersectingJuzVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)">
                 </juz-reading-view-component>

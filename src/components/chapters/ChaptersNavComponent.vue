@@ -84,14 +84,16 @@ const getSelectedVerse = async (id: number) => {
 watchEffect(async () => {
   if (props.intersectingVerseNumber) {
     selectedVerseID.value = props.intersectingVerseNumber;
-    scroll(`#verse${selectedVerseID.value}`, 100);
     if (chapterStore.selectedChapter) {
-      if (
-        chapterStore.selectedChapter?.versesCount ===
+      if (chapterStore.selectedChapter?.versesCount ===
         chapterStore.selectedChapter.verses?.length
       ) {
+        chapterStore.isLoading.verses = false
         return;
       }
+
+
+      scroll(`#verse${selectedVerseID.value}`, 100);
       if (chapterStore.selectedChapter.verses) {
         if (
           props.intersectingVerseNumber ===

@@ -33,8 +33,8 @@ export const useChapterStore = defineStore("chapter-store", () => {
   const chapters = computed((): Chapter[] | undefined => {
     if (chaptersList.value) {
       const searchableKeys = ["nameSimple", "nameArabic"];
-      return chaptersList.value
-        .filter((chapter: { nameSimple: string; nameArabic: string }) => {
+      return chaptersList.value.filter(
+        (chapter: { nameSimple: string; nameArabic: string }) => {
           return searchableKeys.some((key) => {
             return chapter[key as keyof typeof chapter]
               .toLocaleLowerCase()
@@ -43,14 +43,8 @@ export const useChapterStore = defineStore("chapter-store", () => {
                 searchValue.value.toLocaleLowerCase().replace(/([\-\'])/, "")
               );
           });
-        })
-        .sort((a: any, b: any) => {
-          let modifier = 1;
-          if (currentSortDir.value === "desc") modifier = -1;
-          if (a[currentSort.value] < b[currentSort.value]) return -1 * modifier;
-          if (a[currentSort.value] > b[currentSort.value]) return 1 * modifier;
-          return 0;
-        });
+        }
+      );
     }
   });
 
@@ -160,7 +154,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
         console.log(e);
       })
       .finally(() => {
-       // isLoading.value.verses = false;
+        // isLoading.value.verses = false;
       });
   };
 

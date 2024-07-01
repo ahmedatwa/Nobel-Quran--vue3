@@ -25,7 +25,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:headerData": [value: HeaderData];
+  "update:chapterHeaderData": [value: HeaderData];
   "update:playAudio": [value: { audioID: number; verseKey?: string }];
   "update:intersectingVerseNumber": [value: number];
 }>();
@@ -61,16 +61,16 @@ watchEffect(async () => {
       <v-tabs-window-item value="translationTab" class="mx-5">
         <chapter-translations-view-component :is-audio-playing="audioPlayer"
           :audio-experience="audioPlayerStore.audioExperience" :css-vars="settingCssVars" :grouped-translations-authors="translationsStore.groupedTranslationsAuthors
-            " :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
-          @update:intersecting-verse-number="
+            " :verse-timing="audioPlayerStore.verseTiming"
+          @update:chapter-header-data="emit('update:chapterHeaderData', $event)" @update:intersecting-verse-number="
             emit('update:intersectingVerseNumber', $event)
             " @update:play-audio="emit('update:playAudio', $event)">
         </chapter-translations-view-component>
       </v-tabs-window-item>
       <v-tabs-window-item value="readingTab">
         <chapter-reading-view-component :is-audio-playing="audioPlayer" :css-vars="settingCssVars"
-          :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
-          @update:intersecting-verse-number="
+          :verse-timing="audioPlayerStore.verseTiming"
+          @update:chapter-header-data="emit('update:chapterHeaderData', $event)" @update:intersecting-verse-number="
             emit('update:intersectingVerseNumber', $event)
             " @update:play-audio="emit('update:playAudio', $event)">
         </chapter-reading-view-component>
@@ -90,5 +90,4 @@ watchEffect(async () => {
 
 // .loading {
 //   height: settings.$skeleton-loader-text-height;
-// }
-</style>
+// }</style>

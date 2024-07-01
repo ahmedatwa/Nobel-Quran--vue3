@@ -22,7 +22,7 @@ const chapterAudioId = computed(() => {
 })
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
-    "update:headerData": [value: HeaderData]
+    "update:chapterHeaderData": [value: HeaderData]
     "update:intersectingVerseNumber": [value: number]
 }>()
 
@@ -58,15 +58,15 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     if (intersecting) {
         // emit header data
         headerData.value = {
-            left: chapterStore.selectedChapter?.nameSimple + "," + chapterStore.selectedChapter?.nameArabic,
+            left: entries[0].target.dataset.chapterID,
             right: {
-                pageNumber: chapterStore.selectedChapter?.pagination ? chapterStore.selectedChapter.pagination.current_page : 1,
+                pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
                 juzNumber: entries[0].target.dataset.juzNumber,
             }
         }
 
-        emit('update:headerData', headerData.value)
+        emit('update:chapterHeaderData', headerData.value)
 
         if (entries[0].intersectionRatio === 1) {
             intersectingVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
@@ -105,8 +105,8 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
                             <v-col v-for="(verses, k) in mapVersesByPage" :key="k" class="quran-content" cols="12">
                                 <v-sheet v-for="verse in verses" :key="verse.id" :id="verse.verse_number"
                                     class="word-wrapper" :data-hizb-number="verse.hizb_number"
-                                    :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"
-                                    v-intersect.quite="{
+                                    :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
+                                    :data-verse-number="verse.verse_number" v-intersect.quite="{
                                         handler: onIntersect,
                                         options: {
                                             threshold: [0, 0.5, 1.0]
@@ -114,7 +114,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
                                     }">
                                     <span v-for="word in verse.words" :key="word.id" class="item"
                                         :id="`verse-word${verse.verse_key}`" :data-hizb-number="verse.hizb_number"
-                                        :data-juz-number="verse.juz_number">
+                                        :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id">
                                         <p :class="isWordHighlighted(word.position, word.verse_key) ? 'text-blue' : ''">
                                             {{ word.text_uthmani }}
                                         </p>

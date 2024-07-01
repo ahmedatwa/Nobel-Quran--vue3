@@ -31,7 +31,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
-    "update:headerData": [value: HeaderData]
+    "update:juzHeaderData": [value: HeaderData]
     "update:intersectingJuzVerseNumber": [value: number]
     "update:activejuz_number": [value: number]
 }>()
@@ -43,7 +43,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     if (intersecting) {
         // emit header data
         headerData.value = {
-            left: getChapterName(entries[0].target.dataset.chapterId)?.en,
+            left: entries[0].target.dataset.chapterId,
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
@@ -51,7 +51,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             }
         }
 
-        emit('update:headerData', headerData.value)
+        emit('update:juzHeaderData', headerData.value)
 
         if (entries[0].intersectionRatio === 1) {
             intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
@@ -82,19 +82,21 @@ watchEffect(async () => {
     if (props.verseTiming.verseKey) {
         if (props.audioExperience.autoScroll) {
             const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)
-            headerData.value = {
-                left: getChapterName(el?.getAttribute("data-chapter-id") || '')?.en,
-                right: {
-                    pageNumber: el?.getAttribute("data-page-number") || 0,
-                    hizbNumber: el?.getAttribute("data-hizb-number") || 0,
-                    juzNumber: el?.getAttribute("data-juz-number") || 0,
+            if (el) {
+                headerData.value = {
+                    left: el.getAttribute("data-chapter-id"),
+                    right: {
+                        pageNumber: el.getAttribute("data-page-number"),
+                        hizbNumber: el.getAttribute("data-hizb-number"),
+                        juzNumber: el.getAttribute("data-juz-number"),
+                    }
                 }
+                // emit header Data
+                emit('update:juzHeaderData', headerData.value)
+                // Scroll into View
+                // Verse Column
+                el?.scrollIntoView({ behavior: "smooth", block: "center" })
             }
-            // emit header Data
-            emit('update:headerData', headerData.value)
-            // Scroll into View
-            // Verse Column
-            el?.scrollIntoView({ behavior: "smooth", block: "center" })
         }
     }
 })

@@ -82,9 +82,7 @@ const mouseEnter = async (juz_number: number) => {
  * duplicate verses will be handeled by the chapter store
 */
 watchEffect(async () => {
-    if (props.intersectingJuzVerseNumber) {
-        console.log(props.intersectingJuzVerseNumber);
-        
+    if (props.intersectingJuzVerseNumber) {        
         selectedVerseID.value = props.intersectingJuzVerseNumber
         if (juzStore.selectedJuz) {
             // return if end of verses count

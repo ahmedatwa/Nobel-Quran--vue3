@@ -16,7 +16,9 @@ const pageStore = usePageStore();
 const _theme = useTheme();
 const selectedLanguage = ref("");
 const settingsDrawer = ref(false);
-const headerData = ref<HeaderData | null>(null);
+const chapterHeaderData = ref<HeaderData | null>(null);
+const juzHeaderData = ref<HeaderData | null>(null);
+const pageHeaderData = ref<HeaderData | null>(null);
 const selected = ref<Chapter | Juz | Pages | null>(null);
 const tab = ref("surah");
 const isLoading = ref(false);
@@ -69,33 +71,20 @@ const destroy = () => {
 <template>
   <v-app>
     <v-overlay :model-value="isLoading" class="align-center justify-center">
-      <v-progress-circular
-        color="primary"
-        size="64"
-        indeterminate
-      ></v-progress-circular>
+      <v-progress-circular color="primary" size="64" indeterminate></v-progress-circular>
     </v-overlay>
     <v-locale-provider :rtl="$tr.rtl.value">
-      <header-component
-        :header-data="headerData"
-        @update:settings-drawer="settingsDrawer = $event"
-        @update:selected-language="selectedLanguage = $event"
-        @update-home="destroy"
-      >
+      <header-component :chapter-header-data="chapterHeaderData" :page-header-data="pageHeaderData"
+        :juz-header-data="juzHeaderData" @update:settings-drawer="settingsDrawer = $event"
+        @update:selected-language="selectedLanguage = $event" @update-home="destroy">
       </header-component>
       <v-main style="overflow-x: hidden">
-        <quran-component
-          :selected="tab"
-          v-if="selected"
-          @update:header-data="headerData = $event"
-          @update:navigation-drawer="modelNav = $event"
-        ></quran-component>
-        <quran-home-component
-          v-model:model-value="tab"
-          @update-selected="selected = $event"
-          @update:is-loading="isLoading = $event"
-          v-else
-        ></quran-home-component>
+        <quran-component :selected="tab" v-if="selected" @update:chapter-header-data="chapterHeaderData = $event"
+          @update:navigation-drawer="modelNav = $event" @update:juz-header-data="juzHeaderData = $event"
+          @update:page-header-data="pageHeaderData = $event"></quran-component>
+
+        <quran-home-component v-model:model-value="tab" @update-selected="selected = $event"
+          @update:is-loading="isLoading = $event" v-else></quran-home-component>
         <footer-component></footer-component>
       </v-main>
     </v-locale-provider>
