@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
+// stores
 import { useAudioPlayerStore } from "@/stores";
-import { AudioPlayerMenuComponent } from "@/components"
+// components
+import { AudioPlayerMenuComponent } from "@/components/audio"
 
 const audioPlayerStore = useAudioPlayerStore()
 

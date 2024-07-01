@@ -1,86 +1,120 @@
 <script setup lang="ts">
-import { ref, watchEffect, inject, computed, provide, onBeforeMount } from "vue";
-import { TranslationListComponent, AudioPlayerComponent, PagesComponent } from "@/components";
-import { NavigationComponent, JuzsComponent, ChaptersComponent } from "@/components";
-import { useTranslationsStore, useSettingStore, useAudioPlayerStore } from "@/stores";
-import type { HeaderData } from '@/types';
+import { ref, watchEffect, inject, watch } from "vue";
+import { computed, provide, onBeforeMount } from "vue";
+// components
+import { AudioPlayerComponent } from "@/components/audio";
+import { PagesComponent } from "@/components/pages";
+import { TranslationListComponent } from "@/components/translations";
+import { JuzsComponent } from "@/components/juzs";
+import { ChaptersComponent } from "@/components/chapters";
+import { NavigationComponent } from "@/components/common";
+// stores
+import {
+  useTranslationsStore,
+  useSettingStore,
+  useAudioPlayerStore,
+} from "@/stores";
+// types
+import type { HeaderData } from "@/types";
+// utils
 import { getStorage } from "@/utils/storage";
 
 // Stores
-const translationsStore = useTranslationsStore()
-const settingStore = useSettingStore()
-const audioPlayerStore = useAudioPlayerStore()
+const translationsStore = useTranslationsStore();
+const settingStore = useSettingStore();
+const audioPlayerStore = useAudioPlayerStore();
 
-const translationDrawer = ref(false)
-provide("translationDrawer", translationDrawer)
-const navigationDrawer = inject<boolean>("modelNav")
+const translationDrawer = ref(false);
+provide("translationDrawer", translationDrawer);
+const navigationDrawer = inject<boolean>("modelNav");
 
 // Refs
-const selectedTab = ref("")
-const selectedPage = ref(1)
-const intersectingVerseNumber = ref<number>()
-const audioPlayerModelValue = ref(false)
-const selectedVerseKeyView = ref("")
-const audioPlayer = ref<{ audioID: number, verseKey?: string, isPlaying?: boolean, format?: string } | null>(null)
+const selectedTab = ref("");
+const selectedPage = ref(1);
+const intersectingVerseNumber = ref<number>();
+const intersectingJuzVerseNumber = ref<number>();
+const audioPlayerModelValue = ref(false);
+const selectedVerseKeyView = ref("");
+const activeJuzNumber = ref<number>();
+const audioPlayer = ref<{
+  audioID: number;
+  verseKey?: string;
+  isPlaying?: boolean;
+  format?: string;
+} | null>(null);
 
 const props = defineProps<{
-  selected: string
-}>()
+  selected: string;
+}>();
 
-defineEmits<{
-  "update:headerData": [value: HeaderData]
-}>()
+const emit = defineEmits<{
+  "update:headerData": [value: HeaderData];
+  "update:navigationDrawer": [value: boolean];
+}>();
 
-const playAudio = (event: { audioID: number, verseKey?: string }) => {
-  audioPlayerStore.getAudio({ ...event })
-  audioPlayer.value = { ...event }
-  audioPlayerModelValue.value = true
-}
+const playAudio = (event: { audioID: number; verseKey?: string }) => {
+  audioPlayerStore.getAudio({ ...event });
+  audioPlayer.value = { ...event };
+  audioPlayerModelValue.value = true;
+};
 
 watchEffect(() => {
   if (props.selected) {
-    selectedTab.value = props.selected
+    selectedTab.value = props.selected;
   }
-})
+});
 
+watch(
+  () => audioPlayer.value?.isPlaying,
+  (newV) => {
+    emit("update:navigationDrawer", !newV);
+  }
+);
 // Front Styles
 const settingCssVars = computed(() => {
   if (settingStore.cssVars) {
     return {
-      size: settingStore.cssVars?.quranFrontSize ? "var(--quran-font-size-" + settingStore.cssVars.quranFrontSize + ")" : "var(--quran-font-size-3)",
-      family: settingStore.cssVars?.quranFontFamily ? "var(--quran-reader-font-family-" + settingStore.cssVars.quranFontFamily + ")" : "var(--quran-reader-font-family-indoPak)"
-    }
+      size: settingStore.cssVars?.quranFrontSize
+        ? "var(--quran-font-size-" + settingStore.cssVars.quranFrontSize + ")"
+        : "var(--quran-font-size-3)",
+      family: settingStore.cssVars?.quranFontFamily
+        ? "var(--quran-reader-font-family-" +
+        settingStore.cssVars.quranFontFamily +
+        ")"
+        : "var(--quran-reader-font-family-indoPak)",
+    };
   }
-})
+});
 
 // update Selected Translations
 const updateTranslations = ($event: number[]) => {
-  translationsStore.selectedTranslationIds = $event
-}
+  translationsStore.selectedTranslationIds = $event;
+};
 
 onBeforeMount(() => {
-  const tab = getStorage("tab")
-  if (tab) selectedTab.value = tab
-})
-
+  const tab = getStorage("tab");
+  if (tab) selectedTab.value = tab;
+});
 </script>
 <template>
   <navigation-component v-model:model-nav="navigationDrawer" :selected="selected"
-    @update:selected-tab="selectedTab = $event" :intersecting-verse-number=intersectingVerseNumber
-    @update:selected-page="selectedPage = $event"
+    @update:selected-tab="selectedTab = $event" :intersecting-verse-number="intersectingVerseNumber" :intersecting-juz-verse-number="intersectingJuzVerseNumber"
+    @update:selected-page="selectedPage = $event" :active-juz-number="activeJuzNumber"
     @update:selected-verse-key-view="selectedVerseKeyView = $event"></navigation-component>
-
+  <!-- Juz -->
   <juzs-component :selected="selectedTab === 'juz'" :selected-tab="selectedTab" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:translation-drawer="translationDrawer = $event"
-    @update:intersecting-verse-number="intersectingVerseNumber = $event" :selected-verse-key-View="selectedVerseKeyView"
-    @update:play-audio="playAudio" @update:header-data="$emit('update:headerData', $event)"></juzs-component>
-
+    @update:intersecting-juz-verse-number="intersectingJuzVerseNumber = $event"
+    :selected-verse-key-View="selectedVerseKeyView" @update:play-audio="playAudio"
+    @update:header-data="$emit('update:headerData', $event)"
+    @update:active-juz-number="activeJuzNumber = $event"></juzs-component>
+  <!-- Chapters -->
   <chapters-component :selected="selectedTab === 'surah'" :audio-player="audioPlayer" :selected-tab="selectedTab"
     :selected-verse-key-View="selectedVerseKeyView" :setting-css-vars="settingCssVars"
     @update:intersecting-verse-number="intersectingVerseNumber = $event"
     @update:header-data="$emit('update:headerData', $event)" @update:play-audio="playAudio">
   </chapters-component>
-
+  <!-- Pages -->
   <pages-component :selected="selectedTab === 'page'" :selected-page="selectedPage" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:verse-id="intersectingVerseNumber = $event"
     @update:translation-drawer="translationDrawer = $event" @update:header-data="$emit('update:headerData', $event)"

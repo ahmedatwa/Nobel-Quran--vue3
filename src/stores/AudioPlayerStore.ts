@@ -1,14 +1,16 @@
 import { defineStore } from "pinia";
 import { ref, onMounted, computed } from "vue";
-import { useSurahStore } from "@/stores";
+// stores
+import { useChapterStore } from "@/stores";
+//axios
 import { instance } from "@/axios";
-import { useMemoize } from "@vueuse/core";
-import type { AudioFiles, Recitations, mapRecitions } from "@/types";
+// types
+import type { AudioFile, Recitations, mapRecitions } from "@/types/audio";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
-  const surahStore = useSurahStore();
+  const chapterStore = useChapterStore();
   const isLoading = ref(false);
-  const audioFiles = ref<AudioFiles | null>(null);
+  const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
   const chapterId = ref<number>(0);
   const selectedVerseKey = ref<string | undefined>("");
@@ -57,37 +59,37 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
 
   const chapterName = computed(() => {
     if (audioFiles.value) {
-      const found = surahStore.surahList?.find((s) => s.id === chapterId.value);
-      if (found) return found.name_simple;
+      const found = chapterStore.chaptersList?.find(
+        (s) => s.id === chapterId.value
+      );
+      if (found) return found.nameSimple;
     }
   });
 
-  const getAudio = useMemoize(
-    async (payload: { audioID: number; verseKey?: string }) => {
-      //https://api.qurancdn.com/api/qdc/audio/reciters/9/audio_files?chapter=1&segments=true
-      // if (payload.audioID === chapterId.value) return;
-      chapterId.value = payload.audioID;
-      selectedVerseKey.value = payload.verseKey;
-      console.log("audioID", payload.audioID);
+  const getAudio = async (payload: { audioID: number; verseKey?: string }) => {
+    //https://api.qurancdn.com/api/qdc/audio/reciters/9/audio_files?chapter=1&segments=true
+    // if (payload.audioID === chapterId.value) return;
+    chapterId.value = payload.audioID;
+    selectedVerseKey.value = payload.verseKey;
+    console.log("audioID", payload.audioID);
 
-      isLoading.value = true;
-      await instance
-        .get(
-          `https://api.qurancdn.com/api/qdc/audio/reciters/${selectedReciter.value.id}/audio_files?chapter=${payload.audioID}&segments=true`
-        )
-        .then((response) => {
-          audioFiles.value = response.data.audio_files[0];
-        })
-        .catch((e) => {
-          throw e;
-        })
-        .finally(() => {
-          isLoading.value = false;
-        });
-    }
-  );
+    isLoading.value = true;
+    await instance
+      .get(
+        `https://api.qurancdn.com/api/qdc/audio/reciters/${selectedReciter.value.id}/audio_files?chapter=${payload.audioID}&segments=true`
+      )
+      .then((response) => {
+        audioFiles.value = response.data.audio_files[0];
+      })
+      .catch((e) => {
+        throw e;
+      })
+      .finally(() => {
+        isLoading.value = false;
+      });
+  };
 
-  const getRecitations = useMemoize(async () => {
+  const getRecitations = async () => {
     // https://api.qurancdn.com/api/qdc/audio/reciters?locale=en
     await instance
       .get("https://api.qurancdn.com/api/qdc/audio/reciters?locale=en")
@@ -97,7 +99,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
       .catch((e) => {
         console.log(e);
       });
-  });
+  };
 
   const getRecition = (reciter: Recitations) => {
     selectedReciter.value = reciter;

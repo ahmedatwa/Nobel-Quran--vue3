@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watchEffect } from "vue"
+import { ref, computed, onMounted } from "vue"
 import { useMemoize } from "@vueuse/core"
 import { instance } from "@/axios";
+// types
 import type { Tafsirs, Verse } from "@/types"
 import axios from "axios";
 

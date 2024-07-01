@@ -1,29 +1,40 @@
 import { defineStore } from "pinia";
 import { ref, computed, onMounted, watch } from "vue";
+// stores
 import { useTranslationsStore } from "@/stores";
+// axios
 import { instance } from "@/axios";
-import type { Chapter, Verse, ChapterInfo } from "@/types";
 
-export const useSurahStore = defineStore("chapter-store", () => {
+// types
+import type {
+  Chapter,
+  ChapterInfo,
+  Loading,
+  ChapterSchema,
+} from "@/types/chapter";
+import type { Verse } from "@/types/verse";
+
+export const useChapterStore = defineStore("chapter-store", () => {
   const translationsStore = useTranslationsStore();
-  const isLoading = ref({
+  const isLoading = ref<Loading>({
     chapters: false,
     verses: false,
     info: false,
+    length: 0,
   });
-  const surahList = ref<Chapter[]>([]);
+  const chaptersList = ref<Chapter[]>([]);
   const currentSortDir = ref("asc");
   const currentSort = ref("id");
   const searchValue = ref("");
-  const selectedSurah = ref<Chapter | null>(null);
-  const surahInfo = ref<ChapterInfo | null>(null);
+  const selectedChapter = ref<Chapter | null>(null);
+  const chapterInfo = ref<ChapterInfo | null>(null);
   const perPage = ref(10);
 
-  const surahs = computed((): Chapter[] | undefined => {
-    if (surahList.value) {
-      const searchableKeys = ["name_simple", "name_arabic"];
-      return surahList.value
-        .filter((chapter: { name_simple: string; name_arabic: string }) => {
+  const chapters = computed((): Chapter[] | undefined => {
+    if (chaptersList.value) {
+      const searchableKeys = ["nameSimple", "nameArabic"];
+      return chaptersList.value
+        .filter((chapter: { nameSimple: string; nameArabic: string }) => {
           return searchableKeys.some((key) => {
             return chapter[key as keyof typeof chapter]
               .toLocaleLowerCase()
@@ -48,9 +59,21 @@ export const useSurahStore = defineStore("chapter-store", () => {
     await instance
       .get("/chapters")
       .then((response) => {
-        response.data.chapters.forEach((c: Chapter) => {
-          surahList.value?.push({
-            ...c,
+        response.data.chapters.forEach((chapter: ChapterSchema) => {
+          chaptersList.value?.push({
+            id: chapter.id,
+            revelationPlace: chapter.revelation_place,
+            revelationOrder: chapter.revelation_order,
+            bismillahPre: chapter.bismillah_pre,
+            nameSimple: chapter.name_simple,
+            nameComplex: chapter.name_complex,
+            nameArabic: chapter.name_arabic,
+            versesCount: chapter.verses_count,
+            pages: chapter.pages,
+            translatedName: {
+              name: chapter.translated_name.name,
+              languageName: chapter.translated_name.language_name,
+            },
             verses: [],
             pagination: null,
             chapterInfo: null,
@@ -72,37 +95,32 @@ export const useSurahStore = defineStore("chapter-store", () => {
     page?: number,
     limit?: number
   ) => {
+    if (!id) return;
+
     isLoading.value.verses = loading;
     page = page ? page : 1;
     limit = limit ? limit : perPage.value;
-
+    isLoading.value.length = perPage.value;
     await instance
       .get(
-        `/verses/by_chapter/${id}?translations=${translationsStore.selectedTranslationsIdsString}&words=true&translation_fields=id,language_id,resource_id,resource_name,text,verse_key,verse_number&page=${page}&per_page=${limit}&fields=text_uthmani,chapter_id,hizb_number,text_imlaei_simple&word_fields=verse_key,verse_id,verse_number,page_number,location,text_uthmani,code_v1,qpc_uthmani_hafs`
+        `/verses/by_chapter/${id}?translations=${translationsStore.selectedTranslationsIdsString}&words=true&translation_fields=id,language_id,resource_id,resource_name,text,verse_key,verse_number&page=${page}&per_page=${limit}&fields=text_uthmani,text_uthmani_simple,text_imlaei,text_imlaei_simple,text_indopak,juz_number,hizb_number,sajdah_type,page_number,text_uthmani_tajweed&word_fields=position,text_uthmani,text_indopak,text_imlaei,verse_key,page_number,line_number,location,char_type_name,code_v1,code_v2`
       )
       .then((response) => {
-        const chapter = surahList.value.find((s) => s.id === id);
+        const chapter = chaptersList.value.find((s) => s.id === id);
         if (chapter) {
           response.data.verses.forEach((verse: Verse) => {
-            const isVerseFound = chapter.verses.find(
-              (v) => v.verse_key === verse.verse_key
-            );
+            const isVerseFound = chapter.verses?.find((v) => v.id === id);
             if (!isVerseFound) {
-              chapter.verses.push({ ...verse, bookmarked: false });
+              chapter.verses?.push({ ...verse, bookmarked: false });
+              if (selectedChapter.value?.id === chapter.id) {
+                selectedChapter.value.verses?.push({
+                  ...verse,
+                  bookmarked: false,
+                });
+              }
             }
           });
         }
-
-        // pagination
-          // if (selectedSurah.value) {
-          //   const pagination = response.data.pagination;
-          //   const totalRecordsFetched =
-          //     pagination.total_records - selectedSurah.value?.verses.length;
-          //   selectedSurah.value.pagination = {
-          //     ...pagination,
-          //     totalRecordsFetched,
-          //   };
-          // }
       })
       .catch((e) => {
         console.log(e);
@@ -113,24 +131,28 @@ export const useSurahStore = defineStore("chapter-store", () => {
   };
 
   const getVerseByKey = async (id: number, verseKey: string) => {
-    if(!verseKey) return 
-    
+    if (!verseKey || !id) return;
+
     isLoading.value.verses = true;
+    isLoading.value.length = 1;
     await instance
       .get(
         `/verses/by_key/${verseKey}?translations=${translationsStore.selectedTranslationsIdsString}&words=true&translation_fields=id,language_id,resource_id,resource_name,text,verse_key,verse_number&fields=text_uthmani,chapter_id,hizb_number,text_imlaei_simple&word_fields=verse_key,verse_id,verse_number,page_number,location,text_uthmani,code_v1,qpc_uthmani_hafs`
       )
       .then((response) => {
-        const chapter = surahList.value.find((s) => s.id === id);
+        const chapter = chaptersList.value.find((s) => s.id === id);
         if (chapter) {
-          const isVerseFound = chapter.verses.find(
+          const isVerseFound = chapter.verses?.find(
             (v) => v.verse_key === verseKey
           );
           if (!isVerseFound) {
-            chapter.verses.push({
-              ...response.data.verse,
-              bookmarked: false,
-            });
+            chapter.verses?.push({ ...response.data.verse, bookmarked: false });
+            if (selectedChapter.value?.id === chapter.id) {
+              selectedChapter.value.verses?.push({
+                ...response.data.verse,
+                bookmarked: false,
+              });
+            }
           }
         }
       })
@@ -138,15 +160,17 @@ export const useSurahStore = defineStore("chapter-store", () => {
         console.log(e);
       })
       .finally(() => {
-        isLoading.value.verses = false;
+       // isLoading.value.verses = false;
       });
   };
 
   onMounted(async () => {
-    if (!surahList.value.length) await getChapters();
+    if (!chaptersList.value.length) {
+      await getChapters();
+    }
   });
 
-  const getSurahInfo = async (id: number) => {
+  const getchapterInfo = async (id: number) => {
     return await instance.get(`/chapters/${id}/info`);
   };
 
@@ -162,8 +186,9 @@ export const useSurahStore = defineStore("chapter-store", () => {
     () => translationsStore.selectedTranslationsIdsString,
     async (resources) => {
       if (resources) {
-        if (selectedSurah.value) {
-          await getVerses(selectedSurah.value?.id, true, 1);
+        if (selectedChapter.value) {
+          selectedChapter.value.verses = [];
+          await getVerses(selectedChapter.value?.id, true, 1);
         }
       }
     }
@@ -171,56 +196,38 @@ export const useSurahStore = defineStore("chapter-store", () => {
 
   const getChapterName = (id: number | string) => {
     if (typeof id === "string") id = parseInt(id);
-    if (surahs.value) {
-      const found = surahs.value.find((c) => c.id === id);
+    if (chaptersList.value) {
+      const found = chaptersList.value.find((c) => c.id === id);
       if (found) {
         return {
-          ar: found.name_arabic,
-          en: found.name_simple,
-          bismillah: found.bismillah_pre,
+          ar: found.nameArabic,
+          en: found.nameSimple,
+          bismillah: found.bismillahPre,
         };
       }
     }
   };
 
-  /**
-   * Given list of verses, get all the first and the last verseKeys
-   *
-   * @param {Record<string, Verse>} verses
-   * @returns {string[]} [firstVerseKey, lastVerseKey]
-   */
-
-  const getFirstAndLastVerseKeys = (
-    verses: Record<string, Verse>
-  ): string[] => {
-    const verseKeys = Object.keys(verses).sort();
-    return [verseKeys[0], verseKeys[verseKeys.length - 1]];
-  };
-
-  const isVerseKeyWithinRanges = (verseKey: string, range?: string[]) => {
-    if (range) return range.includes(verseKey);
-  };
-
   const versesKeyMap = computed(() => {
-    return selectedSurah.value?.verses.map((v) => v.verse_key);
+    if (selectedChapter.value) {
+      return selectedChapter.value.verses?.map((v) => v.verse_key);
+    }
   });
 
   return {
-    surahs,
+    chapters,
     searchValue,
-    selectedSurah,
+    selectedChapter,
     isLoading,
     currentSort,
     currentSortDir,
-    surahInfo,
-    surahList,
-    getChapterName,
+    chapterInfo,
+    chaptersList,
     versesKeyMap,
-    getSurahInfo,
+    getChapterName,
+    getchapterInfo,
     getVerses,
     getVerseByKey,
-    getFirstAndLastVerseKeys,
-    isVerseKeyWithinRanges,
     sort,
     getChapters,
   };

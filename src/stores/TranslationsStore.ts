@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { ref, computed, onBeforeMount, watch } from "vue";
-import { useMemoize } from "@vueuse/core";
 import { instance } from "@/axios";
 // types
 import { Translation, TranslationReduceMap } from "@/types";
@@ -11,7 +10,7 @@ export const useTranslationsStore = defineStore("translations-store", () => {
   const selectedTranslationIds = ref<number[]>([131]);
   const selectedTranslations = ref<Translation[]>([]);
 
-  const getTranslations = useMemoize(async () => {
+  const getTranslations = async () => {
     // Get List of Translators
     isLoading.value = true;
     await instance
@@ -25,7 +24,7 @@ export const useTranslationsStore = defineStore("translations-store", () => {
       .finally(() => {
         isLoading.value = false;
       });
-  });
+  }
 
   // const getSingleTranslation = async (
   //   translationId: number,

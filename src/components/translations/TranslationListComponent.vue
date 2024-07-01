@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, inject } from "vue"
+// stores
 import { useTranslationsStore } from "@/stores/TranslationsStore";
 
 const translationsStore = useTranslationsStore()
@@ -20,7 +21,7 @@ watch(selectedTranslationIds, (selected) => {
 </script>
 
 <template>
-    <v-navigation-drawer location="right" v-model="translationDrawer"
+    <v-navigation-drawer location="right" v-model="translationDrawer" disable-resize-watcher
         @update:model-value="translationDrawer =  $event">
         <div class="d-flex ma-2">
             <v-sheet class="me-auto my-auto text-h6">{{ $tr.line('translationNav.Translations') }}</v-sheet>

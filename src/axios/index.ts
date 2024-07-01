@@ -1,12 +1,18 @@
 import axios from "axios";
 
 
+export const localInstance = axios.create({
+  baseURL: "http://localhost:3000",
+  headers: {
+   "Accept": "application/json"
+  },
+});
+
 export const instance = axios.create({
   baseURL: "https://api.quran.com/api/v4",
   headers: {
    "Accept": "application/json"
   },
-  
 });
 
 instance.interceptors.request.use(

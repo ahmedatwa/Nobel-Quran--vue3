@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+// stores
 import { useChapterStore } from "@/stores";
+// components
 import { TitleButtonsComponent } from "@/components/quran"
+// types
 import type { HeaderData } from "@/types"
 
 
@@ -9,14 +12,10 @@ const chapterStore = useChapterStore()
 const isIntersecting = ref(false)
 const headerData = ref<HeaderData | null>(null);
 const intersectingVerseNumber = ref<number>()
-const verses = computed(() => {
-    if (chapterStore.selectedChapter) {
-        return chapterStore.selectedChapter.verses?.sort((a, b) => a.verse_number - b.verse_number)
-    }
-})
+const verses = computed(() => chapterStore.selectedSurah?.verses.sort((a, b) => a.verse_number - b.verse_number))
 const chapterAudioId = computed(() => {
-    if (chapterStore.selectedChapter) {
-        return chapterStore.selectedChapter?.id
+    if (chapterStore.selectedSurah) {
+        return chapterStore.selectedSurah?.id
     }
     return 0
 })
@@ -58,9 +57,9 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     if (intersecting) {
         // emit header data
         headerData.value = {
-            left: chapterStore.selectedChapter?.nameSimple + "," + chapterStore.selectedChapter?.nameArabic,
+            left: chapterStore.selectedSurah?.name_simple + "," + chapterStore.selectedSurah?.name_arabic,
             right: {
-                pageNumber: chapterStore.selectedChapter?.pagination ? chapterStore.selectedChapter.pagination.current_page : 1,
+                pageNumber: chapterStore.selectedSurah?.pagination ? chapterStore.selectedSurah.pagination.current_page : 1,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
                 juzNumber: entries[0].target.dataset.juzNumber,
             }
@@ -91,11 +90,11 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             <v-divider></v-divider>
             <v-card class="card" width="600" flat>
                 <template #title>
-                    <v-sheet class="quran-content-title">{{ $tr.rtl ? chapterStore.selectedChapter?.nameArabic :
-                        chapterStore.selectedChapter?.nameSimple }}</v-sheet>
+                    <v-sheet class="quran-content-title">{{ $tr.rtl ? chapterStore.selectedSurah?.name_arabic :
+                        chapterStore.selectedSurah?.name_simple }}</v-sheet>
                 </template>
                 <template #subtitle>
-                    <v-sheet class="quran-content-title my-3"> {{ chapterStore.selectedChapter?.bismillahPre ?
+                    <v-sheet class="quran-content-title my-3"> {{ chapterStore.selectedSurah?.bismillah_pre ?
                         $tr.line('quranReader.textBismillah') : '' }}
                     </v-sheet>
                 </template>

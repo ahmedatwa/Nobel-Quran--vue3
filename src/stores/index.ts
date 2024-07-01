@@ -1,5 +1,5 @@
 import { useAudioPlayerStore } from "./AudioPlayerStore";
-import { useSurahStore } from "./SurahStore";
+import { useChapterStore } from "./ChapterStore";
 import { useTranslationsStore } from "./TranslationsStore";
 import { useJuzStore } from "./JuzStore";
 import { useSettingStore } from "./SettingStore";
@@ -7,7 +7,7 @@ import { usePageStore } from "./PageStore";
 
 export {
   useAudioPlayerStore,
-  useSurahStore,
+  useChapterStore,
   useTranslationsStore,
   useJuzStore,
   useSettingStore,

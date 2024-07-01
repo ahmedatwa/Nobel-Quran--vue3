@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { watchEffect } from 'vue';
-import { Recitations } from '@/types';
+// axios
 import { instance } from '@/axios';
+// utils
 import { updateStorageItem } from '@/utils/storage';
+// types
+import type { Recitations } from '@/types';
 
 const emit = defineEmits<{
     "update:modelValue": [value: boolean]

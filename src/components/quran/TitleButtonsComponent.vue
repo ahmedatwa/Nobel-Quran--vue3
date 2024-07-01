@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { ChapterInfoComponent } from '@/components';
+// components
+import { ChapterInfoComponent } from '@/components/quran';
+// types
 import type { ChapterInfo } from '@/types';
 
 const infoDialog = ref(false)

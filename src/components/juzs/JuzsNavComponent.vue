@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { onBeforeMount, ref, watchEffect } from "vue"
+// utils
 import { getStorage, setStorage } from "@/utils/storage"
+// stores
 import { useJuzStore } from "@/stores";
-import type { Juz } from "@/types"
+// types
+import type { Juz } from "@/types/juz"
 
 // Stores
 const juzStore = useJuzStore()
@@ -14,22 +17,29 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps<{
-    intersectingVerseNumber?: number
+    intersectingJuzVerseNumber?: number
+    activejuz_number?: number
 }>()
 
 onBeforeMount(async () => {
-    const storage = getStorage("juz", sessionStorage)
+    const storage = getStorage("juz")
 
     if (storage) {
         juzStore.selectedJuz = storage.data
         selectedId.value = storage.data.id
-    } else {
-        if (!juzStore.selectedJuz) {
+        if (!juzStore.selectedJuz?.verses) {
             juzStore.selectedJuz = juzStore.juzList[1]
             await juzStore.getVerses(1, true)
-
         }
+    } else {
+        if (!juzStore.selectedJuz?.verses?.length) {
+            juzStore.selectedJuz = juzStore.juzList[1]
+            await juzStore.getVerses(1, true)
+        }
+        juzStore.selectedJuz = juzStore.juzList[0]
+        selectedId.value = 1
     }
+
 })
 
 watchEffect(() => {
@@ -37,8 +47,8 @@ watchEffect(() => {
         const el = document.getElementById(`juz${selectedId.value}`)
         if (el) {
             setTimeout(() => {
-                el.scrollIntoView(true) 
-            }, 800);
+                el.scrollIntoView(true)
+            }, 600);
         }
     }
 })
@@ -46,12 +56,7 @@ watchEffect(() => {
 const getSelected = async (juz: Juz) => {
     juzStore.selectedJuz = juz
     selectedId.value = juz.id
-    if (!juzStore.selectedJuz.verses?.length) {
-        await juzStore.getVerses(juz.id, true)
-    } else {
-        return
-    }
-    setStorage("juz", { data: juz }, sessionStorage)
+    setStorage("juz", { data: juz })
 }
 
 /**
@@ -59,8 +64,13 @@ const getSelected = async (juz: Juz) => {
  * given by verses length 
  * or fetch the chapter which help to minimize api calls
  */
-const mouseEnter = async (juzNumber: number) => {
-    await juzStore.getVerses(juzNumber, false)
+const mouseEnter = async (juz_number: number) => {
+    const found = juzStore.juzList.find((j) => j.juz_number === juz_number)
+    if (found) {
+        if (!found.verses?.length) {
+            await juzStore.getVerses(juz_number, false)
+        }
+    }
 }
 
 /**
@@ -72,11 +82,38 @@ const mouseEnter = async (juzNumber: number) => {
  * duplicate verses will be handeled by the chapter store
 */
 watchEffect(async () => {
-    if (props.intersectingVerseNumber) {
-        selectedVerseID.value = props.intersectingVerseNumber
-        if (juzStore.selectedJuz?.pagination?.next_page) {
-            // await juzStore.getVerses(selectedId.value, true, juzStore.selectedJuz?.pagination?.next_page)
+    if (props.intersectingJuzVerseNumber) {
+        console.log(props.intersectingJuzVerseNumber);
+        
+        selectedVerseID.value = props.intersectingJuzVerseNumber
+        if (juzStore.selectedJuz) {
+            // return if end of verses count
+            if (juzStore.selectedJuz.verses_count === juzStore.selectedJuz.verses?.length) {
+                return
+            }
+
+            if (juzStore.selectedJuz.verses) {
+                if (props.intersectingJuzVerseNumber === juzStore.selectedJuz.verses.length - 3 || 
+                    props.intersectingJuzVerseNumber === juzStore.selectedJuz.verses.length) {
+                    if (juzStore.selectedJuz?.pagination?.next_page) {
+                        await juzStore.getVerses(selectedId.value, true, juzStore.selectedJuz?.pagination?.next_page)
+                    }
+                }
+            }
+
         }
+    }
+})
+
+/**
+ * if Juz has beeen changed with buttons
+ * scroll to the Juz Number 
+ */
+watchEffect(() => {
+    if (props.activejuz_number) {
+        selectedId.value = props.activejuz_number
+        const el = document.querySelector(`#juz${props.activejuz_number}`)
+        if (el) el.scrollIntoView(true)
     }
 })
 
@@ -90,8 +127,8 @@ watchEffect(async () => {
         <v-sheet height="600" style="overflow: scroll; ">
             <v-list class="text-center">
                 <v-list-item v-for="juz in juzStore.juzs" :key="juz.id" @click="getSelected(juz)"
-                    :active="selectedId === juz.juz_number" :title="`Juz ${juz.juz_number}`"
-                    :id="`juz${juz.juz_number}`" @mouseenter="mouseEnter(juz.juz_number)">
+                    :active="selectedId === juz.juz_number" :title="`Juz ${juz.juz_number}`" :id="`juz${juz.juz_number}`"
+                    @mouseenter="mouseEnter(juz.juz_number)">
                 </v-list-item>
             </v-list>
         </v-sheet>

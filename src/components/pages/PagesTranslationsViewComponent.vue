@@ -1,20 +1,28 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, nextTick, computed } from "vue"
+import { ref, inject, watchEffect, computed } from "vue"
 // stores
-import { useJuzStore, useChapterStore } from "@/stores";
+import { useChapterStore } from "@/stores";
 // components
 import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/quran"
-// utils
-import { getFirstVerseNumberInJuz } from "@/utils/verse"
 // types
 import type { HeaderData } from "@/types";
 
-const juzStore = useJuzStore()
-const { getChapterName } = useChapterStore()
+const chapterStore = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<HeaderData | null>(null);
-const intersectingJuzVerseNumber = ref<number>()
+const intersectingVerseNumber = ref<number>()
+const verses = computed(() => {
+    if(chapterStore.selectedSurah?.verses) {
+        return chapterStore.selectedSurah?.verses.sort((a, b) => a.verse_number - b.verse_number)
+    }
+})
+const chapterAudioId = computed(() => {
+    if (chapterStore.selectedSurah) {
+        return chapterStore.selectedSurah?.id
+    }
+    return 0
+})
 
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
@@ -32,8 +40,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
     "update:headerData": [value: HeaderData]
-    "update:intersectingJuzVerseNumber": [value: number]
-    "update:activejuz_number": [value: number]
+    "update:intersectingVerseNumber": [value: number]
 }>()
 
 
@@ -43,28 +50,28 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     if (intersecting) {
         // emit header data
         headerData.value = {
-            left: getChapterName(entries[0].target.dataset.chapterId)?.en,
+            left: chapterStore.selectedSurah?.name_simple + "," + chapterStore.selectedSurah?.name_arabic,
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: entries[0].target.dataset.juz_number,
+                juzNumber: entries[0].target.dataset.juzNumber,
             }
         }
 
         emit('update:headerData', headerData.value)
 
         if (entries[0].intersectionRatio === 1) {
-            intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
+            intersectingVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
             // emit verse id for scroll in verses list 
             // help to fetch new verses 
-            emit('update:intersectingJuzVerseNumber', intersectingJuzVerseNumber.value)
+            emit('update:intersectingVerseNumber', intersectingVerseNumber.value)
 
         }
     }
 }
 
 const setBookmarked = (verseNumber: number) => {
-    juzStore.selectedJuz?.verses?.forEach((v) => {
+    chapterStore.selectedSurah?.verses?.forEach((v) => {
         if (v.verse_number === verseNumber) v.bookmarked = true
         return
     })
@@ -83,7 +90,7 @@ watchEffect(async () => {
         if (props.audioExperience.autoScroll) {
             const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)
             headerData.value = {
-                left: getChapterName(el?.getAttribute("data-chapter-id") || '')?.en,
+                left: chapterStore.selectedSurah?.name_simple + "," + chapterStore.selectedSurah?.name_arabic,
                 right: {
                     pageNumber: el?.getAttribute("data-page-number") || 0,
                     hizbNumber: el?.getAttribute("data-hizb-number") || 0,
@@ -100,99 +107,28 @@ watchEffect(async () => {
 })
 
 
-// Buttons
-const getNextJuz = async () => {
-    if (juzStore.selectedJuz) {
-        const currentJuz = juzStore.selectedJuz.juz_number
-        if (currentJuz) {
-            const next = juzStore.juzList.find((j) => j.juz_number === currentJuz + 1)
-            if (next) {
-                if (!next.verses?.length) {
-                    await juzStore.getVerses(next.juz_number, true)
-                }
-                if (next.verses?.length) {
-                    juzStore.selectedJuz = next
-                }
-            }
-        }
-        emit("update:activejuz_number", juzStore.selectedJuz.juz_number)
-        // scroll to first verese row 
-        const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
-        nextTick(() => {
-            const el = document.querySelector(`#row${rowID}`)
-            if (el) el.scrollIntoView({ behavior: "auto", block: "center" })
-        })
-    }
-}
-
-const getPrevJuz = async () => {
-    if (juzStore.selectedJuz) {
-        const currentJuz = juzStore.selectedJuz.juz_number
-        if (currentJuz) {
-            const prev = juzStore.juzList.find((j) => j.juz_number === currentJuz - 1)
-            if (prev) {
-                if (!prev.verses?.length) {
-                    await juzStore.getVerses(prev.juz_number, true)
-                }
-                if (prev.verses?.length) {
-                    juzStore.selectedJuz = prev
-                }
-            }
-        }
-        emit("update:activejuz_number", juzStore.selectedJuz.juz_number)
-        // scroll to first verese row 
-        const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
-        nextTick(() => {
-            const el = document.querySelector(`#row${rowID}`)
-            if (el) el.scrollIntoView({ behavior: "auto", block: "center" })
-        })
-    }
-}
-
-const getStartOfJuz = () => {
-    if (juzStore.selectedJuz) {
-        const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
-        if (rowID) {
-            const el = document.querySelector(`#row${rowID}`)
-            if (el) el.scrollIntoView({ behavior: "auto", block: "center" })
-        }
-    }
-}
-
-const isNextJuzDisabled = computed(() => {
-    if (juzStore.selectedJuz?.verses) {
-        return juzStore.selectedJuz.verses.length < juzStore.selectedJuz.verses_count
-    }
-})
 </script>
 
 <template>
     <v-container fluid>
-        <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVerseMap" :key="key"
-            :id="`verse-row${key}`">
+        <v-row :align="'center'" justify="center" dense>
             <v-col cols="12">
-                <title-buttons-component :chapter-id="Number(key)"
-                    :grouped-translations-authors="groupedTranslationsAuthors" :is-audio-player="isAudioPlaying"
+                <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors"
+                    :chapter-id="chapterAudioId" :is-audio-player="isAudioPlaying"
                     @update:translations-drawer="translationsDrawer = $event"
                     @update:play-audio="$emit('update:playAudio', $event)">
-                    <template #title>
-                        <v-sheet>{{ getChapterName(key)?.ar }}</v-sheet>
-                        <v-sheet>{{ getChapterName(key)?.bismillah ? $tr.line("quranReader.textBismillah") : ''
-                            }}</v-sheet>
-                    </template>
                 </title-buttons-component>
             </v-col>
-            <v-col cols="12" :id="`verse-col-${key}`">
-                <v-row v-for="verse in verses" :key="verse.verse_number" :data-hizb-number="verse.hizb_number"
-                    :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"
-                    :id="`row${verse.verse_number}`" :data-page-number="verse.page_number"
-                    :data-verse-key="verse.verse_key" :data-chapter-id="verse.chapter_id"
-                    :data-intersecting="isIntersecting" v-intersect.quite="{
-                        handler: onIntersect,
-                        options: {
-                            threshold: [0, 0.5, 1.0]
-                        }
-                    }">
+            <v-col cols="12" class="mb-2" v-for="verse in verses" :key="verse.verse_key"
+                :data-hizb-number="verse.hizb_number" :data-juz-number="verse.juz_number"
+                :data-verse-number="verse.verse_number" :data-verse-key="verse.verse_key"
+                :data-intersecting="isIntersecting" :data-page-number="verse.page_number" v-intersect.quite="{
+                    handler: onIntersect,
+                    options: {
+                        threshold: [0, 0.5, 1.0]
+                    }
+                }">
+                <v-row :id="`verse-row${verse.verse_number}`">
                     <v-col cols="1" class="action-list" :order="$tr.rtl.value ? 2 : 1">
                         <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)"
                             size="small" :is-audio-player="isAudioPlaying" :verse="verse"
@@ -228,23 +164,8 @@ const isNextJuzDisabled = computed(() => {
                             </v-list-item>
                         </v-list>
                     </v-col>
-                    <v-divider class="mb-3"></v-divider>
                 </v-row>
-            </v-col>
-        </v-row>
-        <v-row justify="center" :align="'center'">
-            <!-- Prev -->
-            <v-col cols="12" class="text-center" v-if="juzStore.selectedJuz">
-                <v-btn v-if="juzStore.selectedJuz?.juz_number > 1" prepend-icon="mdi-arrow-left-bottom" class="me-2"
-                    variant="outlined" @click="getPrevJuz">{{
-                        $tr.line('quranReader.prevJuz') }}</v-btn>
-                <!-- up -->
-                <v-btn prepend-icon="mdi-arrow-up-right" variant="outlined" class="me-2" @click="getStartOfJuz">{{
-                    $tr.line('quranReader.startJuz') }}</v-btn>
-                <!-- Next -->
-                <v-btn v-if="juzStore.selectedJuz?.juz_number <= 30" prepend-icon="mdi-arrow-right-bottom" class="me-2"
-                    variant="outlined" @click="getNextJuz" :disabled="isNextJuzDisabled">{{
-                        $tr.line('quranReader.nextJuz') }}</v-btn>
+                <v-divider class="mb-3"></v-divider>
             </v-col>
         </v-row>
     </v-container>

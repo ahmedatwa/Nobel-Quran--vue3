@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue"
-import { ChaptersNavComponent } from "@/components";
-import { PagesNavComponent, JuzsNavComponent } from "@/components";
+// components
+import { ChaptersNavComponent } from "@/components/chapters";
+import { JuzsNavComponent } from "@/components/juzs";
+import { PagesNavComponent } from "@/components/pages";
+// utils
 import { setStorage } from "@/utils/storage";
 
 const tab = ref("surah")
@@ -9,7 +12,9 @@ const tab = ref("surah")
 const props = defineProps<{
     selected: string
     intersectingVerseNumber?: number
+    intersectingJuzVerseNumber?: number
     modelNav?: boolean
+    activeJuzNumber?: number
 }>()
 
 const emit = defineEmits<{
@@ -50,7 +55,8 @@ const updateSelectedTab = () => {
                     </v-container>
                 </v-tabs-window-item>
                 <v-tabs-window-item value="juz">
-                    <juzs-nav-component :intersecting-verse-number="intersectingVerseNumber"
+                    <juzs-nav-component :intersecting-juz-verse-number="intersectingJuzVerseNumber"
+                        :active-juz-number="activeJuzNumber"
                         @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
                     </juzs-nav-component>
                 </v-tabs-window-item>

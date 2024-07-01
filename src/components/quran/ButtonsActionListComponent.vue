@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
-import { TafsirDialogComponent } from '@/components';
+// components
+import { TafsirDialogComponent } from '@/components/tafsir';
+// types
 import type { Verse } from "@/types"
 
 const isCopied = ref(false)

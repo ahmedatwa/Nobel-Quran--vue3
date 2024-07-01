@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 </script>
 <template>
-    <v-navigation-drawer location="right" :model-value="settingsDrawer"
+    <v-navigation-drawer location="right" :model-value="settingsDrawer" disable-resize-watcher
         @update:model-value="emit('update:settingsDrawer', $event)" width="330">
         <template #prepend>
             <div class="d-flex ma-2">

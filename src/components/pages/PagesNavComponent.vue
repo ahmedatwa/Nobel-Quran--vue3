@@ -1,26 +1,40 @@
 <script setup lang="ts">
 import { ref } from "vue"
+// stores
 import { usePageStore } from "@/stores";
-import { useStorage, StorageSerializers } from '@vueuse/core'
+// types
+import type { Pages } from "@/types";
+// utils
+import { setStorage } from "@/utils/storage";
 
 const pageStore = usePageStore()
 const selected = ref(1)
 const searchValue = ref("")
-const storageState = useStorage('selected', null, undefined, { serializer: StorageSerializers.object })
 
-const getSelected = async (page: number) => {
+const getSelected = async (page: Pages) => {
     pageStore.selectedPage = page
-    selected.value = page
-    storageState.value = null
-    storageState.value = { tab: "juz", value: { page } }
-    if (pageStore) {
-        if (pageStore.verses?.length === 0) {
-            await pageStore.getVerses(juz.id, true)
-        } else {
-            return
-        }
+    selected.value = page.pageNumber
+    setStorage("page", { data: page })
+    if (!page.verses.length) {
+        await pageStore.getVerses(page.pageNumber, true)
+    } else {
+        return
     }
 }
+
+/**
+ * on Mouse enter fetch the verse if it doesn't fall with the range
+ * given by verses length 
+ * or fetch the chapter which help to minimize api calls
+ */
+const mouseEnter = async (page: Pages) => {
+    console.log(page);
+    
+    if (!page.verses.length) {
+        await pageStore.getVerses(page.pageNumber, false)
+    }
+}
+
 
 </script>
 <template>
@@ -31,8 +45,9 @@ const getSelected = async (page: number) => {
         </v-card-title>
         <v-sheet height="600" style="overflow: scroll; ">
             <v-list class="text-center">
-                <v-list-item v-for="n in pageStore.pages" :key="n" @click="getSelected(n)" :active="selected === n">
-                    {{ $tr.line('PageNav.textPage') }} {{ n }}</v-list-item>
+                <v-list-item v-for="page in pageStore.pageList" :key="page.pageNumber" @click="getSelected(page)"
+                    :active="selected === page.pageNumber" @mouseenter="mouseEnter(page)">
+                    {{ $tr.line('PageNav.textPage') }} {{ page.pageNumber }}</v-list-item>
             </v-list>
         </v-sheet>
     </v-card>

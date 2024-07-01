@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { ref, onUnmounted, inject, onMounted } from "vue";
-import { computed, watchEffect } from "vue";
-import { AudioPlayerControlsComponent } from "@/components"
+import { ref, onUnmounted, inject } from "vue";
+import { computed, watchEffect, onMounted } from "vue";
+// components
+import { AudioPlayerControlsComponent } from "@/components/audio"
+// stores
 import { useAudioPlayerStore, useSettingStore } from "@/stores";
-import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "@/utils/datetime"
-import { getLangFullLocale } from "@/utils/locale"
+// symbols
 import { langKey } from "@/types/symbols";
+// utils
+import { getStorage, setStorage } from "@/utils/storage";
+import { getLangFullLocale } from "@/utils/locale"
+import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "@/utils/datetime"
+// types
 import type { VerseTimings } from "@/types"
-import { getStorage } from "@/utils/storage";
-import { useStorage, StorageSerializers } from '@vueuse/core'
 
 const audioPlayerStore = useAudioPlayerStore()
 const settingStore = useSettingStore()
@@ -39,7 +43,6 @@ const isPlaying = ref(false);
 const isMuted = ref(false);
 const loopAudio = ref("none")
 const currentTimestamp = ref(0)
-const storageState = useStorage('audio-player', null, undefined, { serializer: StorageSerializers.object })
 
 
 const verseTiming = computed((): VerseTimings[] | undefined => {
@@ -59,7 +62,7 @@ const verseTiming = computed((): VerseTimings[] | undefined => {
  * Buffering when 1s away from download progress
  * and put the audio in `almostEnded` state when 1s away from ending
  */
-const AUDIO_DURATION_TOLERANCE = 2; // 1s ,
+const AUDIO_DURATION_TOLERANCE = 1; // 1s ,
 
 /**
  * check if currentTime is within range timestampFrom and timestampTo
@@ -83,8 +86,8 @@ const playbackListener = () => {
 
         if (audioPlayerStore.audioFiles) {
             listenerActive.value = true;
-            currentTimestamp.value = audioPlayerRef.value.currentTime
-            duration.value = milliSecondsToSeconds(audioPlayerStore.audioFiles.duration - AUDIO_DURATION_TOLERANCE)
+            currentTimestamp.value = Math.ceil(audioPlayerRef.value.currentTime - AUDIO_DURATION_TOLERANCE)
+            duration.value = milliSecondsToSeconds(audioPlayerStore.audioFiles.duration)
 
             elapsedTime.value = secondsFormatter((duration.value - currentTimestamp.value), getLangFullLocale($tr?.locale.value))
             progressTimer.value = secondsToMilliSeconds(currentTimestamp.value)
@@ -210,11 +213,11 @@ onMounted(() => {
         if (state.experience) {
             audioPlayerStore.audioExperience = state.experience
         }
-        storageState.value = {
+        setStorage("audio-player", {
             isMuted: isMuted.value,
             playbackRate: playbackRate.value,
             mediaVolume: mediaVolume.value,
-        }
+        })
     }
 })
 
@@ -266,11 +269,11 @@ const setAudioPlayBackRate = (rate: string) => {
     playbackRate.value = rate
     if (audioPlayerRef.value)
         audioPlayerRef.value.playbackRate = rate === "Normal" ? 1 : Number(rate);
-    storageState.value = {
+    setStorage("audio-player", {
         isMuted: isMuted.value,
         playbackRate: playbackRate.value,
         mediaVolume: mediaVolume.value,
-    }
+    })
 }
 
 const playbackSeek = () => {
@@ -280,18 +283,10 @@ const playbackSeek = () => {
     }
 };
 
-
-
-
-
 const loadeddata = () => {
-    console.log("loadData");
-
     audioPlayerStore.isLoading = true
     if (audioPlayerRef.value) {
-        if (audioPlayerRef.value.readyState >= 2) {
-            // console.log(audioPlayerRef.value?.duration);
-
+        if (audioPlayerRef.value.readyState > 2) {
             // Verse Play 
             if (audioPlayerStore.selectedVerseKey) {
                 const verseTiming = audioPlayerStore.audioFiles?.verse_timings.find((vt) =>
@@ -407,33 +402,31 @@ const closePlayer = () => {
 const muteAudio = () => {
     isMuted.value = !isMuted.value
     if (audioPlayerRef.value) audioPlayerRef.value.muted = isMuted.value
-    storageState.value = {
+    setStorage("audio-player", {
         isMuted: isMuted.value,
         playbackRate: playbackRate.value,
         mediaVolume: mediaVolume.value,
-    }
+    })
 }
 
-const changeMediaVolume = () => {
+const changeMediaVolume = (volume: number) => {
     if (audioPlayerRef.value) {
+        mediaVolume.value = volume
         audioPlayerRef.value.volume = mediaVolume.value
-        storageState.value = {
+        setStorage("audio-player", {
             isMuted: isMuted.value,
             playbackRate: playbackRate.value,
             mediaVolume: mediaVolume.value,
-        }
+        })
     }
 }
-const test = (e: KeyboardEvent) => {
-    console.log(e);
 
-}
 </script>
 
 
 <template>
     <v-bottom-sheet :model-value="modelValue" @update:model-value="closePlayer" :inset="settingStore.inset"
-        :scrim="false" persistent no-click-animation scroll-strategy="none" @keydown="test" @keyup.up="keyboardVolumUp"
+        :scrim="false" persistent no-click-animation scroll-strategy="none" @keyup.up="keyboardVolumUp"
         @keyup.down="keyboardVolumDown">
         <v-card>
             <v-progress-linear v-model="progressTimer" clickable :height="7" @click="playbackSeek" hide-details
@@ -442,12 +435,14 @@ const test = (e: KeyboardEvent) => {
             <v-container>
                 <v-row class="flex-nowrap" no-gutters>
                     <v-col class="flex-grow-0 flex-shrink-0" cols="3">
-                        <div class="text-body-1">{{ audioPlayerStore.selectedReciter.name }}</div>
+                        <div class="text-body-1"><v-avatar size="x-small"
+                                :image="`../../../images/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`"></v-avatar>
+                            {{ audioPlayerStore.selectedReciter.name }}</div>
                         <div class="text-caption"> {{ audioPlayerStore.chapterName }}</div>
                     </v-col>
                     <v-col class="flex-grow-1 flex-shrink-0 align-self-center">
                         <audio-player-controls-component :playback-rate="playbackRate" :loop-audio="loopAudio"
-                            :is-muted="isMuted" :is-playing="isPlaying"
+                            :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
                             @update:is-audio="emit('update:isAudio', $event)"
                             @update:change-media-volume="changeMediaVolume" @update:mute-audio="muteAudio"
                             @update:close-player="closePlayer" @update:play-audio="playAudio"

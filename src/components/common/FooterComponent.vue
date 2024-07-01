@@ -10,7 +10,7 @@ const year = computed(() => {
     <v-footer>
         <v-row justify="center" no-gutters>
             <v-col class="text-center mx-auto" cols="12">
-                A0twa | {{ year }} — <strong>Quran</strong>
+                Developed by A0twa | {{ year }} — <strong>The Nobel Quran</strong>
             </v-col>
         </v-row>
     </v-footer>

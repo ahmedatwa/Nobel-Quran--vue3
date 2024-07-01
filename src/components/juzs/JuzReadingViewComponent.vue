@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useJuzStore } from "@/stores";
-import { TitleButtonsComponent } from "@/components"
+import { TitleButtonsComponent } from "@/components/quran"
 import type { HeaderData } from "@/types"
 
 
@@ -9,7 +9,11 @@ const juzStore = useJuzStore()
 const isIntersecting = ref(false)
 const headerData = ref<HeaderData | null>(null);
 const intersectingVerseNumber = ref<number>()
-const verses = computed(() => juzStore.selectedJuz?.verses.sort((a, b) => a.verse_number - b.verse_number))
+const verses = computed(() => {
+    if (juzStore.selectedJuz) {
+        return juzStore.selectedJuz.verses?.sort((a, b) => a.verse_number - b.verse_number)
+    }
+})
 
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
