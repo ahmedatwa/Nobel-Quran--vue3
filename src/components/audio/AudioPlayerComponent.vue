@@ -109,7 +109,7 @@ watchEffect(() => {
         if (currentVerse) {
             const isVerseInRange = isCurrentTimeInRange(currentTime, currentVerse?.timestamp_from, currentVerse?.timestamp_to)
             let wordLocation = ""
-            let verseNumber = 0
+            //let verseNumber = 0
             if (!isVerseInRange) {
                 const f = verseTiming.value.find((vt) => vt.verse_key === currentVerse.verse_key)
                 if (f) {
@@ -127,7 +127,7 @@ watchEffect(() => {
                                 vt.wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
                                 wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
                                 vt.verseNumber = s[0]
-                                verseNumber = s[0]
+                               // verseNumber = s[0]
                                 return;
                             }
 
