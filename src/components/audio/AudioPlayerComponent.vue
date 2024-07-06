@@ -443,7 +443,7 @@ const changeMediaVolume = (volume: number) => {
                 <v-row class="flex-nowrap" no-gutters>
                     <v-col class="flex-grow-0 flex-shrink-0" cols="3">
                         <div class="text-body-1 text-truncate"><v-avatar size="x-small"
-                                :image="`/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`"></v-avatar>
+                                :image="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`"></v-avatar>
                             {{ audioPlayerStore.selectedReciter.name }}</div>
                         <div class="text-caption"> {{ audioPlayerStore.chapterName }}</div>
                     </v-col>
