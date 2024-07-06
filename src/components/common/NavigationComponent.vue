@@ -6,12 +6,14 @@ import { JuzsNavComponent } from "@/components/juzs";
 import { PagesNavComponent } from "@/components/pages";
 // utils
 import { setStorage } from "@/utils/storage";
+// types
+import type { ManualIntersectingMode } from "@/types/chapter"
 
 const navigationTab = ref("chapters")
 
 const props = defineProps<{
     selected: string
-    intersectingVerseNumber?: number
+    chapterManualIntersectingMode?: ManualIntersectingMode
     intersectingJuzVerseNumber?: number
     intersectingPageVerseNumber?: number
     navigationModelValue?: boolean
@@ -32,14 +34,15 @@ watchEffect(() => {
 })
 
 watchEffect(() => {
-    if(navigationTab.value) {
+    if (navigationTab.value) {
         emit('update:selectedTab', navigationTab.value)
         setStorage("tab", navigationTab.value)
     }
 })
 </script>
 <template>
-    <v-navigation-drawer :model-value="navigationModelValue" width="300" permanent>
+    <v-navigation-drawer :model-value="navigationModelValue" width="300" :temporary="$vuetify.display.mobile"
+        :permanent="$vuetify.display.mdAndUp">
         <template #prepend>
             <v-tabs v-model="navigationTab" align-tabs="center" :show-arrows="false" hide-slider class="mt-4"
                 density="comfortable" color="primary" grow>
@@ -52,7 +55,7 @@ watchEffect(() => {
             <v-divider color="primary" :thickness="2"></v-divider>
             <v-tabs-window v-model="navigationTab">
                 <v-tabs-window-item value="chapters">
-                    <chapters-nav-component :intersecting-verse-number="intersectingVerseNumber"
+                    <chapters-nav-component :manual-intersecting-mode="chapterManualIntersectingMode"
                         @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
                     </chapters-nav-component>
                 </v-tabs-window-item>

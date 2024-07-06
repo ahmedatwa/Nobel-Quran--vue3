@@ -5,7 +5,7 @@ import { useAudioPlayerStore, useChapterStore, useTranslationsStore, useSettingS
 // components
 import { ChapterReadingViewComponent, ChapterTranslationsViewComponent } from "@/components/chapters";
 // types
-import type { ChapterHeaderData } from "@/types/chapter";
+import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
 
 // Stores
 const chapterStore = useChapterStore();
@@ -24,7 +24,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:headerData": [value: ChapterHeaderData];
   "update:playAudio": [value: { audioID: number; verseKey?: string }];
-  "update:intersectingVerseNumber": [value: number];
+  "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
 
 watchEffect(() => {
@@ -60,16 +60,16 @@ watchEffect(async () => {
           :is-translations-view="tab === 'translationTab'" :audio-experience="audioPlayerSetting"
           :css-vars="settingCssVars" :grouped-translations-authors="translationsStore.groupedTranslationsAuthors
             " :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
-          @update:intersecting-verse-number="
-            emit('update:intersectingVerseNumber', $event)
+          @update:manual-intersecting-mode="
+            emit('update:manualIntersectingMode', $event)
             " @update:play-audio="emit('update:playAudio', $event)">
         </chapter-translations-view-component>
       </v-tabs-window-item>
       <v-tabs-window-item value="readingTab">
         <chapter-reading-view-component :is-audio-playing="audioPlayer" :css-vars="settingCssVars"
           :verse-timing="audioPlayerStore.verseTiming" :is-reading-view="tab === 'readingTab'"
-          @update:header-data="emit('update:headerData', $event)" @update:intersecting-verse-number="
-            emit('update:intersectingVerseNumber', $event)
+          @update:header-data="emit('update:headerData', $event)" @update:manual-intersecting-mode="
+            emit('update:manualIntersectingMode', $event)
             " @update:play-audio="emit('update:playAudio', $event)">
         </chapter-reading-view-component>
       </v-tabs-window-item>

@@ -9,6 +9,7 @@ const audioPlayerStore = useAudioPlayerStore()
 
 const mediaVolume = ref(1)
 const dialog = ref(false)
+const play = ref(false)
 
 const emit = defineEmits<{
     "update:isAudio": [value: { audioID: number, verseKey?: string, format?: string, isPlaying?: boolean } | null]
@@ -51,9 +52,8 @@ const isPreviousAyahDisabled = computed(() => {
                 :recitions="audioPlayerStore.recitations" :playback-rate="playbackRate"
                 :playback-speeds="audioPlayerStore.playbackSpeeds"
                 :selected-reciter="audioPlayerStore.selectedReciter.id"
-                :audio-url="audioPlayerStore.audioFiles?.audio_url"
-                :audio-format="audioPlayerStore.audioFiles?.format" :chapter-name="audioPlayerStore.chapterName"
-                @update:get-recitions="audioPlayerStore.getRecition"
+                :audio-url="audioPlayerStore.audioFiles?.audio_url" :audio-format="audioPlayerStore.audioFiles?.format"
+                :chapter-name="audioPlayerStore.chapterName" @update:get-recitions="audioPlayerStore.getRecition"
                 @update:playback-rate="$emit('update:playbackRate', $event)">
             </audio-player-menu-component>
         </v-sheet>
@@ -72,7 +72,8 @@ const isPreviousAyahDisabled = computed(() => {
                 @click="audioPlayerStore.playPrevious"></v-btn>
             <!-- Play -->
             <v-btn :loading="audioPlayerStore.isLoading" :icon="isPlaying ? 'mdi-pause' : 'mdi-play'"
-                @click.prevent="$emit('update:playAudio', true)" density="compact" class="me-2" variant="text"></v-btn>
+                @click="$emit('update:playAudio', play = !play)" density="compact" class="me-2"
+                variant="text"></v-btn>
             <!-- Next Ayah -->
             <v-btn icon="mdi-fast-forward" density="compact" class="me-2" variant="text"
                 v-tooltip:top="$tr.line('audio.nextAyah')" :disabled="isNextAyahDisabled"
@@ -81,8 +82,34 @@ const isPreviousAyahDisabled = computed(() => {
             <v-btn icon="mdi-close" @click="$emit('update:closePlayer', true)" density="compact" variant="text"
                 v-tooltip:top="$tr.line('audio.close')"></v-btn>
         </v-sheet>
-        <v-sheet :width="150" class="ms-2 ">
-            <v-slider v-model="mediaVolume" max-width="150" :step="0.1" :max="1" :min="0"
+
+
+        <!-- test -->
+
+        <v-speed-dial class="d-none d-sm-inline-block"
+  location="top center"
+  transition="fade-transition"
+>
+  <template v-slot:activator="{ props: activatorProps }">
+    <v-fab
+      v-bind="activatorProps"
+      size="large"
+      icon="$vuetify"
+    ></v-fab>
+  </template>
+
+  <v-btn key="1" icon="mdi-fast-forward"></v-btn>
+  <v-btn key="2" icon="mdi-rewind"></v-btn>
+  <v-btn key="3" icon="mdi-close"></v-btn>
+  <v-btn key="4" icon="$error"></v-btn>
+</v-speed-dial>
+
+
+
+
+
+        <v-sheet :width="200" class="ms-2 ">
+            <v-slider v-model="mediaVolume" max-width="170" :step="0.1" :max="1" :min="0"
                 @update:modelValue="$emit('update:changeMediaVolume', $event)" hide-details>
                 <template #prepend>
                     <v-icon :icon="isMuted ? 'mdi-volume-off' : 'mdi-volume-high'"

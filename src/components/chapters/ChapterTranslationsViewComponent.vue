@@ -6,7 +6,7 @@ import { useChapterStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran";
 import { ButtonsActionListComponent } from "@/components/quran";
 // types
-import type { ChapterHeaderData } from "@/types/chapter";
+import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
 import type { VerseTimingsProps, IsAudioPlayingProps } from "@/types/audio"
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
@@ -23,6 +23,24 @@ const verses = computed(() => {
     );
   }
 });
+
+const isHoveringElement = ref("")
+
+const getFirstVerseOfChapter = computed(() => {
+  if (chapterStore.selectedChapter?.verses) {
+    return chapterStore.selectedChapter?.verses[0]
+  }
+})
+
+const getLastVerseOfChapter = computed(() => {
+  if (chapterStore.selectedChapter?.verses) {
+    const verse = chapterStore.selectedChapter?.verses.slice(-1)[0]
+    if (verse) {
+      return verse.verse_number
+    }
+  }
+  return 0
+})
 
 const chapterAudioId = computed(() => {
   if (chapterStore.selectedChapter) {
@@ -43,7 +61,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:playAudio": [value: { audioID: number; verseKey?: string }];
   "update:headerData": [value: ChapterHeaderData];
-  "update:intersectingVerseNumber": [value: number];
+  "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
 
 // Manual Mode Scroll
@@ -53,12 +71,12 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     intersectingVerseNumber.value = Number(
       entries[0].target.dataset.verseNumber
     );
-    
+
     if (intersectingVerseNumber.value === 1) {
       return
     }
     // emit header data
-     // Avoid watchers by comparing 2 objects
+    // Avoid watchers by comparing 2 objects
     const newHeaderData = ref<ChapterHeaderData>()
     newHeaderData.value = {
       left: chapterStore.selectedChapterName,
@@ -75,7 +93,11 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     }
     // emit verse id for scroll in verses list
     // help to fetch new verses
-    emit("update:intersectingVerseNumber", intersectingVerseNumber.value);
+    // sending current/last verse Numbers to the chapters Nav
+    emit("update:manualIntersectingMode", {
+      lastVerseNumber: getLastVerseOfChapter.value,
+      currentVerseNumber: intersectingVerseNumber.value
+    });
 
   }
 };
@@ -134,19 +156,7 @@ watchEffect(async () => {
   }
 });
 
-const isHoveringElement = ref("")
 
-const getFirstVerseOfChapter = computed(() => {
-  if (chapterStore.selectedChapter?.verses) {
-    return chapterStore.selectedChapter?.verses[0]
-  }
-})
-
-const getLastVerseOfChapter = computed(() => {
-  if (chapterStore.selectedChapter?.verses) {
-    return chapterStore.selectedChapter?.verses.slice(-1)
-  }
-})
 
 // emitting header data on mounted so 
 // access to dismiss the navigation menu is available

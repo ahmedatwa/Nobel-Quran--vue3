@@ -15,7 +15,7 @@ import {
   useAudioPlayerStore,
 } from "@/stores";
 // types
-import type { ChapterHeaderData } from "@/types/chapter";
+import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
 import type { JuzHeaderData } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 // utils
@@ -33,7 +33,7 @@ const navigationModelValue = inject<boolean>("navigationModelValue");
 // Refs
 const selectedTab = ref("");
 const selectedPage = ref(1);
-const intersectingVerseNumber = ref<number>();
+const chapterManualIntersectingModeData = ref<ManualIntersectingMode>();
 const intersectingJuzVerseNumber = ref<number>();
 const intersectingPageVerseNumber = ref<number>();
 const audioPlayerModelValue = ref(false);
@@ -102,7 +102,7 @@ onBeforeMount(() => {
 </script>
 <template>
   <navigation-component v-model:navigation-model-value="navigationModelValue" :selected="selected"
-    @update:selected-tab="selectedTab = $event" :intersecting-verse-number="intersectingVerseNumber"
+    @update:selected-tab="selectedTab = $event" :chapter-manual-intersecting-mode="chapterManualIntersectingModeData"
     :intersecting-juz-verse-number="intersectingJuzVerseNumber" @update:selected-page="selectedPage = $event"
     :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
     :intersecting-page-verse-number="intersectingPageVerseNumber"
@@ -117,7 +117,7 @@ onBeforeMount(() => {
   <!-- Chapters -->
   <chapters-component :selected="selectedTab === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
     :selected-verse-key-View="selectedVerseKeyView" :setting-css-vars="settingCssVars"
-    @update:intersecting-verse-number="intersectingVerseNumber = $event"
+    @update:manual-intersecting-mode="chapterManualIntersectingModeData = $event"
     @update:header-data="$emit('update:headerData', { key: 'chapter', value: $event as ChapterHeaderData })"
     @update:play-audio="playAudio">
   </chapters-component>

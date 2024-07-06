@@ -6,7 +6,7 @@ import { useChapterStore } from "@/stores";
 import { _range, localizeNumber } from "@/utils/number";
 import { isVerseKeyWithinRanges } from "@/utils/verse";
 // types
-import type { Chapter } from "@/types/chapter";
+import type { Chapter, ManualIntersectingMode } from "@/types/chapter";
 import { scrollToElement } from "@/utils/useScrollToElement";
 
 // Stores
@@ -20,7 +20,7 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps<{
-  intersectingVerseNumber?: number;
+  manualIntersectingMode?: ManualIntersectingMode
 }>();
 
 onMounted(async () => {
@@ -78,8 +78,9 @@ const getSelectedVerse = async (id: number) => {
  * duplicate verses will be handeled by the chapter store
  */
 watchEffect(async () => {
-  if (props.intersectingVerseNumber) {
-    selectedVerseID.value = props.intersectingVerseNumber;
+  if (props.manualIntersectingMode) {
+    const intersectingData = props.manualIntersectingMode
+    selectedVerseID.value = intersectingData.currentVerseNumber;
     if (chapterStore.selectedChapter) {
       if (chapterStore.selectedChapter?.versesCount ===
         chapterStore.selectedChapter.verses?.length
@@ -92,10 +93,10 @@ watchEffect(async () => {
       scrollToElement(`#verse${selectedVerseID.value}`, 100);
       if (chapterStore.selectedChapter.verses) {
         if (
-          props.intersectingVerseNumber ===
-          chapterStore.selectedChapter.verses?.length ||
-          props.intersectingVerseNumber ===
-          chapterStore.selectedChapter.verses?.length - 3
+          intersectingData.currentVerseNumber ===
+          intersectingData.lastVerseNumber ||
+          intersectingData.currentVerseNumber ===
+          intersectingData.lastVerseNumber - 3
         ) {
           await getVerseByKey(`${selectedChapterId.value}:${chapterStore.selectedChapter.verses?.length + 1}`);
         }
@@ -135,13 +136,13 @@ const mouseEnter = async (k: string, value: Chapter | number) => {
 
 const getVerseByKey = async (verseKey: string) => {
   console.log(verseKey);
-  
+
   if (chapterStore.selectedChapter) {
     const verseFound = chapterStore.selectedChapter.verses?.find(
       (cv) => cv.verse_key === verseKey
     );
     console.log(verseFound);
-    
+
     if (!verseFound) {
       await chapterStore.getVerseByKey(selectedChapterId.value, verseKey);
     } else {

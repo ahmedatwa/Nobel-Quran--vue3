@@ -132,11 +132,15 @@ interface SingleTafsir {
         };
         verse_id: number;
         verse_key: string;
-      }[]
+      }[];
     };
   };
 }
 
+type ManualIntersectingMode = {
+  currentVerseNumber: number;
+  lastVerseNumber: number;
+};
 export {
   Chapter,
   ChapterInfo,
@@ -145,4 +149,5 @@ export {
   ChapterHeaderData,
   Tafsirs,
   SingleTafsir,
+  ManualIntersectingMode,
 };

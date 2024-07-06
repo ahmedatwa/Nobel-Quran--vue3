@@ -10,7 +10,7 @@ export const useSettingStore = defineStore("setting-store", () => {
     autoPlay: true,
     dismissOnEnd: true,
     autoScroll: true,
-    tooltip: true,
+    tooltip: false,
   })
 
   const cssVars = ref<CssVars>({

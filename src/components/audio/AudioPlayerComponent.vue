@@ -153,7 +153,6 @@ watchEffect(() => {
 const playbackPaused = () => {
     isPlaying.value = false;
     listenerActive.value = false;
-    cleanupListeners();
 }
 
 //run when audio play reaches the end of file
