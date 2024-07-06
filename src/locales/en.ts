@@ -26,9 +26,9 @@ export default {
     headerSurahData: "Hizb {0} | Juz {1} | Page {2}",
   },
   navigation: {
-    textSurah: "Surah",
-    textJuz: "Juz",
-    textPage: "Page",
+    textSurah: "Chapters",
+    textJuz: "Juzs",
+    textPage: "Pages",
   },
   quranReader: {
     textTranslation: "Translation",
@@ -39,6 +39,9 @@ export default {
     buttonPlay: "Play Audio",
     textSurahInfo: "Surah Info",
     textPage: "Page",
+    nextPage: "Next Page",
+    prevPage: "Previous Page",
+    startPage: "Start of Page",
     nextJuz: "Next Juz",
     prevJuz: "Previous Juz",
     startJuz: "Start of Juz",
@@ -46,6 +49,7 @@ export default {
   },
   PageNav: {
     textPage: "Page",
+    textJuz: "Juz",
   },
   surahNav: {
     textChapters: "Chapters",
@@ -55,10 +59,14 @@ export default {
     Translations: "Translations",
   },
   home: {
-    textSurah: "Surah",
+    textChapters: "Chapters",
+    textChapter: "Chapter",
+    textJuzs: "Juzs",
     textJuz: "Juz",
+    textPages: "Pages",
     textPage: "Page",
     textVerse: "Verse",
+    textVerses: "Verses",
     textRelevation: "Relevation Order",
     inputSearch: "Search",
     textAyah: "Ayah",

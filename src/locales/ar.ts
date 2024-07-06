@@ -45,9 +45,12 @@ export default {
     Translations: "ترجمة",
   },
   home: {
-    textSurah: "سورة",
+    textChapter: "سورة",
+    textChapters: "سور",
     textJuz: "جزء",
+    textJuzs: "أجزاء",
     textVerse: "آية",
+    textVerses: "آيات",
     textRelevation: "ترتيب نزول الوحي",
     inputSearch: "بحث",
     textAyah: "آية",

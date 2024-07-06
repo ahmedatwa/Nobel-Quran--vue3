@@ -8,7 +8,7 @@ interface Juz {
   last_verse_id: number;
   verse_mapping: string[];
   verses_count: number;
-  verses?: Verse[] | null;
+  verses: Verse[] | null;
   pagination?: Pagination | null;
   audioFile?: AudioFiles | null;
 }
@@ -23,13 +23,20 @@ type Pagination = Record<
   number
 >;
 
-interface JuzDataParts {
+interface juzVersesByPageMap {
   [key: number]: Verse[];
 }
 
-interface Pages {
-  pageNumber: number;
-  verses: Verse[];
+interface JuzHeaderData {
+  left: string | number;
+  right: {
+    pageNumber: string | number;
+    hizbNumber: string | number;
+    juzNumber: string | number;
+  };
 }
 
-export { Juz, Pages };
+type JuzVerseMapping = {
+  [key: number]: string
+}
+export { Juz, JuzHeaderData, juzVersesByPageMap, JuzVerseMapping };

@@ -5,13 +5,12 @@ import { JuzReadingViewComponent, JuzTranslationsViewComponent } from '@/compone
 // stores
 import { useJuzStore, useTranslationsStore, useAudioPlayerStore } from "@/stores";
 // types
-import type { HeaderData } from '@/types';
+import type { JuzHeaderData } from '@/types/juz';
 
 const translationsStore = useTranslationsStore()
 const juzStore = useJuzStore()
 const audioPlayerStore = useAudioPlayerStore()
-
-const tab = ref("translationTab")
+const selectedJuzTab = ref("translationsTab")
 
 const props = defineProps<{
     audioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
@@ -21,37 +20,37 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    "update:juzHeaderData": [value: HeaderData]
+    "update:headerData": [value: JuzHeaderData | null]
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
     "update:intersectingJuzVerseNumber": [value: number]
-    "update:activejuz_number": [value: number]
+    "update:activeJuzNumber": [value: number]
 }>()
 
 </script>
 <template>
     <v-card v-show="selected" class="ma-2" :elevation="1"
-        :id="`quran-reader-content-juz${juzStore.selectedJuz?.juz_number}`"
-        :key="juzStore.selectedJuz?.id">
-        <v-tabs v-model="tab" align-tabs="center" color="primary" grow>
-            <v-tab value="translationTab" prepend-icon="mdi-book-open">{{ $tr.line("quranReader.textTranslation")
+        :id="`quran-reader-content-juz${juzStore.selectedJuz?.juz_number}`" :key="juzStore.selectedJuz?.id">
+        <v-tabs v-model="selectedJuzTab" align-tabs="center" color="primary" grow>
+            <v-tab value="translationsTab" prepend-icon="mdi-book-open">{{ $tr.line("quranReader.textTranslation")
                 }}</v-tab>
             <v-tab value="readingTab" prepend-icon="mdi-translate-variant">{{ $tr.line("quranReader.textReading")
                 }}</v-tab>
         </v-tabs>
-        <v-tabs-window v-model="tab">
-            <v-tabs-window-item value="translationTab" class="mx-5">
-                <juz-translations-view-component :is-audio-playing="audioPlayer"
+        <v-tabs-window v-model="selectedJuzTab">
+            <v-tabs-window-item value="translationsTab" class="mx-5">
+                <juz-translations-view-component :is-audio-playing="audioPlayer" :selected-juz-tab="selectedJuzTab"
                     :audio-experience="audioPlayerStore.audioExperience" :css-vars="settingCssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
-                    :verse-timing="audioPlayerStore.verseTiming" @update:juz-header-data="emit('update:juzHeaderData', $event)"
+                    :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
                     @update:intersecting-juz-verse-number="emit('update:intersectingJuzVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)"
-                    @update:active-juz-number="$emit('update:activejuz_number', $event)">
+                    @update:active-juz-number="$emit('update:activeJuzNumber', $event)">
                 </juz-translations-view-component>
             </v-tabs-window-item>
             <v-tabs-window-item value="readingTab">
                 <juz-reading-view-component :audio-player="audioPlayer" :css-vars="settingCssVars"
-                    :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:juzHeaderData', $event)"
+                    :selected-juz-tab="selectedJuzTab" :verse-timing="audioPlayerStore.verseTiming"
+                    @update:header-data="emit('update:headerData', $event)"
                     @update:intersecting-juz-verse-number="emit('update:intersectingJuzVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)">
                 </juz-reading-view-component>

@@ -7,14 +7,16 @@ import { PagesNavComponent } from "@/components/pages";
 // utils
 import { setStorage } from "@/utils/storage";
 
-const tab = ref("surah")
+const navigationTab = ref("chapters")
 
 const props = defineProps<{
     selected: string
     intersectingVerseNumber?: number
     intersectingJuzVerseNumber?: number
-    modelNav?: boolean
+    intersectingPageVerseNumber?: number
+    navigationModelValue?: boolean
     activeJuzNumber?: number
+    activePageNumber?: number
 }>()
 
 const emit = defineEmits<{
@@ -25,43 +27,44 @@ const emit = defineEmits<{
 
 watchEffect(() => {
     if (props.selected) {
-        tab.value = props.selected
+        navigationTab.value = props.selected
     }
 })
 
-const updateSelectedTab = () => {
-    emit('update:selectedTab', tab.value)
-    setStorage("tab", tab.value)
-}
+watchEffect(() => {
+    if(navigationTab.value) {
+        emit('update:selectedTab', navigationTab.value)
+        setStorage("tab", navigationTab.value)
+    }
+})
 </script>
 <template>
-    <v-navigation-drawer :model-value="modelNav" width="300" permanent>
+    <v-navigation-drawer :model-value="navigationModelValue" width="300" permanent>
         <template #prepend>
-            <v-tabs v-model="tab" align-tabs="center" :show-arrows="false" hide-slider class="mt-4"
-                density="comfortable" color="primary" grow @update:model-value="updateSelectedTab">
-                <v-tab value="surah" slim class="me-2">{{ $tr.line("navigation.textSurah")
+            <v-tabs v-model="navigationTab" align-tabs="center" :show-arrows="false" hide-slider class="mt-4"
+                density="comfortable" color="primary" grow>
+                <v-tab value="chapters" slim class="me-2">{{ $tr.line("navigation.textSurah")
                     }}</v-tab>
-                <v-tab value="juz" slim class="me-2">{{ $tr.line("navigation.textJuz")
+                <v-tab value="juzs" slim class="me-2">{{ $tr.line("navigation.textJuz")
                     }}</v-tab>
-                <v-tab value="page" slim>{{ $tr.line("navigation.textPage") }}</v-tab>
+                <v-tab value="pages" slim>{{ $tr.line("navigation.textPage") }}</v-tab>
             </v-tabs>
             <v-divider color="primary" :thickness="2"></v-divider>
-            <v-tabs-window v-model="tab">
-                <v-tabs-window-item value="surah">
-                    <v-container fluid class="pa-0 mt-2">
-                        <chapters-nav-component :intersecting-verse-number="intersectingVerseNumber"
-                            @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
-                        </chapters-nav-component>
-                    </v-container>
+            <v-tabs-window v-model="navigationTab">
+                <v-tabs-window-item value="chapters">
+                    <chapters-nav-component :intersecting-verse-number="intersectingVerseNumber"
+                        @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
+                    </chapters-nav-component>
                 </v-tabs-window-item>
-                <v-tabs-window-item value="juz">
+                <v-tabs-window-item value="juzs">
                     <juzs-nav-component :intersecting-juz-verse-number="intersectingJuzVerseNumber"
                         :active-juz-number="activeJuzNumber"
                         @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
                     </juzs-nav-component>
                 </v-tabs-window-item>
-                <v-tabs-window-item value="page">
-                    <pages-nav-component
+                <v-tabs-window-item value="pages">
+                    <pages-nav-component :active-page-number="activePageNumber"
+                        :intersecting-page-verse-number="intersectingPageVerseNumber"
                         @update:selected-page="$emit('update:selectedPage', $event)"></pages-nav-component>
                 </v-tabs-window-item>
             </v-tabs-window>

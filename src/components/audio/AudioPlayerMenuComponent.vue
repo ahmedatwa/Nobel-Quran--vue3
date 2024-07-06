@@ -5,7 +5,7 @@ import { instance } from '@/axios';
 // utils
 import { updateStorageItem } from '@/utils/storage';
 // types
-import type { Recitations } from '@/types';
+import type { Recitations } from '@/types/audio';
 
 const emit = defineEmits<{
     "update:modelValue": [value: boolean]

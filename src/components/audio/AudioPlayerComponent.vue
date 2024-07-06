@@ -10,6 +10,7 @@ import { langKey } from "@/types/symbols";
 // utils
 import { getStorage, setStorage } from "@/utils/storage";
 import { getLangFullLocale } from "@/utils/locale"
+import { makeWordLocation, getVerseNumberFromKey } from "@/utils/verse"
 import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "@/utils/datetime"
 // types
 import type { VerseTimings } from "@/types"
@@ -50,7 +51,8 @@ const verseTiming = computed((): VerseTimings[] | undefined => {
         return audioPlayerStore.audioFiles.verse_timings.map((vt) => {
             return {
                 inRange: false,
-                wordLocation: 0,
+                wordLocation: "",
+                verseNumber: 0,
                 ...vt
             }
         })
@@ -102,8 +104,9 @@ watchEffect(() => {
     const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
 
     if (verseTiming.value) {
-        const currentVerse = verseTiming.value.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
-        let wordLocation = 0
+        const currentVerse = verseTiming.value.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)        
+        let wordLocation = ""
+        let verseNumber = 0
         if (currentVerse) {
             const isVerseInRange = isCurrentTimeInRange(currentTime, currentVerse?.timestamp_from, currentVerse?.timestamp_to)
 
@@ -121,8 +124,11 @@ watchEffect(() => {
                         currentVerse.segments.forEach((s: any) => {
                             const isSegmentInRange = isCurrentTimeInRange(currentTime, s[1], s[2])
                             if (isSegmentInRange) {
-                                vt.wordLocation = s[0]
-                                wordLocation = s[0]
+                                vt.wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
+                                wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
+                                vt.verseNumber = s[0]
+                                verseNumber = s[0]
+                                return;
                             }
 
                         })
@@ -135,6 +141,7 @@ watchEffect(() => {
                 audioPlayerStore.verseTiming = {
                     chapterId: props.audioPlayer?.audioID,
                     verseKey: currentVerse.verse_key,
+                    verseNumber: getVerseNumberFromKey(currentVerse.verse_key),
                     inRange: isVerseInRange, wordLocation,
                 }
             ]
@@ -290,7 +297,7 @@ const loadeddata = () => {
             // Verse Play 
             if (audioPlayerStore.selectedVerseKey) {
                 const verseTiming = audioPlayerStore.audioFiles?.verse_timings.find((vt) =>
-                    vt.verse_key === audioPlayerStore.selectedVerseKey)
+                    vt.verseKey === audioPlayerStore.selectedVerseKey)
                 if (verseTiming) {
                     if (audioPlayerRef.value) {
                         audioPlayerRef.value.currentTime = milliSecondsToSeconds(verseTiming.timestamp_from);
@@ -435,8 +442,8 @@ const changeMediaVolume = (volume: number) => {
             <v-container>
                 <v-row class="flex-nowrap" no-gutters>
                     <v-col class="flex-grow-0 flex-shrink-0" cols="3">
-                        <div class="text-body-1"><v-avatar size="x-small"
-                                :image="`../../../images/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`"></v-avatar>
+                        <div class="text-body-1 text-truncate"><v-avatar size="x-small"
+                                :image="`/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`"></v-avatar>
                             {{ audioPlayerStore.selectedReciter.name }}</div>
                         <div class="text-caption"> {{ audioPlayerStore.chapterName }}</div>
                     </v-col>

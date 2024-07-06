@@ -4,24 +4,17 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useTranslationsStore } from "@/stores";
 // axios
 import { instance } from "@/axios";
-
 // types
-import type {
-  Chapter,
-  ChapterInfo,
-  Loading,
-  ChapterSchema,
-} from "@/types/chapter";
+import type { Chapter, ChapterInfo } from "@/types/chapter";
+import type { Loading, ChapterSchema } from "@/types/chapter";
 import type { Verse } from "@/types/verse";
+// utils
+import { verseWordFields, verseFields } from "@/utils/verse";
+import { verseTranslationFields } from "@/utils/verse";
 
 export const useChapterStore = defineStore("chapter-store", () => {
   const translationsStore = useTranslationsStore();
-  const isLoading = ref<Loading>({
-    chapters: false,
-    verses: false,
-    info: false,
-    length: 0,
-  });
+  const isLoading = ref<Loading>({ chapters: false, verses: false });
   const chaptersList = ref<Chapter[]>([]);
   const currentSortDir = ref("asc");
   const currentSort = ref("id");
@@ -29,6 +22,14 @@ export const useChapterStore = defineStore("chapter-store", () => {
   const selectedChapter = ref<Chapter | null>(null);
   const chapterInfo = ref<ChapterInfo | null>(null);
   const perPage = ref(10);
+  // url fields
+  const urlFields = computed(() => {
+    return `&words=true&translation_fields=${verseTranslationFields.join(
+      ","
+    )}&fields=${verseFields.join(",")}&word_fields=${verseWordFields.join(
+      ","
+    )}`;
+  });
 
   const chapters = computed((): Chapter[] | undefined => {
     if (chaptersList.value) {
@@ -97,21 +98,18 @@ export const useChapterStore = defineStore("chapter-store", () => {
     isLoading.value.length = perPage.value;
     await instance
       .get(
-        `/verses/by_chapter/${id}?translations=${translationsStore.selectedTranslationsIdsString}&words=true&translation_fields=id,language_id,resource_id,resource_name,text,verse_key,verse_number&page=${page}&per_page=${limit}&fields=text_uthmani,text_uthmani_simple,text_imlaei,text_imlaei_simple,text_indopak,juz_number,hizb_number,sajdah_type,page_number,text_uthmani_tajweed&word_fields=position,text_uthmani,text_indopak,text_imlaei,verse_key,page_number,line_number,location,char_type_name,code_v1,code_v2`
+        `/verses/by_chapter/${id}?translations=${translationsStore.selectedTranslationsIdsString}&page=${page}&per_page=${limit}&${urlFields.value}`
       )
       .then((response) => {
         const chapter = chaptersList.value.find((s) => s.id === id);
         if (chapter) {
           response.data.verses.forEach((verse: Verse) => {
-            const isVerseFound = chapter.verses?.find((v) => v.id === id);
-            if (!isVerseFound) {
+            const verseFound = chapter.verses?.find(
+              (v) => v.verse_key === verse.verse_key
+            );
+
+            if (!verseFound) {
               chapter.verses?.push({ ...verse, bookmarked: false });
-              if (selectedChapter.value?.id === chapter.id) {
-                selectedChapter.value.verses?.push({
-                  ...verse,
-                  bookmarked: false,
-                });
-              }
             }
           });
         }
@@ -126,35 +124,28 @@ export const useChapterStore = defineStore("chapter-store", () => {
 
   const getVerseByKey = async (id: number, verseKey: string) => {
     if (!verseKey || !id) return;
-
     isLoading.value.verses = true;
     isLoading.value.length = 1;
     await instance
       .get(
-        `/verses/by_key/${verseKey}?translations=${translationsStore.selectedTranslationsIdsString}&words=true&translation_fields=id,language_id,resource_id,resource_name,text,verse_key,verse_number&fields=text_uthmani,chapter_id,hizb_number,text_imlaei_simple&word_fields=verse_key,verse_id,verse_number,page_number,location,text_uthmani,code_v1,qpc_uthmani_hafs`
+        `/verses/by_key/${verseKey}?translations=${translationsStore.selectedTranslationsIdsString}&${urlFields.value}`
       )
       .then((response) => {
         const chapter = chaptersList.value.find((s) => s.id === id);
         if (chapter) {
-          const isVerseFound = chapter.verses?.find(
+          const verseFound = chapter.verses?.find(
             (v) => v.verse_key === verseKey
           );
-          if (!isVerseFound) {
+          if (!verseFound) {
             chapter.verses?.push({ ...response.data.verse, bookmarked: false });
-            if (selectedChapter.value?.id === chapter.id) {
-              selectedChapter.value.verses?.push({
-                ...response.data.verse,
-                bookmarked: false,
-              });
-            }
           }
         }
       })
       .catch((e) => {
-        console.log(e);
+        throw e;
       })
       .finally(() => {
-        // isLoading.value.verses = false;
+        isLoading.value.verses = false;
       });
   };
 
@@ -164,15 +155,8 @@ export const useChapterStore = defineStore("chapter-store", () => {
     }
   });
 
-  const getchapterInfo = async (id: number) => {
-    return await instance.get(`/chapters/${id}/info`);
-  };
-
-  const sort = (s: string) => {
-    if (s === currentSort.value) {
-      currentSortDir.value = currentSortDir.value === "asc" ? "desc" : "asc";
-    }
-    currentSort.value = s;
+  const getchapterInfo = async (id: number, lang: string = "en") => {
+    return await instance.get(`/chapters/${id}/info?language=${lang}`);
   };
 
   // Add New Translations
@@ -188,10 +172,10 @@ export const useChapterStore = defineStore("chapter-store", () => {
     }
   );
 
-  const getChapterName = (id: number | string) => {
-    if (typeof id === "string") id = parseInt(id);
+  const getChapterName = (chapterId: number | string) => {
     if (chaptersList.value) {
-      const found = chaptersList.value.find((c) => c.id === id);
+      if (typeof chapterId === "string") chapterId = parseInt(chapterId);
+      const found = chaptersList.value.find((c) => c.id === chapterId);
       if (found) {
         return {
           ar: found.nameArabic,
@@ -201,6 +185,16 @@ export const useChapterStore = defineStore("chapter-store", () => {
       }
     }
   };
+
+  const selectedChapterName = computed((): string[] | string => {
+    if (selectedChapter.value) {
+      return [
+        selectedChapter.value.nameSimple,
+        selectedChapter.value.nameArabic,
+      ];
+    }
+    return "";
+  });
 
   const versesKeyMap = computed(() => {
     if (selectedChapter.value) {
@@ -213,16 +207,17 @@ export const useChapterStore = defineStore("chapter-store", () => {
     searchValue,
     selectedChapter,
     isLoading,
+    perPage,
     currentSort,
     currentSortDir,
     chapterInfo,
     chaptersList,
     versesKeyMap,
+    selectedChapterName,
     getChapterName,
     getchapterInfo,
     getVerses,
     getVerseByKey,
-    sort,
     getChapters,
   };
 });

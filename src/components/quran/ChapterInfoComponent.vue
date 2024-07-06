@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { shallowRef, watchEffect } from "vue";
+import { inject, shallowRef, watchEffect } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // types
 import type { ChapterInfo } from "@/types";
+import { langKey } from "@/types/symbols";
 
 const chapterStore = useChapterStore()
 const chapterInfo = shallowRef<ChapterInfo | null>(null)
+const $t = inject(langKey)
 
 const props = defineProps<{
     infoDialog: boolean
@@ -18,13 +20,13 @@ defineEmits<{
 
 watchEffect(async () => {
     if (props.infoDialog)
-        if (chapterStore.selectedSurah) {
-            const chapter = chapterStore.surahList.find((c) => c.id === chapterStore.selectedSurah?.id)
+        if (chapterStore.selectedChapter) {
+            const chapter = chapterStore.chaptersList.find((c) => c.id === chapterStore.selectedChapter?.id)
             if (chapter?.chapterInfo) {
                 chapterInfo.value = chapter.chapterInfo
                 return
             } else {
-                await chapterStore.getSurahInfo(chapterStore.selectedSurah?.id).then((response) => {
+                await chapterStore.getchapterInfo(chapterStore.selectedChapter?.id, $t?.locale.value).then((response) => {
                     chapterInfo.value = response.data.chapter_info;
                     chapterInfo.value = response.data.chapter_info
                 }).catch((e) => {
@@ -40,16 +42,14 @@ watchEffect(async () => {
         <v-card>
             <template #title>
                 <v-sheet class="my-2">
-                    <v-icon icon="mdi-update"></v-icon> {{ chapterStore.selectedSurah?.name_simple }}
+                    <v-icon icon="mdi-update"></v-icon> {{ $tr.locale.value === 'ar' ?
+                        chapterStore.selectedChapter?.nameArabic : chapterStore.selectedChapter?.nameSimple }}
                     <v-icon icon="mdi-close" class="float-right" @click="$emit('update:infoDialog', false)"></v-icon>
                 </v-sheet>
                 <v-divider :thickness="2" color="primary"></v-divider>
             </template>
             <template #text>
-                <div v-if="chapterInfo" class="ma-3" v-html="chapterInfo.text"></div>
-            </template>
-            <template #loader>
-                <v-container v-if="!chapterInfo?.text" style="height: 400px;">
+                <v-container v-if="!chapterInfo" style="height: 400px;">
                     <v-row align-content="center" class="fill-height" justify="center">
                         <v-col class="text-subtitle-1 text-center" cols="12">
                             {{ $tr.line("quranReader.loadingChapterInfo") }}
@@ -59,6 +59,7 @@ watchEffect(async () => {
                         </v-col>
                     </v-row>
                 </v-container>
+                <div v-else class="ma-3" v-html="chapterInfo.text"></div>
             </template>
         </v-card>
     </v-dialog>

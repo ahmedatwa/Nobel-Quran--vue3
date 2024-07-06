@@ -2,20 +2,27 @@
 import { ref, computed } from "vue"
 // stores
 import { useChapterStore, useJuzStore, usePageStore } from "@/stores";
-// utils
-import { setStorage } from "@/utils/storage";
 // types
 import type { Chapter } from "@/types/chapter"
-import type { Juz, Pages } from "@/types/juz"
+import type { Juz, JuzVerseMapping } from "@/types/juz"
+import type { Page } from "@/types/page"
 
 // Stores
 const chapterStore = useChapterStore()
 const juzStore = useJuzStore()
 const pageStore = usePageStore()
-const currentSortDir = ref("asc");
-const currentSort = ref("id");
-const pageSize = ref(21)
-const currentPage = ref(1)
+// chapters
+const chaptersSearchValue = ref("")
+const chaptersCurrentSortDir = ref("asc");
+const chaptersCurrentSort = ref("id");
+const chaptersPageSize = ref(21)
+const chaptersCurrentPage = ref(1)
+// Pages
+const pagesSearchValue = ref("")
+const pagesCurrentSortDir = ref("asc");
+const pagesCurrentSort = ref("pageNumber");
+const pagesPageSize = ref(21)
+const pagesCurrentPage = ref(1)
 
 defineProps<{
     modelValue: string
@@ -24,7 +31,7 @@ defineProps<{
 const emit = defineEmits<{
     "update:modelValue": [value: string]
     "update:isLoading": [value: boolean]
-    "updateSelected": [value: Chapter | Juz | Pages]
+    "updateSelected": [value: Chapter | Juz | Page]
 }>()
 
 const chapters = computed(() => {
@@ -37,19 +44,19 @@ const chapters = computed(() => {
                         .toLocaleLowerCase()
                         .replace(/([\-\'])/, "")
                         .includes(
-                            chapterStore.searchValue.toLocaleLowerCase().replace(/([\-\'])/, "")
+                            chaptersSearchValue.value.toLocaleLowerCase().replace(/([\-\'])/, "")
                         );
                 });
             })
             .sort((a: any, b: any) => {
                 let modifier = 1;
-                if (currentSortDir.value === "desc") modifier = -1;
-                if (a[currentSort.value] < b[currentSort.value]) return -1 * modifier;
-                if (a[currentSort.value] > b[currentSort.value]) return 1 * modifier;
+                if (chaptersCurrentSortDir.value === "desc") modifier = -1;
+                if (a[chaptersCurrentSort.value] < b[chaptersCurrentSort.value]) return -1 * modifier;
+                if (a[chaptersCurrentSort.value] > b[chaptersCurrentSort.value]) return 1 * modifier;
                 return 0;
             }).filter((__, index) => {
-                let start = (currentPage.value - 1) * pageSize.value;
-                let end = currentPage.value * pageSize.value;
+                let start = (chaptersCurrentPage.value - 1) * chaptersPageSize.value;
+                let end = chaptersCurrentPage.value * chaptersPageSize.value;
                 if (index >= start && index < end) return true;
             });
     }
@@ -57,50 +64,123 @@ const chapters = computed(() => {
 
 const nextChapterPage = () => {
     if (chapters.value) {
-        if ((currentPage.value * pageSize.value) < chapters.value.length) currentPage.value++;
+        if ((chaptersCurrentPage.value * chaptersPageSize.value) < chapters.value.length) chaptersCurrentPage.value++;
     }
 }
 const prevChapterPage = () => {
-    if (currentPage.value > 1) currentPage.value--;
+    if (chaptersCurrentPage.value > 1) chaptersCurrentPage.value--;
 }
 
-const getSelected = (key: string, value: Pages | Chapter | Juz) => {
+const chaptersSort = (s: string) => {
+    if (s === chaptersCurrentSort.value) {
+        chaptersCurrentSortDir.value = chaptersCurrentSortDir.value === "asc" ? "desc" : "asc";
+    }
+    chaptersCurrentSort.value = s;
+};
+
+const getSelected = (key: string, value: Page | Chapter | Juz) => {
+    emit("update:isLoading", true)
     if (key === "chapter") {
-        emit("update:isLoading", true)
         chapterStore.selectedChapter = value as Chapter
         emit("updateSelected", value as Chapter)
-        setStorage("chapter", { data: value, verse: 1 })
     } else if (key === "juz") {
         juzStore.selectedJuz = value as Juz
         emit("updateSelected", value as Juz)
-        setStorage("juz", { data: value })
     } else {
         // Page
-        pageStore.selectedPage = value as Pages
-        emit("updateSelected", value as Pages)
-        setStorage("page", { data: value })
+        pageStore.selectedPage = value as Page
+        emit("updateSelected", value as Page)
     }
 }
 
-const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
+const mouseEnter = async (key: string, value: Chapter | Page | Juz) => {
     switch (key) {
         case "chapter":
             const chapter = value as Chapter
-            if (!chapter.verses)
+            if (!chapter.verses?.length)
                 await chapterStore.getVerses(chapter.id, false)
             break;
         case "juz":
             const juz = value as Juz
-            if (!value.verses)
+            if (!juz.verses?.length)
                 await juzStore.getVerses(juz.juz_number, false)
             break;
         case "page":
-            const page = value as Pages
-            if (!value.verses)
+            const page = value as Page
+            if (!page.verses?.length)
                 await pageStore.getVerses(page.pageNumber, false)
             break;
     }
 }
+
+/**
+ * mapping chapters names and verses for juz
+ */
+const juzsMapWithChapters = computed(() => {
+    if (juzStore.juzs) {
+        return juzStore.juzs.map((juz) => {
+            return {
+                ...juz,
+                chapters: getChapterAndVerseMappingForJuz(juz.juz_number, juz.verse_mapping)
+            }
+        })
+    }
+})
+
+const getChapterAndVerseMappingForJuz = (juzNumber: number, verseMapping: JuzVerseMapping) => {
+    const array = []
+    for (const key in verseMapping) {
+        const verses = verseMapping[key];
+        const chapterFound = chapterStore.chaptersList.find((chapter) => chapter.id === Number(key))
+        if (chapterFound) {
+            array.push({
+                juzNumber: juzNumber,
+                chapterId: key,
+                en: chapterFound.nameSimple,
+                ar: chapterFound.nameArabic,
+                verses
+
+            })
+        }
+    }
+    return array
+}
+
+// Pages 
+const pages = computed((): Page[] | undefined => {
+    if (pageStore.pages) {        
+        return pageStore.pages.filter((p) => {
+            return p.pageNumber.toLocaleString().replace(/([\-\'])/, "").includes(
+                pagesSearchValue.value.toLocaleLowerCase().replace(/([\-\'])/, "")
+            );
+        }).sort((a: any, b: any) => {
+            let modifier = 1;
+            if (pagesCurrentSortDir.value === "desc") modifier = -1;
+            if (a[pagesCurrentSort.value] < b[pagesCurrentSort.value]) return -1 * modifier;
+            if (a[pagesCurrentSort.value] > b[pagesCurrentSort.value]) return 1 * modifier;
+            return 0;
+        }).filter((__, index) => {
+            let start = (pagesCurrentPage.value - 1) * pagesPageSize.value;
+            let end = pagesCurrentPage.value * pagesPageSize.value;
+            if (index >= start && index < end) return true;
+        });
+    }
+})
+
+const nextPagesPage = () => {
+    if (pages.value)
+        if ((pagesCurrentPage.value * pagesPageSize.value) < pages.value.length) pagesCurrentPage.value++;
+}
+const prevPagesPage = () => {
+    if (pagesCurrentPage.value > 1) pagesCurrentPage.value--;
+}
+
+const pagesSort = (s: string) => {
+    if (s === pagesCurrentSort.value) {
+        pagesCurrentSortDir.value = pagesCurrentSortDir.value === "asc" ? "desc" : "asc";
+    }
+    pagesCurrentSort.value = s;
+};
 </script>
 <template>
     <v-container>
@@ -116,29 +196,28 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                 <v-card :rounded="true">
                     <v-tabs :model-value="modelValue" align-tabs="center" color="primary"
                         @update:model-value="$emit('update:modelValue', $event as string)" grow>
-                        <v-tab value="surah" prepend-icon="mdi-book-alphabet"
-                            @click="chapterStore.currentSort = 'id'">{{ $tr.line('home.textSurah')
+                        <v-tab value="chapters" prepend-icon="mdi-book-alphabet" @click="chaptersCurrentSort = 'id'">{{
+                            $tr.line('home.textChapters')
                             }}</v-tab>
-                        <v-tab value="juz" prepend-icon="mdi-bookshelf">{{ $tr.line('home.textJuz') }}</v-tab>
-                        <v-tab value="page" prepend-icon="mdi-page-layout-sidebar-left">{{ $tr.line('home.textPage')
+                        <v-tab value="juzs" prepend-icon="mdi-bookshelf">{{ $tr.line('home.textJuzs') }}</v-tab>
+                        <v-tab value="pages" prepend-icon="mdi-page-layout-sidebar-left">{{ $tr.line('home.textPages')
                             }}</v-tab>
                         <v-tab value="relevation" prepend-icon="mdi-order-numeric-descending"
-                            @click="chapterStore.currentSort = 'revelation_order'">
+                            @click="chaptersCurrentSort = 'revelationOrder'">
                             {{ $tr.line('home.textRelevation') }}</v-tab>
                     </v-tabs>
                     <v-tabs-window :model-value="modelValue">
-                        <v-tabs-window-item value="surah">
+                        <v-tabs-window-item value="chapters">
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" class="mb-4">
                                         <v-text-field :label="$tr.line('home.inputSearch')"
-                                            prepend-inner-icon="mdi-magnify" v-model="chapterStore.searchValue"
+                                            prepend-inner-icon="mdi-magnify" v-model="chaptersSearchValue"
                                             color="blue-lighten-3" hide-details>
-                                            <template #append-inner>
+                                            <template #append>
                                                 <v-btn v-tooltip="$tr.line('buttonSort')"
-                                                    :icon="chapterStore.currentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-                                                    variant="text" @click="chapterStore.sort('id')"
-                                                    color="primary"></v-btn>
+                                                    :icon="chaptersCurrentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                    variant="text" @click="chaptersSort('id')" color="primary"></v-btn>
                                             </template>
                                         </v-text-field>
                                     </v-col>
@@ -166,22 +245,25 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                                                             <br />
                                                             <small>{{ chapter.versesCount }} {{
                                                                 $tr.line('home.textAyah')
-                                                                }}</small>
+                                                            }}</small>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </v-card-text>
                                         </v-card>
                                     </v-col>
-                                    <v-col cols="12">
-                                        <v-pagination v-model="currentPage" :length="Math.ceil(114 / pageSize)"
-                                            @next="nextChapterPage" @prev="prevChapterPage"></v-pagination>
+                                </v-row>
+                                <v-row justify="center">
+                                    <v-col cols="8">
+                                        <v-pagination v-model="chaptersCurrentPage"
+                                            :length="Math.ceil(114 / chaptersPageSize)" @next="nextChapterPage"
+                                            @prev="prevChapterPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
                         </v-tabs-window-item>
                         <!-- Juz -->
-                        <v-tabs-window-item value="juz">
+                        <v-tabs-window-item value="juzs">
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" class="mb-4">
@@ -202,20 +284,26 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="juz in juzStore.juzs" :key="juz.id" cols="4">
+                                    <v-col v-for="juz in juzsMapWithChapters" :key="juz.id" cols="4">
                                         <v-card :data-id="juz.id" @click="getSelected('juz', juz)" :border="true"
                                             @mouseenter="mouseEnter('juz', juz)">
                                             <v-sheet class="d-flex ma-2">
                                                 <span class="me-auto">{{ $tr.line("home.textJuz") }} {{ juz.juz_number
                                                     }}</span>
                                                 <span class="text-caption">{{ juz.verses_count }} {{
-                                                    $tr.line('home.textVerse')
-                                                    }}</span>
+                                                    $tr.line('home.textVerse') }}</span>
                                             </v-sheet>
                                             <v-card-text>
-                                                <div class="d-flex">
-                                                    <v-card></v-card>
-                                                </div>
+                                                <v-sheet v-for="(chapter, index) in juz.chapters"
+                                                    :key="chapter.chapterId" class="w-100">
+                                                    <div class="d-flex text-blue-grey-lighten-2">
+                                                        <div class="me-auto">{{ index + 1 }} - {{ $tr.rtl.value ?
+                                                            chapter.ar : chapter.en }}
+                                                        </div>
+                                                        <div>{{ $tr.line("home.textVerses") }} {{ chapter.verses }}
+                                                        </div>
+                                                    </div>
+                                                </v-sheet>
                                             </v-card-text>
                                         </v-card>
                                     </v-col>
@@ -223,17 +311,18 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                             </v-container>
                         </v-tabs-window-item>
                         <!-- Page -->
-                        <v-tabs-window-item value="page">
+                        <v-tabs-window-item value="pages">
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" class="mb-4">
                                         <v-text-field :label="$tr.line('home.inputSearch')"
-                                            prepend-inner-icon="mdi-magnify" v-model="pageStore.searchValue"
+                                            prepend-inner-icon="mdi-magnify" v-model="pagesSearchValue"
                                             color="blue-lighten-3" hide-details>
                                             <template #append>
                                                 <v-btn v-tooltip="$tr.line('home.buttonSort')"
-                                                    :icon="juzStore.currentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-                                                    variant="text" @click="juzStore.sort('id')" color="primary"></v-btn>
+                                                    :icon="pagesCurrentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                    variant="text" @click="pagesSort('pageNumber')"
+                                                    color="primary"></v-btn>
                                             </template>
                                         </v-text-field>
                                     </v-col>
@@ -244,22 +333,29 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="page in pageStore.pageList" :key="page.pageNumber" cols="4">
+                                    <v-col v-for="page in pages" :key="page.pageNumber" cols="4">
                                         <v-card @click="getSelected('page', page)" :border="true"
                                             @mouseenter="mouseEnter('page', page)">
-                                            <v-sheet class="d-flex ma-2">
-                                                <span class="me-auto">{{ $tr.line("home.textPage") }} {{ page.pageNumber
-                                                    }}</span>
-                                                <!-- <span class="text-caption">{{ juz.verses_count }} {{
-                                                $tr.line('home.textVerse')
-                                                }}</span> -->
+                                            <v-sheet class="d-flex ms-2 mt-2">
+                                                {{ $tr.line("home.textPage") }} {{ page.pageNumber }}
                                             </v-sheet>
-                                            <v-card-text>
-                                                <div class="d-flex">
-                                                    <v-card></v-card>
-                                                </div>
+                                            <v-card-text v-if="page.chaptersMap">
+                                                <v-sheet v-for="(chapter, index) in page.chaptersMap" :key="index">
+                                                    <div class="d-flex text-blue-grey-lighten-2">
+                                                        <div class="me-auto" v-if="chapter">{{ index + 1 }} - {{ $tr.rtl.value ?
+                                                            chapter.nameArabic : chapter.nameSimple }}
+                                                        </div>
+                                                    </div>
+                                                </v-sheet>
                                             </v-card-text>
                                         </v-card>
+                                    </v-col>
+                                </v-row>
+                                <v-row justify="center">
+                                    <v-col cols="8">
+                                        <v-pagination v-model="pagesCurrentPage"
+                                            :length="Math.ceil(604 / pagesPageSize)" @next="nextPagesPage"
+                                            @prev="prevPagesPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -270,12 +366,12 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                                 <v-row>
                                     <v-col cols="12" class="mb-4">
                                         <v-text-field :label="$tr.line('home.inputSearch')"
-                                            prepend-inner-icon="mdi-magnify" v-model="chapterStore.searchValue"
+                                            prepend-inner-icon="mdi-magnify" v-model="chaptersSearchValue"
                                             color="blue-lighten-3" hide-details>
                                             <template #append>
                                                 <v-btn v-tooltip="$tr.line('home.buttonSort')"
-                                                    :icon="chapterStore.currentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-                                                    variant="text" @click="chapterStore.sort('revelation_order')"
+                                                    :icon="chaptersCurrentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                    variant="text" @click="chaptersSort('revelationOrder')"
                                                     color="primary"></v-btn>
                                             </template>
                                         </v-text-field>
@@ -304,7 +400,7 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                                                             <br />
                                                             <small>{{ chapter.versesCount }} {{
                                                                 $tr.line('home.textAyah')
-                                                                }}</small>
+                                                            }}</small>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -312,8 +408,9 @@ const mouseEnter = async (key: string, value: Chapter | Pages | Juz) => {
                                         </v-card>
                                     </v-col>
                                     <v-col cols="12">
-                                        <v-pagination v-model="currentPage" :length="Math.ceil(114 / pageSize)"
-                                            @next="nextChapterPage" @prev="prevChapterPage"></v-pagination>
+                                        <v-pagination v-model="chaptersCurrentPage"
+                                            :length="Math.ceil(114 / chaptersPageSize)" @next="nextChapterPage"
+                                            @prev="prevChapterPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>

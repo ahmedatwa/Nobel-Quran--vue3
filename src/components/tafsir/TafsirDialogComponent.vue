@@ -1,99 +1,36 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
-import { useMemoize } from "@vueuse/core"
-import { instance } from "@/axios";
+import { watchEffect } from "vue";
+// Store
+import { useTafsirStore } from "@/stores";
 // types
-import type { Tafsirs, Verse } from "@/types"
-import axios from "axios";
+import type { Verse } from "@/types"
 
-const tafsirs = ref<Tafsirs[] | null>(null)
-const selectedLanguage = ref('English')
-const isLoading = ref(false)
-const tafsir = ref<any | null>(null)
-const fontSize = ref(1)
+const tafsirStore = useTafsirStore();
 
 defineEmits<{
     "update:modelValue": [value: boolean]
 }>()
 
 const props = defineProps<{
-    activator: string
-    //modelValue: boolean
+    modelValue: boolean
     verse: Verse
 }>()
 
-const selection = computed(() => {
-    if (tafsirs.value)
-        return [...new Set(tafsirs.value.map(obj => obj.language_name.charAt(0).toUpperCase() + obj.language_name.slice(1)))]
-});
-
-const getTafsirs = useMemoize(async () => {
-    isLoading.value = false
-    instance.get(`resources/tafsirs`).then((res) => {
-        tafsirs.value = res.data.tafsirs
-    }).catch((e) => {
-        throw e
-    }).finally(() => {
-        isLoading.value = false
-    })
-})
-
-const getTafsir = (slug: string) => {
-    // https://tafsirs/en-tafisr-ibn-kathir/by_ayah/1:1
-    if (tafsirs.value) {
-        isLoading.value = false
-        instance({
-            baseURL: `https://api.qurancdn.com/api/qdc/tafsirs/${slug}/by_ayah/${props.verse.verse_key}?words=true&word_fields=verse_key,verse_id,page_number,location,text_uthmani,code_v1,qpc_uthmani_hafs`,
-            method: "GET"
-        }).then((res) => {
-            tafsir.value = res.data.tafsir
-        }).catch((e) => {
-            throw e
-        }).finally(() => {
-            isLoading.value = false
-        })
+// to update verses key 
+watchEffect(() => {
+    if (props.modelValue) {
+        tafsirStore.selectedVerseKey = props.verse.verse_key
     }
+})
+const getTafsirBySlug = (slug: string, verseKey: string) => {
+    tafsirStore.selectedVerseKey = verseKey
+    tafsirStore.tafsirSlug = slug
 }
-
-// watchEffect(async () => {
-//     if (props.modelValue) {
-//         await getTafsirs()
-//     }
-// })
-onMounted(async () => {
-    await getTafsirs()
-    // await Promise.all([
-    //     getTafsirs(),
-    //     getTafsir("en-tafisr-ibn-kathir")
-    // ])
-})
-
-const tafsirRTLMap = computed(() => {
-    if (tafsir.value) {
-        console.log(tafsir.value.slug);
-
-        return tafsir.value.slug.slice(0, 2)
-    }
-})
-
 </script>
 <template>
-    <v-dialog :activator="activator" width="800" :key="verse.id">
-
-        <!-- <v-card prepend-icon="mdi-update" :title="$tr.line('tafsir.title')" class="mx-auto" width="500"
-                v-if="!tafsirs">
-                <v-container style="height: 400px;">
-                    <v-row align-content="center" class="fill-height" justify="center">
-                        <v-col class="text-subtitle-1 text-center" cols="12">
-                            {{ $tr.line("tafsir.loading") }}
-                        </v-col>
-                        <v-col cols="6">
-                            <v-progress-linear color="primary" height="6" indeterminate rounded></v-progress-linear>
-                        </v-col>
-                    </v-row>
-                </v-container>
-            </v-card> -->
-        <v-card :loading="isLoading">
+    <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" width="800"
+        :key="verse.verse_key">
+        <v-card :loading="tafsirStore.isLoading">
             <v-card-title class="d-flex">
                 <div class="me-auto">
                     <v-icon icon="mdi-update"></v-icon> {{ $tr.line('tafsir.title') }}
@@ -102,42 +39,56 @@ const tafsirRTLMap = computed(() => {
                     @click="$emit('update:modelValue', false)"></v-btn>
             </v-card-title>
             <v-card-text>
-                <v-select :items="selection" v-model="selectedLanguage" density="compact" hide-details></v-select>
+                <v-select :items="tafsirStore.selection" v-model="tafsirStore.selectedLanguage" density="compact"
+                    hide-details></v-select>
                 <v-divider :thickness="2" class="mb-3" color="orange"></v-divider>
-                <span v-for="item in tafsirs" :key="item.id" class="mb-3">
-                    <v-chip class="ma-1" v-if="item.language_name === selectedLanguage.toLowerCase()"
-                        @click="getTafsir(item.slug)">
-                        {{ item.name }}
-                    </v-chip>
-                </span>
+                <div v-if="tafsirStore.tafsirsAuthors">
+                    <span v-for="item in tafsirStore.tafsirsAuthors" :key="item.id" class="mb-3">
+                        <v-chip class="ma-1" v-if="item.language_name === tafsirStore.selectedLanguage.toLowerCase()"
+                            :id="verse.verse_key" @click="getTafsirBySlug(item.slug, verse.verse_key)">{{ item.name }}
+                        </v-chip>
+                    </span>
+                </div>
                 <v-sheet class="mt-4 text-body-2">
                     <v-divider :thickness="2" color="orange"></v-divider>
-                    <v-btn :disabled="fontSize === 1" icon="mdi-minus" variant="text" class="d-inline"
-                        @click="fontSize--"></v-btn>
-                    <input class="d-inline mx-2" v-model="fontSize" style="width: 18px;" disabled>
-                    <v-btn :disabled="fontSize === 10" icon="mdi-plus" variant="text" class="d-inline"
-                        @click="fontSize++"></v-btn>
-                    <div v-if="tafsir">
-
-                        <span v-for="word in tafsir.verses[verse.verse_key].words" :key="word.id">
-                            <span class="mx-1 d-inline float-right mt-4">{{ word.text_uthmani }}</span>
+                    <v-btn :disabled="tafsirStore.fontSize === 1" icon="mdi-minus" variant="text" class="d-inline"
+                        @click="tafsirStore.fontSize--"></v-btn>
+                    <input class="d-inline mx-2" v-model="tafsirStore.fontSize" style="width: 18px;" disabled>
+                    <v-btn :disabled="tafsirStore.fontSize === 10" icon="mdi-plus" variant="text" class="d-inline"
+                        @click="tafsirStore.fontSize++"></v-btn>
+                    <div v-if="tafsirStore.tafsir">
+                        <span v-for="(verse, key) in tafsirStore.tafsir.verses" :key="key">
+                            <div v-for="word in verse.words" :key="word.id">
+                                <span v-if="word.char_type_name === 'end'" class="float-right px-1 my-3">({{
+                                    word.text_uthmani }})</span>
+                                <span class="float-right px-1 my-3" v-else>{{ word.text_uthmani }}</span>
+                            </div>
                         </span>
                     </div>
                     <v-divider :thickness="2" color="orange"></v-divider>
                 </v-sheet>
-                <v-sheet :style="{ 'font-size': (fontSize + 15) + 'px' }">
-                    <!-- <v-sheet v-if="tafsirRTLMap === 'ar'">
-                        <p class="text-right" v-html="tafsir.text"></p>
-                    </v-sheet> -->
-                    <v-sheet>
-                        <p v-html="tafsir.text"></p>
+                <!-- tafsir text -->
+                <div :style="{ fontSize: (tafsirStore.fontSize + 15) + 'px' }">
+                    <v-sheet v-if="!tafsirStore.tafsir">
+                        <v-container style="height: 300px;">
+                            <v-row align-content="center" class="fill-height" justify="center">
+                                <v-progress-circular color="primary" model-value="20"
+                                    indeterminate></v-progress-circular>
+                            </v-row>
+                        </v-container>
                     </v-sheet>
-                </v-sheet>
+                    <v-sheet v-else>
+                        <v-sheet v-if="tafsirStore.tafsirRTLMap === 'ar'">
+                            <div class="text-right" v-html="tafsirStore.tafsir.text"></div>
+                        </v-sheet>
+                        <v-sheet v-else v-html="tafsirStore.tafsir.text"></v-sheet>
+                    </v-sheet>
+                </div>
             </v-card-text>
             <template v-slot:actions>
-                <v-btn class="ml-auto" text="Close" @click="$emit('update:modelValue', false)"></v-btn>
+                <v-btn class="ml-auto" variant="tonal" text="Close" @click="$emit('update:modelValue', false)"
+                    size="large"></v-btn>
             </template>
         </v-card>
-
     </v-dialog>
 </template>

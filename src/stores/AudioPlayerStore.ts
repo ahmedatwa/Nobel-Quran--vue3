@@ -3,9 +3,11 @@ import { ref, onMounted, computed } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 //axios
-import { instance } from "@/axios";
+import { instance, makeGetAudioRecitersUrl } from "@/axios";
+import { makeGetRecitationsUrl } from "@/axios";
 // types
-import type { AudioFile, Recitations, mapRecitions } from "@/types/audio";
+import type { AudioFile, Recitations } from "@/types/audio";
+import type { mapRecitions, VerseTimingsProps } from "@/types/audio";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const chapterStore = useChapterStore();
@@ -45,16 +47,12 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     "2",
   ]);
   const recitations = ref<Recitations[]>([]);
-  const verseTiming = ref<{
-    chapterId: number;
-    verseKey: String;
-    inRange: boolean;
-    wordLocation: number;
-  }>({
+  const verseTiming = ref<VerseTimingsProps>({
     chapterId: chapterId.value,
     verseKey: "",
+    verseNumber: 0,
     inRange: false,
-    wordLocation: 0,
+    wordLocation: "",
   });
 
   const chapterName = computed(() => {
@@ -71,13 +69,10 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     // if (payload.audioID === chapterId.value) return;
     chapterId.value = payload.audioID;
     selectedVerseKey.value = payload.verseKey;
-    console.log("audioID", payload.audioID);
 
     isLoading.value = true;
     await instance
-      .get(
-        `https://api.qurancdn.com/api/qdc/audio/reciters/${selectedReciter.value.id}/audio_files?chapter=${payload.audioID}&segments=true`
-      )
+      .get(makeGetAudioRecitersUrl(selectedReciter.value.id, payload.audioID))
       .then((response) => {
         audioFiles.value = response.data.audio_files[0];
       })
@@ -92,7 +87,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const getRecitations = async () => {
     // https://api.qurancdn.com/api/qdc/audio/reciters?locale=en
     await instance
-      .get("https://api.qurancdn.com/api/qdc/audio/reciters?locale=en")
+      .get(makeGetRecitationsUrl())
       .then((response) => {
         recitations.value = response.data.reciters;
       })

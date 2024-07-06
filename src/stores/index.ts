@@ -4,6 +4,7 @@ import { useTranslationsStore } from "./TranslationsStore";
 import { useJuzStore } from "./JuzStore";
 import { useSettingStore } from "./SettingStore";
 import { usePageStore } from "./PageStore";
+import { useTafsirStore } from "./TafsirStore";
 
 export {
   useAudioPlayerStore,
@@ -12,4 +13,5 @@ export {
   useJuzStore,
   useSettingStore,
   usePageStore,
+  useTafsirStore,
 };

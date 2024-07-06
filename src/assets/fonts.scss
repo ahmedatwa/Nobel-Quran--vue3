@@ -8,13 +8,13 @@
 @font-face {
   font-family: "IndoPak";
   src: local("AlQuran IndoPak by QuranWBW"),
-    url("/fonts/quran/hafs/nastaleeq/indopak/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL.woff")
+    url("/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff2")
       format("woff2"),
-    // url("/fonts/quran/hafs/nastaleeq/indopak/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL.woff2")
-      // format("woff"),
-    // url("/fonts/quran/hafs/nastaleeq/indopak/AlQuran-IndoPak-by-QuranWBW.v.4.2.2-WL")
-    //   format("truetype");
-  // font-display: swap;
+    url("/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.woff")
+      format("woff"),
+    url("/fonts/quran/hafs/nastaleeq/indopak/indopak-nastaleeq-waqf-lazim-v4.2.1.ttf")
+      format("truetype");
+  font-display: swap;
 }
 
 @font-face {

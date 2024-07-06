@@ -7,58 +7,62 @@ import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/
 // utils
 import { getFirstVerseNumberInJuz } from "@/utils/verse"
 // types
-import type { HeaderData } from "@/types";
+import type { JuzHeaderData } from "@/types/juz";
+import type { VerseTimingsProps } from "@/types/audio";
 
 const juzStore = useJuzStore()
 const { getChapterName } = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
-const headerData = ref<HeaderData | null>(null);
+const headerData = ref<JuzHeaderData | null>(null);
 const intersectingJuzVerseNumber = ref<number>()
 
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
     groupedTranslationsAuthors?: string;
-    verseTiming: {
-        chapterId: number;
-        verseKey: String;
-        inRange: boolean;
-        wordLocation: number;
-    }
+    verseTiming: VerseTimingsProps
     audioExperience: { autoScroll: boolean, tooltip: boolean }
     cssVars?: { size: string, family: string }
+    selectedJuzTab: string
 }>()
 
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
-    "update:juzHeaderData": [value: HeaderData]
+    "update:headerData": [value: JuzHeaderData | null]
     "update:intersectingJuzVerseNumber": [value: number]
-    "update:activejuz_number": [value: number]
+    "update:activeJuzNumber": [value: number]
 }>()
+
+const getCurrentJuzNumber = computed((): number => {
+    if (juzStore.selectedJuz) {
+        return juzStore.selectedJuz.juz_number
+    }
+    return 0
+})
 
 
 // Manual Mode Scroll
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
-    if (intersecting) {
+    if (intersecting && props.selectedJuzTab === "translationsTab") {
         // emit header data
         headerData.value = {
             left: entries[0].target.dataset.chapterId,
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: entries[0].target.dataset.juz_number,
+                juzNumber: getCurrentJuzNumber.value,
             }
         }
 
-        emit('update:juzHeaderData', headerData.value)
+        emit('update:headerData', headerData.value)
 
         if (entries[0].intersectionRatio === 1) {
-            intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
+            // Verse Id is used here as key won't be efficient for scroll
+            intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseId)
             // emit verse id for scroll in verses list 
             // help to fetch new verses 
             emit('update:intersectingJuzVerseNumber', intersectingJuzVerseNumber.value)
-
         }
     }
 }
@@ -71,9 +75,9 @@ const setBookmarked = (verseNumber: number) => {
 }
 
 // Highlight Active Words
-const isWordHighlighted = (position: number, verseKey: string) => {
-    if (props.verseTiming)
-        return props.verseTiming.wordLocation === position && verseKey === props.verseTiming.verseKey
+const isWordHighlighted = (location: string, verseKey: string) => {
+    if (props.verseTiming && props.selectedJuzTab === "translationsTab")
+        return props.verseTiming.wordLocation === location && verseKey === props.verseTiming.verseKey
 }
 
 // watchers
@@ -84,15 +88,15 @@ watchEffect(async () => {
             const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)
             if (el) {
                 headerData.value = {
-                    left: el.getAttribute("data-chapter-id"),
+                    left: el.getAttribute("data-chapter-id") || '',
                     right: {
-                        pageNumber: el.getAttribute("data-page-number"),
-                        hizbNumber: el.getAttribute("data-hizb-number"),
-                        juzNumber: el.getAttribute("data-juz-number"),
+                        pageNumber: el.getAttribute("data-page-number") || '',
+                        hizbNumber: el.getAttribute("data-hizb-number") || '',
+                        juzNumber: getCurrentJuzNumber.value,
                     }
                 }
                 // emit header Data
-                emit('update:juzHeaderData', headerData.value)
+                emit('update:headerData', headerData.value)
                 // Scroll into View
                 // Verse Column
                 el?.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -117,7 +121,7 @@ const getNextJuz = async () => {
                 }
             }
         }
-        emit("update:activejuz_number", juzStore.selectedJuz.juz_number)
+        emit("update:activeJuzNumber", juzStore.selectedJuz.juz_number)
         // scroll to first verese row 
         const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
         nextTick(() => {
@@ -127,6 +131,7 @@ const getNextJuz = async () => {
     }
 }
 
+// Pagination
 const getPrevJuz = async () => {
     if (juzStore.selectedJuz) {
         const currentJuz = juzStore.selectedJuz.juz_number
@@ -141,7 +146,7 @@ const getPrevJuz = async () => {
                 }
             }
         }
-        emit("update:activejuz_number", juzStore.selectedJuz.juz_number)
+        emit("update:activeJuzNumber", juzStore.selectedJuz.juz_number)
         // scroll to first verese row 
         const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
         nextTick(() => {
@@ -170,7 +175,7 @@ const isNextJuzDisabled = computed(() => {
 
 <template>
     <v-container fluid>
-        <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVerseMap" :key="key"
+        <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVersesByChapterMap" :key="key"
             :id="`verse-row${key}`">
             <v-col cols="12">
                 <title-buttons-component :chapter-id="Number(key)"
@@ -178,18 +183,16 @@ const isNextJuzDisabled = computed(() => {
                     @update:translations-drawer="translationsDrawer = $event"
                     @update:play-audio="$emit('update:playAudio', $event)">
                     <template #title>
-                        <v-sheet>{{ getChapterName(key)?.ar }}</v-sheet>
-                        <v-sheet>{{ getChapterName(key)?.bismillah ? $tr.line("quranReader.textBismillah") : ''
-                            }}</v-sheet>
+                        <h2>{{ getChapterName(key)?.ar }}</h2>
+                        <h3>{{ getChapterName(key)?.bismillah ? $tr.line("quranReader.textBismillah") : '' }}</h3>
                     </template>
                 </title-buttons-component>
             </v-col>
             <v-col cols="12" :id="`verse-col-${key}`">
-                <v-row v-for="verse in verses" :key="verse.verse_number" :data-hizb-number="verse.hizb_number"
-                    :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"
-                    :id="`row${verse.verse_number}`" :data-page-number="verse.page_number"
-                    :data-verse-key="verse.verse_key" :data-chapter-id="verse.chapter_id"
-                    :data-intersecting="isIntersecting" v-intersect.quite="{
+                <v-row v-for="(verse, index) in verses" :key="verse.verse_number" :data-hizb-number="verse.hizb_number"
+                    :data-verse-number="verse.verse_number" :id="`row${verse.verse_number}`" :data-verse-id="verse.id"
+                    :data-page-number="verse.page_number" :data-verse-key="verse.verse_key"
+                    :data-chapter-id="verse.chapter_id" :data-intersecting="isIntersecting" v-intersect.quite="{
                         handler: onIntersect,
                         options: {
                             threshold: [0, 0.5, 1.0]
@@ -202,22 +205,23 @@ const isNextJuzDisabled = computed(() => {
                         </buttons-action-list-component>
                     </v-col>
                     <v-col cols="11" class="text-right pt-3" :order="$tr.rtl.value ? 1 : 2">
-                        <v-list class="quran-content" dense>
+                        <v-list class="quran-translation-view" dense>
                             <v-list-item v-for="word in verse.words" :key="word.id" :id="`verse-word${verse.verse_key}`"
                                 :data-hizb-number="verse.hizb_number" :data-verse-number="verse.verse_number"
-                                :data-juz-number="verse.juz_number" class="item">
-                                <v-list-item-title class="quran-content title" :id="`target${word.id}`"
-                                    :class="isWordHighlighted(word.position, word.verse_key) ? 'text-blue' : ''">
-                                    <div>{{ word.text_uthmani }}
+                                class="item">
+                                <v-list-item-title class="word" :id="`word-tooltip${word.id}`"
+                                    :data-verse-key="verse.verse_key"
+                                    :class="isWordHighlighted(word.location, word.verse_key) ? 'text-blue' : ''">
+                                    <h3>{{ word.text_uthmani }}
                                         <v-tooltip activator="parent" :target="`#target${word.id}`"
                                             v-if="audioExperience.tooltip"
-                                            :model-value="isWordHighlighted(word.position, word.verse_key)"
+                                            :model-value="isWordHighlighted(word.location, word.verse_key)"
                                             location="top center" origin="bottom center" :text="word.translation.text">
                                         </v-tooltip>
                                         <v-tooltip activator="parent" :target="`#target${word.id}`" v-else
                                             location="top center" origin="bottom center" :text="word.translation.text">
                                         </v-tooltip>
-                                    </div>
+                                    </h3>
                                 </v-list-item-title>
                             </v-list-item>
                         </v-list>
@@ -236,7 +240,7 @@ const isNextJuzDisabled = computed(() => {
         </v-row>
         <v-row justify="center" :align="'center'">
             <!-- Prev -->
-            <v-col cols="12" class="text-center" v-if="juzStore.selectedJuz">
+            <v-col cols="12" class="text-center" v-if="juzStore.selectedJuz && juzStore.selectedJuz.verses?.length">
                 <v-btn v-if="juzStore.selectedJuz?.juz_number > 1" prepend-icon="mdi-arrow-left-bottom" class="me-2"
                     variant="outlined" @click="getPrevJuz">{{
                         $tr.line('quranReader.prevJuz') }}</v-btn>
@@ -256,15 +260,12 @@ const isNextJuzDisabled = computed(() => {
     align-items: start !important;
 }
 
-.quran-content {
-    font-family: v-bind("props.cssVars?.family");
+:deep(.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line) {
+    padding-inline: 3px;
 }
 
-.quran-content .title {
+.quran-translation-view h3 {
     font-size: v-bind("props.cssVars?.size");
-}
-
-.action-list {
-    padding: 2px !important;
+    font-family: v-bind("props.cssVars?.family");
 }
 </style>

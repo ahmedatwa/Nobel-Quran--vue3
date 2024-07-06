@@ -1,15 +1,24 @@
 import { defineStore } from "pinia";
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onBeforeMount, watch } from "vue";
 // stores
-import { useTranslationsStore } from "@/stores";
+import { useTranslationsStore, useChapterStore } from "@/stores";
 // axios
 import { instance } from "@/axios";
 // types
-import type { Juz } from "@/types/juz";
+import type { Juz, juzVersesByPageMap } from "@/types/juz";
 import type { Verse } from "@/types/verse";
+// utils
+import {
+  verseWordFields,
+  verseFields,
+  verseTranslationFields,
+} from "@/utils/verse";
+import { _range } from "@/utils/number";
 
 export const useJuzStore = defineStore("juz-store", () => {
   const translationsStore = useTranslationsStore();
+  const { chaptersList } = useChapterStore();
+
   const isLoading = ref(false);
   const juzList = ref<Juz[]>([]);
   const selectedJuz = ref<Juz | null>(null);
@@ -17,7 +26,48 @@ export const useJuzStore = defineStore("juz-store", () => {
   const currentSort = ref("id");
   const searchValue = ref("");
   const perPage = ref(10);
+  // url fields
+  const urlFields = computed(() => {
+    return `&words=true&translation_fields=${verseTranslationFields.join(
+      ","
+    )}&fields=${verseFields.join(",")}&word_fields=${verseWordFields.join(
+      ","
+    )}`;
+  });
 
+  /**
+   * map Juz by chapter id
+   * for translations tab
+   * @return []
+   */
+  const JuzMapByChaptersTest = computed(() => {
+    if (selectedJuz.value) {
+      const verse_mapping = Object.entries(selectedJuz.value.verse_mapping);
+      return verse_mapping.map((value) => {
+        const splitVersesRange = value[1].split("-");
+        return {
+          chapterId: value[0],
+          versesRange: {
+            from: splitVersesRange[0],
+            to: splitVersesRange[1],
+          },
+          verses: _range(
+            Number(splitVersesRange[1]),
+            Number(splitVersesRange[0])
+          ).map((verseNumber) => {
+            const found = selectedJuz.value?.verses?.find(
+              (v) => v.verse_number === verseNumber
+            );
+            if (found) {
+              return found;
+            } else {
+              return null;
+            }
+          }),
+        };
+      });
+    }
+  });
   const juzs = computed(() => {
     return juzList.value
       .filter((v) => {
@@ -33,7 +83,7 @@ export const useJuzStore = defineStore("juz-store", () => {
   });
 
   const getVerses = async (
-    juz_number: number,
+    juzNumber: number,
     loading: boolean,
     page?: number,
     limit?: number
@@ -44,28 +94,28 @@ export const useJuzStore = defineStore("juz-store", () => {
 
     await instance
       .get(
-        `/verses/by_juz/${juz_number}?translations=${translationsStore.selectedTranslationsIdsString}&words=true&translation_fields=resource_name,language_id&page=${page}&per_page=${limit}&fields=text_uthmani,chapter_id,hizb_number,text_imlaei_simple&word_fields=verse_key,verse_id,page_number,location,text_uthmani,code_v1,qpc_uthmani_hafs,text_uthmani_simple`
+        `/verses/by_juz/${juzNumber}?translations=${translationsStore.selectedTranslationsIdsString}&page=${page}&per_page=${limit}&${urlFields.value}`
       )
       .then((response) => {
-        const juz = juzList.value.find((s) => s.juz_number === juz_number);
+        const juz = juzList.value.find((s) => s.juz_number === juzNumber);
         if (juz) {
           response.data.verses.forEach((verse: Verse) => {
-            const isVerseFound = juz.verses?.find(
+            const verseFound = juz.verses?.find(
               (v) => v.verse_key === verse.verse_key
             );
-            if (!isVerseFound) {
+
+            if (!verseFound) {
               juz.verses?.push({ ...verse, bookmarked: false });
-              juz.pagination = response.data.pagination;
-              if (selectedJuz.value?.juz_number === juz.juz_number) {
-                selectedJuz.value.verses?.push({ ...verse, bookmarked: false });
-                selectedJuz.value.pagination = response.data.pagination;
-              }
             }
           });
+          juz.pagination = response.data.pagination;
+          if(selectedJuz.value?.pagination) {
+            selectedJuz.value.pagination = response.data.pagination;
+          }
         }
       })
-      .catch((e) => {
-        console.log(e);
+      .catch((error) => {
+        throw error;
       })
       .finally(() => {
         isLoading.value = false;
@@ -88,7 +138,6 @@ export const useJuzStore = defineStore("juz-store", () => {
             juzList.value?.push({
               ...c,
               verses: [],
-              audioFile: null,
             });
           });
         }
@@ -101,13 +150,13 @@ export const useJuzStore = defineStore("juz-store", () => {
       });
   };
 
-  onMounted(async () => {
+  onBeforeMount(async () => {
     if (!juzList.value.length) {
       await getJuzs();
     }
   });
 
-  const juzVerseMap = computed(() => {
+  const juzVersesByChapterMap = computed((): juzVersesByPageMap | undefined => {
     if (selectedJuz.value) {
       if (selectedJuz.value.verses)
         return selectedJuz.value?.verses.reduce(
@@ -140,15 +189,30 @@ export const useJuzStore = defineStore("juz-store", () => {
     }
   );
 
+  const getChapterNameByVerseKey = (chapterId: number) => {
+    if (chaptersList) {
+      const found = chaptersList.find((c) => c.id === Number(chapterId));
+      if (found) {
+        return {
+          ar: found.nameArabic,
+          en: found.nameSimple,
+          bismillah: found.bismillahPre,
+        };
+      }
+    }
+  };
+
   return {
     isLoading,
     juzs,
+    JuzMapByChaptersTest,
     searchValue,
     selectedJuz,
     juzList,
-    juzVerseMap,
+    juzVersesByChapterMap,
     currentSort,
     currentSortDir,
+    getChapterNameByVerseKey,
     getJuzs,
     sort,
     getVerses,

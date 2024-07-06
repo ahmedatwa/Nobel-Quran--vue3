@@ -6,6 +6,7 @@ import { TafsirDialogComponent } from '@/components/tafsir';
 import type { Verse } from "@/types"
 
 const isCopied = ref(false)
+const tafsirDialog = ref(false)
 const activeAudioData = ref<{ audioID: number, verseKey?: string } | null>(null)
 
 const props = defineProps<{
@@ -39,7 +40,7 @@ const iaPlaying = computed(() => {
     return false
 })
 
- 
+
 </script>
 
 <template>
@@ -54,14 +55,8 @@ const iaPlaying = computed(() => {
             </v-btn>
         </v-list-item>
         <v-list-item>
-
-
             <v-btn icon="mdi-book-open-variant-outline" variant="text" :size="size" :key="verse.verse_key"
-                v-tooltip="'Tafsir'" :ref="`tafsir${verse.id}`"></v-btn>
-
-            <!-- <tafsir-dialog-component :activator="activator" :verse="verse" :key="verse.id">
-            </tafsir-dialog-component> -->
-
+                v-tooltip="'Tafsir'" @click.stop="tafsirDialog = !tafsirDialog"></v-btn>
         </v-list-item>
         <v-list-item>
             <v-btn :icon="verse.bookmarked ? 'mdi-bookmark-check' : 'mdi-bookmark-minus-outline'" :size="size"
@@ -74,17 +69,8 @@ const iaPlaying = computed(() => {
                 :color="isCopied ? 'primary' : ''"></v-btn>
         </v-list-item>
     </v-list>
-
-    <v-dialog :activator="`tafsir${verse.id}`" max-width="340">
-        <template v-slot:default="{ isActive }">
-            <v-card prepend-icon="mdi-bullseye-arrow"
-                text="Pass any valid querySelector to the activator prop to bind the dialog to the target element."
-                title="Target Activator">
-                <template v-slot:actions>
-                    <v-btn class="ml-auto" text="Close" @click="isActive.value = false"></v-btn>
-                </template>
-            </v-card>
-        </template>
-    </v-dialog>
-
+    <!-- tafsir-dialog-component -->
+    <tafsir-dialog-component v-model:model-value="tafsirDialog" :verse="verse" :key="verse.verse_key"
+        @update:model-value="tafsirDialog = $event">
+    </tafsir-dialog-component>
 </template>

@@ -2,13 +2,18 @@
 import { ref, computed } from "vue";
 import { useJuzStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran"
-import type { HeaderData } from "@/types"
+// types
+import type { JuzHeaderData } from "@/types/juz"
+import type { MapVersesByPage } from "@/types/verse";
+import type { VerseTimingsProps } from "@/types/audio";
 
+// utils
+import { getChapterNameByJuzId } from "@/utils/juz"
 
 const juzStore = useJuzStore()
 const isIntersecting = ref(false)
-const headerData = ref<HeaderData | null>(null);
-const intersectingVerseNumber = ref<number>()
+const headerData = ref<JuzHeaderData | null>(null);
+const intersectingJuzVerseNumber = ref<number>()
 const verses = computed(() => {
     if (juzStore.selectedJuz) {
         return juzStore.selectedJuz.verses?.sort((a, b) => a.verse_number - b.verse_number)
@@ -17,28 +22,24 @@ const verses = computed(() => {
 
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
-    "update:headerData": [value: HeaderData]
-    "update:intersectingVerseNumber": [value: number]
+    "update:headerData": [value: JuzHeaderData | null]
+    "update:intersectingJuzVerseNumber": [value: number]
 }>()
 
 const props = defineProps<{
     audioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
-    verseTiming: {
-        chapterId: number;
-        verseKey: String;
-        inRange: boolean;
-        wordLocation: number;
-    }
+    verseTiming: VerseTimingsProps
     cssVars?: { size: string, family: string }
+    selectedJuzTab: string
 }>()
 
 // Highlight Active Words
-const isWordHighlighted = (position: number, verseKey: string) => {
-    if (props.verseTiming)
-        return props.verseTiming.wordLocation === position && verseKey === props.verseTiming.verseKey
+const isWordHighlighted = (location: string, verseKey: string) => {
+    if (props.verseTiming && props.selectedJuzTab === "readingTab")
+        return props.verseTiming.wordLocation === location && verseKey === props.verseTiming.verseKey
 }
 
-const mapVersesByPage = computed(() => {
+const mapVersesByPage = computed((): MapVersesByPage | undefined => {
     if (verses.value) {
         return verses.value.reduce((acc: any, obj) => {
             (acc[obj.page_number] = acc[obj.page_number] || []).push(obj);
@@ -48,28 +49,32 @@ const mapVersesByPage = computed(() => {
 })
 
 
+
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
-    if (intersecting) {
+    const chapterId = entries[0].target.dataset.chapterId
+    if (intersecting && props.selectedJuzTab === "readingTab") {
         // emit header data
+
         headerData.value = {
             left: "",
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: entries[0].target.dataset.juzNumber,
+                juzNumber: juzStore.selectedJuz ? juzStore.selectedJuz?.juz_number : 0,
             }
         }
 
         emit('update:headerData', headerData.value)
 
-        if (entries[0].intersectionRatio === 1) {
-            intersectingVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
+        if (entries[0].intersectionRatio >= 0.5) {
+            intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
+
             // emit verse id for scroll in verses list 
             // help to fetch new verses 
-            emit('update:intersectingVerseNumber', intersectingVerseNumber.value)
-
+            emit('update:intersectingJuzVerseNumber', intersectingJuzVerseNumber.value)
         }
+
     }
 }
 </script>
@@ -77,47 +82,60 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
 <template>
     <v-container>
         <v-row justify="center" :align="'center'" no-gutters>
-
-            <v-col cols="12">
-                <!-- <title-buttons-component :is-audio-player="audioPlayer" :chapter-id=""
-                    @update:play-audio="$emit('update:playAudio', $event)" isInfoDialog>
-                </title-buttons-component> -->
-            </v-col>
-            <v-divider></v-divider>
-            <v-card class="card" width="600" flat>
-                <template #title>
-                    <!-- <v-sheet class="quran-content-title">{{ $tr.rtl ? juzStore.selectedJuz?.name_arabic :
-                        surahStore.selectedSurah?.name_simple }}</v-sheet> -->
-                </template>
-                <template #subtitle>
-                    <!-- <v-sheet class="quran-content-title my-3"> {{ surahStore.selectedSurah?.bismillah_pre ?
-                        $tr.line('quranReader.textBismillah') : '' }}
-                    </v-sheet> -->
-                </template>
+            <v-card class="quran-reader-container" width="auto" flat>
                 <v-card-text>
                     <v-container>
-                        <v-row no-gutters>
-                            <v-col v-for="(verses, k) in mapVersesByPage" :key="k" class="quran-content" cols="12">
-                                <v-sheet v-for="verse in verses" :key="verse.id" :id="verse.verse_number"
-                                    class="word-wrapper" :data-hizb-number="verse.hizb_number"
-                                    :data-page-number="verse.page_number" :data-juz-number="verse.juz_number"
-                                    :data-verse-number="verse.verse_number" v-intersect.quite="{
+                        <v-row v-for="(verses, page, index) in mapVersesByPage" :key="page" :data-page-id="page"
+                            class="verse-row" no-gutters justify="center" :align="'start'">
+                            <v-col cols="12">
+                                <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="1"
+                                    @update:play-audio="$emit('update:playAudio', $event)" isInfoDialog>
+                                    <template #title>
+                                        <h2>{{ $tr.rtl
+                                            ? getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.nameArabic
+                                            : getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.nameSimple
+                                            }}
+                                        </h2>
+                                    </template>
+
+                                    <template #subtitle>
+                                        <h3 class="quran-content-title my-3"> {{
+                                            getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.bismillahPre ?
+                                                $tr.line('quranReader.textBismillah') : '' }}
+                                        </h3>
+                                    </template>
+                                </title-buttons-component>
+                            </v-col>
+                            <v-col class="verse-col d-flex flex-wrap justify-center align-self-end" :id="`page-${page}`"
+                                cols="11">
+                                <div class="d-inline-flex" v-for="verse in verses" :key="verse.id"
+                                    :id="`page-${page}-line-${verse.verse_number}`"
+                                    :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
+                                    :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"
+                                    v-intersect.quite="{
                                         handler: onIntersect,
                                         options: {
-                                            threshold: [0, 0.5, 1.0]
-                                        }
+                                            threshold: [0, 0.5, 1.0],
+                                        },
                                     }">
-                                    <span v-for="word in verse.words" :key="word.id" class="item"
-                                        :id="`verse-word${verse.verse_key}`" :data-hizb-number="verse.hizb_number"
-                                        :data-juz-number="verse.juz_number">
-                                        <p :class="isWordHighlighted(word.position, word.verse_key) ? 'text-blue' : ''">
-                                            {{ word.text_uthmani }}
-                                        </p>
-                                    </span>
-                                </v-sheet>
-                                <v-col cols="12" class="my-4 text-caption d-flex flex-column border-b-thin ">
-                                    {{ k }}
-                                </v-col>
+                                    <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position"
+                                        class="" :data-hizb-number="verse.hizb_number"
+                                        :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id">
+                                        <div :class="isWordHighlighted(word.location, word.verse_key)
+                                            ? 'text-blue'
+                                            : ''
+                                            " class="word">
+                                            <div v-if="word.char_type_name === 'end'" style="font-family: p3-v1;">({{
+                                                word.text_uthmani
+                                            }})
+                                            </div>
+                                            <div v-else>{{ word.text_uthmani }}</div>
+                                        </div>
+                                    </h3>
+                                </div>
+                            </v-col>
+                            <v-col cols="12" class="my-4">
+                                <v-divider><span class="text-caption">{{ page }}</span></v-divider>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -125,7 +143,6 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             </v-card>
         </v-row>
     </v-container>
-
 </template>
 <style scoped>
 :deep(.v-list-item--density-default.v-list-item--one-line) {
@@ -136,20 +153,8 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     padding-inline: 0px
 }
 
-.quran-content p {
+.quran-reader-container .verse-col {
     font-size: v-bind("props.cssVars?.size");
-}
-
-.quran-content p {
     font-family: v-bind("props.cssVars?.family");
-}
-
-.card {
-    text-align: center;
-}
-
-.word-wrapper {
-    line-height: 40px;
-    direction: rtl;
 }
 </style>

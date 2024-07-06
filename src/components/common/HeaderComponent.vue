@@ -6,7 +6,9 @@ import { useTheme } from "vuetify";
 // utils
 import { setStorage } from "@/utils/storage";
 // types
-import type { HeaderData } from "@/types";
+import type { ChapterHeaderData } from "@/types/chapter";
+import type { JuzHeaderData } from "@/types/juz";
+import type { PageHeaderData } from "@/types/page";
 import { langKey } from "@/types/symbols";
 // stores
 import { useChapterStore } from "@/stores";
@@ -14,7 +16,7 @@ import { useChapterStore } from "@/stores";
 const _theme = useTheme();
 const { getChapterName } = useChapterStore()
 const $lang = inject(langKey);
-const navigationDrawer = inject("modelNav");
+const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
 const languages = ref([
   { key: "en", value: "English", rtl: false },
@@ -22,9 +24,7 @@ const languages = ref([
 ]);
 
 const props = defineProps<{
-  chapterHeaderData: HeaderData | null;
-  pageHeaderData: HeaderData | null;
-  juzHeaderData: HeaderData | null;
+  headerData: { key: string, value: ChapterHeaderData | PageHeaderData | JuzHeaderData } | null;
   isLoading?: boolean;
 }>();
 
@@ -41,18 +41,23 @@ const toggleTheme = () => {
 };
 
 const headerData = computed(() => {
-  if (props.chapterHeaderData) {
-    const chapterId = props.chapterHeaderData.left
+  if (props.headerData?.key === "chapter") {
+    const data = props.headerData.value as ChapterHeaderData
+    return {
+      left: $lang?.locale.value === "ar" ? data.left[1] : data.left[0],
+      right: data.right
+    }
+  } else if (props.headerData?.key === "juz") {
+    const data = props.headerData.value as JuzHeaderData
+    const chapterId = Number(data.left)
     if (chapterId) {
       const chapterName = getChapterName(chapterId)
       return {
         left: $lang?.locale.value === "ar" ? chapterName?.ar : chapterName?.en,
-        right: props.chapterHeaderData.right
+        right: data.right
       }
     }
-  } else if (props.juzHeaderData) {
-
-  } else if (props.pageHeaderData) {
+  } else if (props.headerData) {
 
   } else {
     return ""
@@ -62,9 +67,11 @@ const headerData = computed(() => {
 <template>
   <v-app-bar :elevation="2" density="comfortable" :extension-height="40">
     <template #prepend>
-      <v-avatar image="../../../quran8.png"></v-avatar>
-      <v-app-bar-title class="ms-2 mouse-pointer quran-header-title" @click="$emit('updateHome', true)"
-        :text="$tr.line('common.headingTitle')">
+      <v-avatar image="/quran8.png"></v-avatar>
+      <v-app-bar-title class="ms-2" @click="$emit('updateHome', true)">
+        <template #text>
+          <p class="quran-header-title">{{ $tr.line('common.headingTitle') }}</p>
+        </template>
       </v-app-bar-title>
     </template>
     <template #append>
@@ -84,17 +91,16 @@ const headerData = computed(() => {
       </v-btn>
     </template>
     <template #extension v-if="headerData">
-      <v-btn @click="navigationDrawer = !navigationDrawer"
-        :append-icon="navigationDrawer ? 'mdi-menu-down' : 'mdi-menu-up'">
+      <v-btn @click="navigationModelValue = !navigationModelValue"
+        :append-icon="navigationModelValue ? 'mdi-menu-down' : 'mdi-menu-up'">
         {{ headerData.left }}
       </v-btn>
       <v-sheet class="ms-auto me-4 text-body-2">
-        {{
-          $tr.line("common.headerSurahData", [
-            headerData.right?.hizbNumber,
-            headerData.right?.juzNumber,
-            headerData.right?.pageNumber,
-          ])
+        {{ $tr.line("common.headerSurahData", [
+          headerData.right?.hizbNumber,
+          headerData.right?.juzNumber,
+          headerData.right?.pageNumber,
+        ])
         }}
       </v-sheet>
     </template>
@@ -104,10 +110,6 @@ const headerData = computed(() => {
 </template>
 <style scoped>
 .quran-header-title {
-  font-family: "Kanit", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  src: url("https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Playwrite+NZ:wght@100..400&display=swap");
+  cursor: pointer
 }
 </style>

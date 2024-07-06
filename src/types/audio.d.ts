@@ -13,11 +13,20 @@ interface VerseTimings {
   duration: number;
   timestamp_from: number;
   timestamp_to: number;
-  verse_key: string;
+  verseKey: string;
   inRange?: boolean;
-  wordLocation?: number;
+  wordLocation?: string;
+  verseNumber?: number | string;
   segments: object[];
 }
+
+type VerseTimingsProps = {
+  chapterId: number;
+  verseKey: String;
+  verseNumber: number;
+  inRange: boolean;
+  wordLocation: string;
+};
 
 interface Recitations {
   id: number;
@@ -42,4 +51,17 @@ interface mapRecitions {
   [key: string]: Recitations;
 }
 
-export { VerseTimings, AudioFile, Recitations, mapRecitions };
+type IsAudioPlayingProps = {
+  audioID: number;
+  isPlaying?: boolean;
+  format?: string;
+} | null;
+
+export {
+  VerseTimings,
+  AudioFile,
+  Recitations,
+  mapRecitions,
+  VerseTimingsProps,
+  IsAudioPlayingProps,
+};

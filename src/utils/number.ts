@@ -65,10 +65,10 @@ export const getPageNumberFromIndexAndPerPage = (
 };
 
 export const localizeNumber = (number: number, locale?: string) => {
-  return number.toLocaleString(getLangFullLocale(locale) || "en-US");
+  const value = number.toLocaleString(getLangFullLocale(locale) || "en-US");
+  return Number(value);
 };
 
-
 export const _range = (end: number, start: number) => {
-  return Array.from({length: end - start + 1}, (_, i) => i + start )
-}
+  return Array.from({ length: end - start + 1 }, (_, i) => i + start);
+};

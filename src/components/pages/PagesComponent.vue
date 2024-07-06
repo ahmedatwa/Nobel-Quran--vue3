@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue';
 // stores
-import { useAudioPlayerStore, useChapterStore, useTranslationsStore } from "@/stores";
+import { useAudioPlayerStore, usePageStore, useTranslationsStore } from "@/stores";
 // components
 import { PagesTranslationsViewComponent, PagesReadingViewComponent } from '@/components/pages';
 // types
-import type { HeaderData } from '@/types';
+import type { PageHeaderData } from '@/types/page';
 
 // Stores
-const chapterStore = useChapterStore()
+const pageStore = usePageStore()
 const translationsStore = useTranslationsStore()
 const audioPlayerStore = useAudioPlayerStore()
 const tab = ref("translationTab")
@@ -21,9 +21,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    "update:headerData": [value: HeaderData]
+    "update:headerData": [value: PageHeaderData]
+    "update:activePageNumber": [value: number]
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
-    "update:intersectingVerseNumber": [value: number]
+    "update:intersectingPageVerseNumber": [value: number]
 }>()
 
 watchEffect(() => {
@@ -33,19 +34,13 @@ watchEffect(() => {
     }
 })
 
-watchEffect(async () => {
-    if(props.selected) {
-        if(!chapterStore.selectedSurah) {
-            chapterStore.selectedSurah = chapterStore.surahList[0]
-            await chapterStore.getVerses(1, true)
-        }
-    }
-})
+
 
 </script>
 <template>
     <v-card v-show="selected" class="ma-3" :elevation="1"
-        :id="`quran-reader-content-surah${chapterStore.selectedSurah?.id}`" :key="chapterStore.selectedSurah?.id">
+        :id="`quran-reader-content-surah${pageStore.selectedPage?.pageNumber}`"
+        :key="pageStore.selectedPage?.pageNumber">
         <v-tabs v-model="tab" align-tabs="center" color="primary" grow>
             <v-tab value="translationTab" prepend-icon="mdi-book-open">
                 {{ $tr.line("quranReader.textTranslation") }}</v-tab>
@@ -58,20 +53,22 @@ watchEffect(async () => {
                     :audio-experience="audioPlayerStore.audioExperience" :css-vars="settingCssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
                     :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
-                    @update:intersecting-verse-number="emit('update:intersectingVerseNumber', $event)"
-                    @update:play-audio="emit('update:playAudio', $event)">
+                    @update:intersecting-page-verse-number="emit('update:intersectingPageVerseNumber', $event)"
+                    @update:play-audio="emit('update:playAudio', $event)"
+                    @update:active-page-number="$emit('update:activePageNumber', $event)">
                 </pages-translations-view-component>
             </v-tabs-window-item>
             <v-tabs-window-item value="readingTab">
                 <pages-reading-view-component :is-audio-playing="audioPlayer" :css-vars="settingCssVars"
-                    :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
-                    @update:intersecting-verse-number="emit('update:intersectingVerseNumber', $event)"
+                    :audio-experience="audioPlayerStore.audioExperience" :verse-timing="audioPlayerStore.verseTiming"
+                    @update:header-data="emit('update:headerData', $event)"
+                    @update:intersecting-page-verse-number="emit('update:intersectingPageVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)">
                 </pages-reading-view-component>
             </v-tabs-window-item>
         </v-tabs-window>
         <v-card-actions>
-            <v-row v-if="chapterStore.isLoading.verses">
+            <v-row v-if="pageStore.isLoading">
                 <v-col cols="12">
                     <v-progress-linear indeterminate color="primary"></v-progress-linear>
                 </v-col>

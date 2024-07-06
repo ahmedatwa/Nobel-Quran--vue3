@@ -15,7 +15,9 @@ import {
   useAudioPlayerStore,
 } from "@/stores";
 // types
-import type { HeaderData } from "@/types";
+import type { ChapterHeaderData } from "@/types/chapter";
+import type { JuzHeaderData } from "@/types/juz";
+import type { PageHeaderData } from "@/types/page";
 // utils
 import { getStorage } from "@/utils/storage";
 
@@ -26,16 +28,18 @@ const audioPlayerStore = useAudioPlayerStore();
 
 const translationDrawer = ref(false);
 provide("translationDrawer", translationDrawer);
-const navigationDrawer = inject<boolean>("modelNav");
+const navigationModelValue = inject<boolean>("navigationModelValue");
 
 // Refs
 const selectedTab = ref("");
 const selectedPage = ref(1);
 const intersectingVerseNumber = ref<number>();
 const intersectingJuzVerseNumber = ref<number>();
+const intersectingPageVerseNumber = ref<number>();
 const audioPlayerModelValue = ref(false);
 const selectedVerseKeyView = ref("");
 const activeJuzNumber = ref<number>();
+const activePageNumber = ref<number>();
 const audioPlayer = ref<{
   audioID: number;
   verseKey?: string;
@@ -48,10 +52,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:chapterHeaderData": [value: HeaderData];
-  "update:juzHeaderData": [value: HeaderData];
-  "update:pageHeaderData": [value: HeaderData];
-  "update:navigationDrawer": [value: boolean];
+  "update:headerData": [{ key: string, value: JuzHeaderData | PageHeaderData | ChapterHeaderData }];
+  "update:navigationModelValue": [value: boolean];
 }>();
 
 const playAudio = (event: { audioID: number; verseKey?: string }) => {
@@ -60,16 +62,16 @@ const playAudio = (event: { audioID: number; verseKey?: string }) => {
   audioPlayerModelValue.value = true;
 };
 
-watchEffect(() => {
-  if (props.selected) {
-    selectedTab.value = props.selected;
-  }
-});
+// watchEffect(() => {
+//   if (props.selected) {
+//     selectedTab.value = props.selected;
+//   }
+// });
 
 watch(
   () => audioPlayer.value?.isPlaying,
   (newV) => {
-    emit("update:navigationDrawer", !newV);
+    emit("update:navigationModelValue", !newV);
   }
 );
 // Front Styles
@@ -99,29 +101,32 @@ onBeforeMount(() => {
 });
 </script>
 <template>
-  <navigation-component v-model:model-nav="navigationDrawer" :selected="selected"
+  <navigation-component v-model:navigation-model-value="navigationModelValue" :selected="selected"
     @update:selected-tab="selectedTab = $event" :intersecting-verse-number="intersectingVerseNumber"
     :intersecting-juz-verse-number="intersectingJuzVerseNumber" @update:selected-page="selectedPage = $event"
-    :active-juz-number="activeJuzNumber"
+    :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
+    :intersecting-page-verse-number="intersectingPageVerseNumber"
     @update:selected-verse-key-view="selectedVerseKeyView = $event"></navigation-component>
   <!-- Juz -->
-  <juzs-component :selected="selectedTab === 'juz'" :selected-tab="selectedTab" :audio-player="audioPlayer"
+  <juzs-component :selected="selectedTab === 'juzs'" :selected-tab="selectedTab" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:translation-drawer="translationDrawer = $event"
     @update:intersecting-juz-verse-number="intersectingJuzVerseNumber = $event"
     :selected-verse-key-View="selectedVerseKeyView" @update:play-audio="playAudio"
-    @update:juz-header-data="$emit('update:juzHeaderData', $event)"
+    @update:header-data="$emit('update:headerData', { key: 'juz', value: $event as JuzHeaderData })"
     @update:active-juz-number="activeJuzNumber = $event"></juzs-component>
   <!-- Chapters -->
-  <chapters-component :selected="selectedTab === 'surah'" :audio-player="audioPlayer" :selected-tab="selectedTab"
+  <chapters-component :selected="selectedTab === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
     :selected-verse-key-View="selectedVerseKeyView" :setting-css-vars="settingCssVars"
     @update:intersecting-verse-number="intersectingVerseNumber = $event"
-    @update:chapter-header-data="$emit('update:chapterHeaderData', $event)" @update:play-audio="playAudio">
+    @update:header-data="$emit('update:headerData', { key: 'chapter', value: $event as ChapterHeaderData })"
+    @update:play-audio="playAudio">
   </chapters-component>
   <!-- Pages -->
-  <pages-component :selected="selectedTab === 'page'" :selected-page="selectedPage" :audio-player="audioPlayer"
-    :setting-css-vars="settingCssVars" @update:verse-id="intersectingVerseNumber = $event"
-    @update:translation-drawer="translationDrawer = $event"
-    @update:page-header-data="$emit('update:pageHeaderData', $event)" @update:play-audio="playAudio"></pages-component>
+  <pages-component :selected="selectedTab === 'pages'" :selected-page="selectedPage" :audio-player="audioPlayer"
+    :setting-css-vars="settingCssVars" @update:intersecting-page-verse-number="intersectingPageVerseNumber = $event"
+    @update:translation-drawer="translationDrawer = $event" @update:active-page-number="activePageNumber = $event"
+    @update:header-data="$emit('update:headerData', { key: 'pages', value: $event as PageHeaderData })"
+    @update:play-audio="playAudio"></pages-component>
 
   <translation-list-component @update:selected-translations="updateTranslations"></translation-list-component>
 

@@ -24,11 +24,11 @@ type Verse = {
     char_type_name: string;
     line_number: number;
     page_number: number;
+    location: string;
     code_v1: string;
     text_uthmani: string;
     text_indopak: string;
     text_imlaei: string;
-    location: string;
     text: string;
     code_v1: string;
     code_v2: string;
@@ -54,4 +54,8 @@ interface VerseTranslation {
   verse_number: number;
 }
 
-export { Verse };
+type MapVersesByPage = {
+  [key:string]: Verse[]
+}
+
+export { Verse, MapVersesByPage };

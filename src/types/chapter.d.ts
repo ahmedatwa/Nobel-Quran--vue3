@@ -51,9 +51,9 @@ type TranslatedName = {
 type Loading = {
   chapters: boolean;
   verses: boolean;
-  info: boolean;
-  length: number
-}
+  info?: boolean;
+  length?: number;
+};
 
 interface ChapterSchema {
   id: number;
@@ -70,9 +70,79 @@ interface ChapterSchema {
     name: string;
   };
   verses: Verse[];
-  pagination: Pagination | null
-  chapterInfo: ChapterInfo | null
-  audioFile: AudioFiles | null
+  pagination: Pagination | null;
+  chapterInfo: ChapterInfo | null;
+  audioFile: AudioFiles | null;
 }
 
-export { Chapter, ChapterInfo, Loading, ChapterSchema };
+interface ChapterHeaderData {
+  left: string[] | string;
+  right: {
+    pageNumber: string | number;
+    hizbNumber: string | number;
+    juzNumber: string | number;
+  };
+}
+
+interface Tafsirs {
+  id: integer;
+  name: string;
+  author_name: string;
+  slug: string;
+  language_name: string;
+  translated_name: {
+    name: string;
+    language_name: string;
+  };
+}
+
+interface SingleTafsir {
+  language_id: number;
+  resource_id: number;
+  resource_name: string;
+  slug: string;
+  text: string;
+  translated_name: {
+    language_name: string;
+    name: string;
+  };
+  verses: {
+    [key: string]: {
+      id: number;
+      words: {
+        audio_url: string;
+        char_type_name: string;
+        code_v1: string;
+        id: number;
+        line_number: number;
+        location: string;
+        page_number: number;
+        position: number;
+        text: string;
+        text_uthmani: string;
+        translation: {
+          language_id: number;
+          language_name: string;
+          text: string;
+        };
+        transliteration: {
+          language_id: number;
+          language_name: string;
+          text: string;
+        };
+        verse_id: number;
+        verse_key: string;
+      }[]
+    };
+  };
+}
+
+export {
+  Chapter,
+  ChapterInfo,
+  Loading,
+  ChapterSchema,
+  ChapterHeaderData,
+  Tafsirs,
+  SingleTafsir,
+};

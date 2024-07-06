@@ -18,7 +18,6 @@ export const useSettingStore = defineStore("setting-store", () => {
   const fontFamilyGroup = ref([
     "Amiri",
     "Aref",
-    "IndoPak",
     "UthmanicHafs",
     "Surahnames",
   ]);

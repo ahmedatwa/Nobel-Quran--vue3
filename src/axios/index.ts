@@ -1,17 +1,12 @@
 import axios from "axios";
 
-
-export const localInstance = axios.create({
-  baseURL: "http://localhost:3000",
-  headers: {
-   "Accept": "application/json"
-  },
-});
+export const QURAN_API_URL = "https://api.quran.com/api/v4/";
+export const QURAN_QDC_URL = "https://api.qurancdn.com/api/qdc/";
 
 export const instance = axios.create({
-  baseURL: "https://api.quran.com/api/v4",
+  baseURL: QURAN_API_URL,
   headers: {
-   "Accept": "application/json"
+    Accept: "application/json",
   },
 });
 
@@ -37,3 +32,19 @@ instance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Urls
+// Audio
+const audioUrl = QURAN_QDC_URL + "/audio/reciters/";
+export const makeGetAudioRecitersUrl = (
+  reciterID: number,
+  audioID: number
+): string => {
+  return (
+    audioUrl + reciterID + "/audio_files?chapter=" + audioID + "&segments=true"
+  );
+};
+
+export const makeGetRecitationsUrl = (locale: string = "en"): string => {
+  return audioUrl + "?locale=" + locale;
+};

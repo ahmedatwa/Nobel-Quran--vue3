@@ -6,12 +6,15 @@ import { useChapterStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran";
 import { ButtonsActionListComponent } from "@/components/quran";
 // types
-import type { HeaderData } from "@/types";
+import type { ChapterHeaderData } from "@/types/chapter";
+import type { VerseTimingsProps, IsAudioPlayingProps } from "@/types/audio"
+// utils
+import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 
 const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
-const headerData = ref<HeaderData | null>(null);
+const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 const verses = computed(() => {
   if (chapterStore.selectedChapter?.verses) {
@@ -28,25 +31,17 @@ const chapterAudioId = computed(() => {
 });
 
 const props = defineProps<{
-  isAudioPlaying: {
-    audioID: number;
-    isPlaying?: boolean;
-    format?: string;
-  } | null;
+  isTranslationsView: boolean;
+  isAudioPlaying: IsAudioPlayingProps
   groupedTranslationsAuthors?: string;
-  verseTiming: {
-    chapterId: number;
-    verseKey: String;
-    inRange: boolean;
-    wordLocation: number;
-  };
+  verseTiming: VerseTimingsProps
   audioExperience: { autoScroll: boolean; tooltip: boolean };
   cssVars?: { size: string; family: string };
 }>();
 
 const emit = defineEmits<{
   "update:playAudio": [value: { audioID: number; verseKey?: string }];
-  "update:chapterHeaderData": [value: HeaderData];
+  "update:headerData": [value: ChapterHeaderData];
   "update:intersectingVerseNumber": [value: number];
 }>();
 
@@ -56,7 +51,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
   if (intersecting) {
     // emit header data
     headerData.value = {
-      left: entries[0].target.dataset.chapterId,
+      left: chapterStore.selectedChapterName,
       right: {
         pageNumber: entries[0].target.dataset.pageNumber,
         hizbNumber: entries[0].target.dataset.hizbNumber,
@@ -64,7 +59,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
       },
     };
 
-    emit("update:chapterHeaderData", headerData.value);
+    emit("update:headerData", headerData.value);
 
     if (entries[0].intersectionRatio === 1) {
       intersectingVerseNumber.value = Number(
@@ -85,40 +80,46 @@ const setBookmarked = (verseNumber: number) => {
 };
 
 // Highlight Active Words
-const isWordHighlighted = (position: number, verseKey: string) => {
-  if (props.verseTiming)
+const isWordHighlighted = (location: string, verseKey: string) => {
+  if (props.verseTiming && props.isTranslationsView) {
     return (
-      props.verseTiming.wordLocation === position &&
+      props.verseTiming.wordLocation === location &&
       verseKey === props.verseTiming.verseKey
     );
+  }
 };
 
 // watchers
 // auto mode with verse timing and feed header data
 watchEffect(async () => {
-  if (props.verseTiming.verseKey) {
+  if (props.verseTiming.verseNumber) {
     if (props.audioExperience.autoScroll) {
-      const el = document.getElementById(
-        `verse-word${props.verseTiming.verseKey}`
-      );
-      if (el) {
+      const el = document.querySelector(`#verse-row-${props.verseTiming.verseNumber}`) as HTMLDivElement
+      if (!isInViewport(el)) {
         headerData.value = {
-          left: el.getAttribute("data-chapter-id"),
+          left: chapterStore.selectedChapterName,
           right: {
-            pageNumber: el.getAttribute("data-page-number"),
-            hizbNumber: el.getAttribute("data-hizb-number"),
-            juzNumber: el.getAttribute("data-juz-number"),
+            pageNumber: el.getAttribute("data-page-number") || "",
+            hizbNumber: el.getAttribute("data-hizb-number") || "",
+            juzNumber: el.getAttribute("data-juz-number") || "",
           },
         };
         // emit header Data
-        emit("update:chapterHeaderData", headerData.value);
+        emit("update:headerData", headerData.value);
         // Scroll into View
-        // Verse Column
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
+        // toggle active state
+        const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
+        if (element) {
+          //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
+        }
       }
     }
   }
 });
+
+const isHoveringElement = ref("")
+
 </script>
 
 <template>
@@ -133,40 +134,44 @@ watchEffect(async () => {
       <v-col cols="12" class="mb-2" v-for="verse in verses" :key="verse.verse_key" :data-hizb-number="verse.hizb_number"
         :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id" :data-verse-number="verse.verse_number"
         :data-verse-key="verse.verse_key" :data-page-number="verse.page_number" :data-intersecting="isIntersecting"
-        v-intersect.quite="{
+        :id="`verse-col-number-${verse.verse_number}`" v-intersect.quite="{
           handler: onIntersect,
           options: {
             threshold: [0, 0.5, 1.0],
           },
         }">
-        <v-row :id="`verse-row${verse.verse_number}`">
-          <v-col cols="1" class="action-list" :order="$tr.rtl.value ? 2 : 1">
+        <v-row :id="`verse-row-${verse.verse_number}`">
+          <v-col cols="1" class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1">
+
             <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)" size="small"
               :is-audio-player="isAudioPlaying" :verse="verse" @update:bookmarked="setBookmarked">
             </buttons-action-list-component>
           </v-col>
-          <v-col cols="11" class="text-right pt-3" :order="$tr.rtl.value ? 1 : 2">
-            <v-list class="quran-content" dense>
-              <v-list-item v-for="word in verse.words" :key="word.id" :id="`verse-word${verse.verse_key}`"
-                :data-hizb-number="verse.hizb_number" :data-verse-number="verse.verse_number"
-                :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
-                :data-page-number="verse.page_number" class="item">
-                <v-list-item-title class="quran-content title" :id="`target${word.id}`"
-                  :class="isWordHighlighted(word.position, word.verse_key) ? 'text-blue' : ''">
-                  <p v-if="word.char_type_name === 'end'">
-                    ({{ word.text_uthmani }})
-                  </p>
-                  <p v-else>
-                    {{ word.text_uthmani }}
 
-                    <v-tooltip v-if="audioExperience.tooltip" activator="parent" :target="`#target${word.id}`"
-                      :model-value="isWordHighlighted(word.position, word.verse_key)
+          <v-col cols="11" class="text-right pt-3" :order="$tr.rtl.value ? 1 : 2" style="position: relative;"
+            :id="`active-${verse.verse_number}`">
+            <!-- overLay -->
+            <v-overlay :key="`overlay-${verse.verse_number}`" contained scrim="#CFD8DC" opacity="0.1"
+              :model-value="isHoveringElement === `active-${verse.verse_number}` ? true : false"></v-overlay>
+            <v-list class="quran-translation-view" dense>
+              <v-list-item v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
+                :data-verse-number="verse.verse_number" :data-chapter-id="verse.chapter_id"
+                :data-juz-number="verse.juz_number" :data-page-number="verse.page_number" class="item">
+                <v-list-item-title class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word.location, word.verse_key)
+                  ? 'text-blue'
+                  : ''">
+                  <h3 v-if="word.char_type_name === 'end'">
+                    ({{ word.text_uthmani }})
+                  </h3>
+                  <h3 v-else> {{ word.text_uthmani }}
+                    <v-tooltip v-if="audioExperience.tooltip" activator="parent" :target="`#word-tooltip-${word.id}`"
+                      :model-value="isWordHighlighted(word.location, word.verse_key)
                         " location="top center" origin="bottom center" :text="word.translation.text">
                     </v-tooltip>
-                    <v-tooltip v-else activator="parent" :target="`#target${word.id}`" location="top center"
+                    <v-tooltip v-else activator="parent" :target="`#word-tooltip-${word.id}`" location="top center"
                       origin="bottom center" :text="word.translation.text">
                     </v-tooltip>
-                  </p>
+                  </h3>
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -178,8 +183,11 @@ watchEffect(async () => {
               </v-list-item>
             </v-list>
           </v-col>
+
         </v-row>
-        <v-divider class="mb-3"></v-divider>
+        <v-col cols="12" class="my-3">
+          <v-divider></v-divider>
+        </v-col>
       </v-col>
     </v-row>
   </v-container>
@@ -189,15 +197,12 @@ watchEffect(async () => {
   align-items: start !important;
 }
 
-.quran-content {
-  font-family: v-bind("props.cssVars?.family");
+:deep(.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line) {
+  padding-inline: 3px;
 }
 
-.quran-content .title {
+.quran-translation-view h3 {
   font-size: v-bind("props.cssVars?.size");
-}
-
-.action-list {
-  padding: 2px !important;
+  font-family: v-bind("props.cssVars?.family");
 }
 </style>

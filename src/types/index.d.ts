@@ -97,17 +97,7 @@ interface TranslationReduceMap {
 }
 
 
-interface Tafsirs {
-  id: integer;
-  name: string;
-  author_name: string;
-  slug: string;
-  language_name: string;
-  translated_name: {
-    name: string;
-    language_name: string;
-  };
-}
+
 
 interface Setting {
   autoStartPlayer: boolean;
@@ -135,14 +125,7 @@ interface Page {
   [key: number]: Verse[]
 }
 
-interface HeaderData {
-  left: string | null;
-  right: {
-    pageNumber: string | null;
-    hizbNumber: string | null;
-    juzNumber: string | null;
-  } 
-}
+
 
 interface Languages {
   id: number;

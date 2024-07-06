@@ -39,11 +39,12 @@ const isPlaying = computed(() => {
 
 <template>
     <v-container>
-        <v-row justify="space-between">
+        <v-row class="d-flex">
             <v-col cols="12" class="text-center my-4 quran-content-title" v-if="$slots.title">
-                <slot name="title"> </slot>
+                <slot name="title" class="quran-reader-container"> </slot>
+                <slot name="subtitle" class="quran-reader-container"> </slot>
             </v-col>
-            <v-col class="me-auto">
+            <v-col class="me-auto text-left">
                 <v-btn v-if="isInfoDialog" @click.stop="infoDialog = !infoDialog"
                     prepend-icon="mdi-information-outline">
                     {{ $tr.line("quranReader.textSurahInfo") }}
@@ -59,7 +60,7 @@ const isPlaying = computed(() => {
                     </v-btn>
                 </v-sheet>
             </v-col>
-            <v-col cols="3" offset="3" class="ms-auto">
+            <v-col class="ms-auto text-right">
                 <v-slide-x-reverse-transition>
                     <v-sheet class="text-right">
                         <v-btn variant="outlined" @click="playAudio(chapterId)" color="primary">
