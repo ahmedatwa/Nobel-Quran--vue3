@@ -189,7 +189,7 @@ const isNextJuzDisabled = computed(() => {
                 </title-buttons-component>
             </v-col>
             <v-col cols="12" :id="`verse-col-${key}`">
-                <v-row v-for="(verse, index) in verses" :key="verse.verse_number" :data-hizb-number="verse.hizb_number"
+                <v-row v-for="(verse, __index) in verses" :key="verse.verse_number" :data-hizb-number="verse.hizb_number"
                     :data-verse-number="verse.verse_number" :id="`row${verse.verse_number}`" :data-verse-id="verse.id"
                     :data-page-number="verse.page_number" :data-verse-key="verse.verse_key"
                     :data-chapter-id="verse.chapter_id" :data-intersecting="isIntersecting" v-intersect.quite="{

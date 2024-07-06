@@ -52,7 +52,7 @@ const mapVersesByPage = computed((): MapVersesByPage | undefined => {
 
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
-    const chapterId = entries[0].target.dataset.chapterId
+   // const chapterId = entries[0].target.dataset.chapterId
     if (intersecting && props.selectedJuzTab === "readingTab") {
         // emit header data
 

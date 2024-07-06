@@ -5,8 +5,6 @@ import { useJuzStore } from "@/stores";
 // types
 import type { Juz } from "@/types/juz"
 import { scrollToElement } from "@/utils/useScrollToElement"
-import { generateChapterVersesKeys } from "@/utils/chapter"
-import { getVerseNumberRangeFromKey } from "@/utils/verse"
 
 // Stores
 const juzStore = useJuzStore()

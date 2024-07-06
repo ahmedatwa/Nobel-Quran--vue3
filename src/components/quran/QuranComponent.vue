@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect, inject, watch } from "vue";
+import { ref, inject, watch } from "vue";
 import { computed, provide, onBeforeMount } from "vue";
 // components
 import { AudioPlayerComponent } from "@/components/audio";
@@ -47,7 +47,7 @@ const audioPlayer = ref<{
   format?: string;
 } | null>(null);
 
-const props = defineProps<{
+defineProps<{
   selected: string;
 }>();
 

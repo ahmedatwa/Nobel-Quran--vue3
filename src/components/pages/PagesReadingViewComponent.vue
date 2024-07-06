@@ -31,12 +31,12 @@ const groupVersesByChapter = computed(() => {
     }
 })
 
-const chapterAudioId = computed(() => {
-    if (pageStore.selectedPage) {
-        return pageStore.selectedPage
-    }
-    return 0
-})
+// const chapterAudioId = computed(() => {
+//     if (pageStore.selectedPage) {
+//         return pageStore.selectedPage
+//     }
+//     return 0
+// })
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
     "update:headerData": [value: PageHeaderData]
@@ -144,7 +144,7 @@ const getNextPage = async () => {
 
 const getStartOfPage = () => {
     if (getFirstVerseRow.value) {
-        const el = document.querySelector(`#row${getFirstVerseRow.value}`)
+        //const el = document.querySelector(`#row${getFirstVerseRow.value}`)
         scrollToElement(`#row${getFirstVerseRow.value}`)
     }
 }

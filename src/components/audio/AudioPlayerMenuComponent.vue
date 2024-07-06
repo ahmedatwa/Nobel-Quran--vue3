@@ -20,7 +20,7 @@ const props = defineProps<{
     playbackRate: string | number
     recitions?: Recitations[]
     audioUrl?: string;
-    audioFormat?: string
+    audioFormat?: string | null;
     chapterName?: string;
     audioExperience: { autoScroll: boolean, tooltip: boolean }
 }>()

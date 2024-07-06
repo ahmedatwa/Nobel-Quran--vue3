@@ -1,7 +1,7 @@
 import jsonPagesChaptersMappingData from "@/json/page-to-chapter-mappings.json";
 import jsonChaptersData from "@/json/chapters.json";
 import { localizeNumber } from "@/utils/number";
-import type { Page, ChaptersForPage } from "@/types/page";
+import type { Page } from "@/types/page";
 
 const DEFAULT_NUMBER_OF_PAGES = 604;
 
