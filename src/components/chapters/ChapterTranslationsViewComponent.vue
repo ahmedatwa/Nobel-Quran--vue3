@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, computed } from "vue";
+import { ref, inject, watchEffect, computed, onMounted } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -23,6 +23,12 @@ const verses = computed(() => {
     );
   }
 });
+
+const getFirstVerseOfChapter = computed(() => {
+  if (chapterStore.selectedChapter?.verses) {
+    return chapterStore.selectedChapter?.verses[0]
+  }
+})
 const chapterAudioId = computed(() => {
   if (chapterStore.selectedChapter) {
     return chapterStore.selectedChapter?.id;
@@ -120,6 +126,23 @@ watchEffect(async () => {
 
 const isHoveringElement = ref("")
 
+// emitting header data on mounted so 
+// access to dismiss the navigation menu is available
+onMounted(() => {
+  if (getFirstVerseOfChapter.value) {
+    headerData.value = {
+      left: chapterStore.selectedChapterName,
+      right: {
+        pageNumber: getFirstVerseOfChapter.value.page_number,
+        hizbNumber: getFirstVerseOfChapter.value.hizb_number,
+        juzNumber: getFirstVerseOfChapter.value.juz_number,
+      },
+    };
+    // emit header Data
+    emit("update:headerData", headerData.value);
+  }
+
+})
 </script>
 
 <template>

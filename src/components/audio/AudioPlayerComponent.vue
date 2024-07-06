@@ -22,7 +22,6 @@ const $tr = inject(langKey)
 const props = defineProps<{
     audioPlayer: { audioID: number, verseKey?: string, format?: string, isPlaying?: boolean, pause?: boolean } | null,
     modelValue: boolean
-    autoPlay: boolean
 }>()
 
 const emit = defineEmits<{
@@ -127,7 +126,7 @@ watchEffect(() => {
                                 vt.wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
                                 wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
                                 vt.verseNumber = s[0]
-                               // verseNumber = s[0]
+                                // verseNumber = s[0]
                                 return;
                             }
 
@@ -196,6 +195,10 @@ const cleanupListeners = () => {
         audioPlayerRef.value.removeEventListener("timeupdate", playbackListener);
         audioPlayerRef.value.removeEventListener("ended", playbackEnded);
         audioPlayerRef.value.removeEventListener("pause", playbackPaused);
+        // dismiss on playbavc ends
+        if (settingStore.audioPlayerSetting.dismissOnEnd) {
+            emit("update:modelValue", false)
+        }
     }
 }
 
@@ -220,11 +223,6 @@ onMounted(() => {
         if (state.experience) {
             audioPlayerStore.audioExperience = state.experience
         }
-        setStorage("audio-player", {
-            isMuted: isMuted.value,
-            playbackRate: playbackRate.value,
-            mediaVolume: mediaVolume.value,
-        })
     }
 })
 
@@ -306,7 +304,7 @@ const loadeddata = () => {
                 }
             }
             // Auto Play Setting 
-            if (props.autoPlay) {
+            if (settingStore.audioPlayerSetting.autoPlay) {
                 isPlaying.value = true
                 audioPlayerStore.isLoading = false
                 audioPlayerRef.value?.play();
@@ -432,9 +430,9 @@ const changeMediaVolume = (volume: number) => {
 
 
 <template>
-    <v-bottom-sheet :model-value="modelValue" @update:model-value="closePlayer" :inset="settingStore.inset"
-        :scrim="false" persistent no-click-animation scroll-strategy="none" @keyup.up="keyboardVolumUp"
-        @keyup.down="keyboardVolumDown">
+    <v-bottom-sheet :model-value="modelValue" @update:model-value="closePlayer"
+        :inset="settingStore.audioPlayerSetting.inset" :scrim="false" persistent no-click-animation
+        scroll-strategy="none" @keyup.up="keyboardVolumUp" @keyup.down="keyboardVolumDown">
         <v-card>
             <v-progress-linear v-model="progressTimer" clickable :height="7" @click="playbackSeek" hide-details
                 buffer-color="orange" :buffer-value="audioBuffer"

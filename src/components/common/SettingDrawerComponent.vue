@@ -31,11 +31,12 @@ const emit = defineEmits<{
             <v-divider color="orange" :thickness="2"></v-divider>
             <v-card-text class="mx-2">
                 <p class="text-subtitle-2 mb-2">{{ $tr.line("setting.audioPlayer") }}</p>
-                <v-switch :label="$tr.line('setting.autoplay')" color="primary" v-model="settingStore.autoPlay"
-                    hide-details></v-switch>
-                <v-switch :label="$tr.line('setting.playerFullWidth')" color="primary" v-model="settingStore.inset"
-                    :false-value="true" :true-value="false" hide-details></v-switch>
-
+                <v-switch :label="$tr.line('setting.autoplay')" color="primary"
+                    v-model="settingStore.audioPlayerSetting.autoPlay" hide-details></v-switch>
+                <v-switch :label="$tr.line('setting.playerFullWidth')" color="primary"
+                    v-model="settingStore.audioPlayerSetting.inset" hide-details></v-switch>
+                <v-switch :label="$tr.line('setting.dismissPlayer')" color="primary"
+                    v-model="settingStore.audioPlayerSetting.dismissOnEnd" hide-details></v-switch>
                 <v-select v-model="audioPlayerStore.selectedReciter" :label="$tr.line('setting.reciter')"
                     :items="audioPlayerStore.recitations" item-title="name" item-value="reciter_id" return-object>
                     <template v-slot:item="{ props, item }">
@@ -82,15 +83,15 @@ const emit = defineEmits<{
                     <v-sheet id="translations-font-size" class="d-flex justify-center my-3">
                         <div class="ma-2 py-5">{{ $tr.line('setting.fontSize') }}</div>
                         <div class="ma-2 pa-2">
-                        <v-btn icon="mdi-minus" class="d-inline" variant="plain"
-                            @click="settingStore.cssVars.translationsFontSize--"
-                            :disabled="settingStore.cssVars.translationsFontSize === 1"></v-btn>
-                        <input class="d-inline mx-2" style="width: 15px;"
-                            v-model="settingStore.cssVars.translationsFontSize" disabled>
-                        <v-btn icon="mdi-plus" class="d-inline" variant="plain"
-                            @click="settingStore.cssVars.translationsFontSize++"
-                            :disabled="settingStore.cssVars.translationsFontSize === 10"></v-btn>
-                            </div>
+                            <v-btn icon="mdi-minus" class="d-inline" variant="plain"
+                                @click="settingStore.cssVars.translationsFontSize--"
+                                :disabled="settingStore.cssVars.translationsFontSize === 1"></v-btn>
+                            <input class="d-inline mx-2" style="width: 15px;"
+                                v-model="settingStore.cssVars.translationsFontSize" disabled>
+                            <v-btn icon="mdi-plus" class="d-inline" variant="plain"
+                                @click="settingStore.cssVars.translationsFontSize++"
+                                :disabled="settingStore.cssVars.translationsFontSize === 10"></v-btn>
+                        </div>
                     </v-sheet>
                 </v-sheet>
                 <v-btn variant="outlined" class="pa-2 ma-2" block>

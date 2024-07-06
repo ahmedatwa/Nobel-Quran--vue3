@@ -5,8 +5,11 @@ import { CssVars } from "@/types";
 export const useSettingStore = defineStore("setting-store", () => {
   const versesPages = ref([10, 20, 30, 40, 50]);
   const VersesPerPage = ref(10);
-  const autoPlay = ref(true);
-  const inset = ref(true);
+  const audioPlayerSetting = ref({
+    inset: true,
+    autoPlay: true,
+    dismissOnEnd: true
+  })
 
   const cssVars = ref<CssVars>({
     quranFrontSize: 3,
@@ -25,9 +28,8 @@ export const useSettingStore = defineStore("setting-store", () => {
   return {
     versesPages,
     VersesPerPage,
-    autoPlay,
+    audioPlayerSetting,
     cssVars,
     fontFamilyGroup,
-    inset,
   };
 });

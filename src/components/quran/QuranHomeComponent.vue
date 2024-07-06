@@ -23,6 +23,13 @@ const pagesCurrentSortDir = ref("asc");
 const pagesCurrentSort = ref("pageNumber");
 const pagesPageSize = ref(21)
 const pagesCurrentPage = ref(1)
+// Juz
+const juzSearchValue = ref("")
+const juzCurrentSortDir = ref("asc");
+const juzCurrentSort = ref("juzNumber");
+const juzPageSize = ref(12)
+const juzCurrentPage = ref(1)
+
 
 defineProps<{
     modelValue: string
@@ -113,42 +120,9 @@ const mouseEnter = async (key: string, value: Chapter | Page | Juz) => {
     }
 }
 
-/**
- * mapping chapters names and verses for juz
- */
-const juzsMapWithChapters = computed(() => {
-    if (juzStore.juzs) {
-        return juzStore.juzs.map((juz) => {
-            return {
-                ...juz,
-                chapters: getChapterAndVerseMappingForJuz(juz.juz_number, juz.verse_mapping)
-            }
-        })
-    }
-})
-
-const getChapterAndVerseMappingForJuz = (juzNumber: number, verseMapping: JuzVerseMapping) => {
-    const array = []
-    for (const key in verseMapping) {
-        const verses = verseMapping[key];
-        const chapterFound = chapterStore.chaptersList.find((chapter) => chapter.id === Number(key))
-        if (chapterFound) {
-            array.push({
-                juzNumber: juzNumber,
-                chapterId: key,
-                en: chapterFound.nameSimple,
-                ar: chapterFound.nameArabic,
-                verses
-
-            })
-        }
-    }
-    return array
-}
-
 // Pages 
 const pages = computed((): Page[] | undefined => {
-    if (pageStore.pages) {        
+    if (pageStore.pages) {
         return pageStore.pages.filter((p) => {
             return p.pageNumber.toLocaleString().replace(/([\-\'])/, "").includes(
                 pagesSearchValue.value.toLocaleLowerCase().replace(/([\-\'])/, "")
@@ -181,6 +155,69 @@ const pagesSort = (s: string) => {
     }
     pagesCurrentSort.value = s;
 };
+
+// Juz
+/**
+ * mapping chapters names and verses for juz
+ */
+const juzsMapWithChapters = computed(() => {
+    if (juzStore.juzs) {
+        const map = juzStore.juzs.map((juz) => {
+            return {
+                ...juz,
+                chapters: getChapterAndVerseMappingForJuz(juz.juz_number, juz.verse_mapping)
+            }
+        })
+
+        return map.filter((j) => {
+            return j.juz_number.toLocaleString().replace(/([\-\'])/, "").includes(
+                juzSearchValue.value.toLocaleLowerCase().replace(/([\-\'])/, "")
+            );
+        }).sort((a: any, b: any) => {
+            let modifier = 1;
+            if (juzCurrentSortDir.value === "desc") modifier = -1;
+            if (a[juzCurrentSort.value] < b[juzCurrentSort.value]) return -1 * modifier;
+            if (a[juzCurrentSort.value] > b[juzCurrentSort.value]) return 1 * modifier;
+            return 0;
+        }).filter((__, index) => {
+            let start = (juzCurrentPage.value - 1) * juzPageSize.value;
+            let end = juzCurrentPage.value * juzPageSize.value;
+            if (index >= start && index < end) return true;
+        });
+    }
+})
+
+const getChapterAndVerseMappingForJuz = (juzNumber: number, verseMapping: JuzVerseMapping) => {
+    const array = []
+    for (const key in verseMapping) {
+        const verses = verseMapping[key];
+        const chapterFound = chapterStore.chaptersList.find((chapter) => chapter.id === Number(key))
+        if (chapterFound) {
+            array.push({
+                juzNumber: juzNumber,
+                chapterId: key,
+                en: chapterFound.nameSimple,
+                ar: chapterFound.nameArabic,
+                verses
+
+            })
+        }
+    }
+    return array
+}
+const juzsSort = (s: string) => {
+    if (s === juzCurrentSort.value) {
+        juzCurrentSortDir.value = juzCurrentSortDir.value === "asc" ? "desc" : "asc";
+    }
+    juzCurrentSort.value = s;
+};
+const nextJuzPage = () => {
+    if (pages.value)
+        if ((juzCurrentPage.value * juzPageSize.value) < pages.value.length) juzCurrentPage.value++;
+}
+const prevJuzPage = () => {
+    if (juzCurrentPage.value > 1) juzCurrentPage.value--;
+}
 </script>
 <template>
     <v-container>
@@ -228,7 +265,7 @@ const pagesSort = (s: string) => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="chapter in chapters" :key="chapter.id" cols="4">
+                                    <v-col v-for="chapter in chapters" :key="chapter.id" sm="12" md="4">
                                         <v-card :data-id="chapter.id" @click="getSelected('chapter', chapter)"
                                             :border="true" @mouseenter="mouseEnter('chapter', chapter)">
                                             <v-card-text>
@@ -268,12 +305,12 @@ const pagesSort = (s: string) => {
                                 <v-row>
                                     <v-col cols="12" class="mb-4">
                                         <v-text-field :label="$tr.line('home.inputSearch')"
-                                            prepend-inner-icon="mdi-magnify" v-model="juzStore.searchValue"
+                                            prepend-inner-icon="mdi-magnify" v-model="juzSearchValue"
                                             color="blue-lighten-3" hide-details>
                                             <template #append>
                                                 <v-btn v-tooltip="$tr.line('home.buttonSort')"
-                                                    :icon="juzStore.currentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
-                                                    variant="text" @click="juzStore.sort('id')" color="primary"></v-btn>
+                                                    :icon="juzCurrentSortDir === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+                                                    variant="text" @click="juzsSort('id')" color="primary"></v-btn>
                                             </template>
                                         </v-text-field>
                                     </v-col>
@@ -284,9 +321,9 @@ const pagesSort = (s: string) => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="juz in juzsMapWithChapters" :key="juz.id" cols="4">
+                                    <v-col v-for="juz in juzsMapWithChapters" :key="juz.id" sm="12" md="4">
                                         <v-card :data-id="juz.id" @click="getSelected('juz', juz)" :border="true"
-                                            @mouseenter="mouseEnter('juz', juz)">
+                                            @mouseenter="mouseEnter('juz', juz)" height="100">
                                             <v-sheet class="d-flex ma-2">
                                                 <span class="me-auto">{{ $tr.line("home.textJuz") }} {{ juz.juz_number
                                                     }}</span>
@@ -306,6 +343,12 @@ const pagesSort = (s: string) => {
                                                 </v-sheet>
                                             </v-card-text>
                                         </v-card>
+                                    </v-col>
+                                </v-row>
+                                <v-row justify="center">
+                                    <v-col cols="8">
+                                        <v-pagination v-model="juzCurrentPage" :length="Math.ceil(30 / juzPageSize)"
+                                            @next="nextJuzPage" @prev="prevJuzPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -333,7 +376,7 @@ const pagesSort = (s: string) => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="page in pages" :key="page.pageNumber" cols="4">
+                                    <v-col v-for="page in pages" :key="page.pageNumber" lg="4" sm="1" md="2">
                                         <v-card @click="getSelected('page', page)" :border="true"
                                             @mouseenter="mouseEnter('page', page)">
                                             <v-sheet class="d-flex ms-2 mt-2">
@@ -342,8 +385,9 @@ const pagesSort = (s: string) => {
                                             <v-card-text v-if="page.chaptersMap">
                                                 <v-sheet v-for="(chapter, index) in page.chaptersMap" :key="index">
                                                     <div class="d-flex text-blue-grey-lighten-2">
-                                                        <div class="me-auto" v-if="chapter">{{ index + 1 }} - {{ $tr.rtl.value ?
-                                                            chapter.nameArabic : chapter.nameSimple }}
+                                                        <div class="me-auto" v-if="chapter">{{ index + 1 }} - {{
+                                                            $tr.rtl.value ?
+                                                                chapter.nameArabic : chapter.nameSimple }}
                                                         </div>
                                                     </div>
                                                 </v-sheet>
@@ -383,7 +427,7 @@ const pagesSort = (s: string) => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense>
-                                    <v-col v-for="chapter in chapters" :key="chapter.id" cols="4">
+                                    <v-col v-for="chapter in chapters" :key="chapter.id" lg="4" sm="1" md="2">
                                         <v-card @click="getSelected('chapter', chapter)" :border="true"
                                             @mouseenter="mouseEnter('chapter', chapter)">
                                             <v-card-text>

@@ -130,7 +130,6 @@ onBeforeMount(() => {
 
   <translation-list-component @update:selected-translations="updateTranslations"></translation-list-component>
 
-  <audio-player-component :audio-player="audioPlayer" :auto-play="settingStore.autoPlay"
-    @update:is-audio="audioPlayer = $event" @update:model-value="audioPlayerModelValue = $event"
-    :model-value="audioPlayerModelValue"></audio-player-component>
+  <audio-player-component :audio-player="audioPlayer" @update:is-audio="audioPlayer = $event"
+    @update:model-value="audioPlayerModelValue = $event" :model-value="audioPlayerModelValue"></audio-player-component>
 </template>

@@ -4,6 +4,7 @@ export default {
     audioPlayer: "Audio Player",
     autoplay: "Auto Play",
     playerFullWidth: "Audio Player Full Width",
+    dismissPlayer: "Dismiss Player when playback ends",
     verses: "Verses",
     quran: "Quran",
     translation: "Translation",
