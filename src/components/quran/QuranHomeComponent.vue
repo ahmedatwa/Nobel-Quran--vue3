@@ -265,7 +265,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="chapter in chapters" :key="chapter.id" sm="12" md="4">
+                                    <v-col v-for="chapter in chapters" :key="chapter.id" cols="12" md="4">
                                         <v-card :data-id="chapter.id" @click="getSelected('chapter', chapter)"
                                             :border="true" @mouseenter="mouseEnter('chapter', chapter)">
                                             <v-card-text>
@@ -321,7 +321,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="juz in juzsMapWithChapters" :key="juz.id" sm="12" md="4">
+                                    <v-col v-for="juz in juzsMapWithChapters" :key="juz.id" cols="12" md="4">
                                         <v-card :data-id="juz.id" @click="getSelected('juz', juz)" :border="true"
                                             @mouseenter="mouseEnter('juz', juz)" height="100">
                                             <v-sheet class="d-flex ma-2">
@@ -376,7 +376,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense v-else>
-                                    <v-col v-for="page in pages" :key="page.pageNumber" lg="4" sm="1" md="2">
+                                    <v-col v-for="page in pages" :key="page.pageNumber" cols="12" md="4">
                                         <v-card @click="getSelected('page', page)" :border="true"
                                             @mouseenter="mouseEnter('page', page)">
                                             <v-sheet class="d-flex ms-2 mt-2">
@@ -427,7 +427,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row dense>
-                                    <v-col v-for="chapter in chapters" :key="chapter.id" lg="4" sm="1" md="2">
+                                    <v-col v-for="chapter in chapters" :key="chapter.id" cols="12" md="4">
                                         <v-card @click="getSelected('chapter', chapter)" :border="true"
                                             @mouseenter="mouseEnter('chapter', chapter)">
                                             <v-card-text>
