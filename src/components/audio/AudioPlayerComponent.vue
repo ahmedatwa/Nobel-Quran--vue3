@@ -104,12 +104,12 @@ watchEffect(() => {
     const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
 
     if (verseTiming.value) {
-        const currentVerse = verseTiming.value.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)        
-        let wordLocation = ""
-        let verseNumber = 0
+        const currentVerse = verseTiming.value.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
+
         if (currentVerse) {
             const isVerseInRange = isCurrentTimeInRange(currentTime, currentVerse?.timestamp_from, currentVerse?.timestamp_to)
-
+            let wordLocation = ""
+            let verseNumber = 0
             if (!isVerseInRange) {
                 const f = verseTiming.value.find((vt) => vt.verse_key === currentVerse.verse_key)
                 if (f) {
