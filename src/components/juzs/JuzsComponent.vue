@@ -3,12 +3,13 @@ import { ref } from 'vue';
 // components
 import { JuzReadingViewComponent, JuzTranslationsViewComponent } from '@/components/juzs';
 // stores
-import { useJuzStore, useTranslationsStore, useAudioPlayerStore } from "@/stores";
+import { useJuzStore, useTranslationsStore, useAudioPlayerStore, useSettingStore } from "@/stores";
 // types
 import type { JuzHeaderData } from '@/types/juz';
 
 const translationsStore = useTranslationsStore()
 const juzStore = useJuzStore()
+const { audioPlayerSetting } = useSettingStore()
 const audioPlayerStore = useAudioPlayerStore()
 const selectedJuzTab = ref("translationsTab")
 
@@ -39,7 +40,7 @@ const emit = defineEmits<{
         <v-tabs-window v-model="selectedJuzTab">
             <v-tabs-window-item value="translationsTab" class="mx-5">
                 <juz-translations-view-component :is-audio-playing="audioPlayer" :selected-juz-tab="selectedJuzTab"
-                    :audio-experience="audioPlayerStore.audioExperience" :css-vars="settingCssVars"
+                    :audio-experience="audioPlayerSetting" :css-vars="settingCssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
                     :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
                     @update:intersecting-juz-verse-number="emit('update:intersectingJuzVerseNumber', $event)"

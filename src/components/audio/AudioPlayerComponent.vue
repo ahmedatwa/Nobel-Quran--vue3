@@ -16,7 +16,7 @@ import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "
 import type { VerseTimings } from "@/types"
 
 const audioPlayerStore = useAudioPlayerStore()
-const settingStore = useSettingStore()
+const { audioPlayerSetting } = useSettingStore()
 const $tr = inject(langKey)
 
 const props = defineProps<{
@@ -196,7 +196,7 @@ const cleanupListeners = () => {
         audioPlayerRef.value.removeEventListener("ended", playbackEnded);
         audioPlayerRef.value.removeEventListener("pause", playbackPaused);
         // dismiss on playbavc ends
-        if (settingStore.audioPlayerSetting.dismissOnEnd) {
+        if (audioPlayerSetting.dismissOnEnd) {
             emit("update:modelValue", false)
         }
     }
@@ -220,9 +220,9 @@ onMounted(() => {
             if (audioPlayerRef.value) audioPlayerRef.value.volume = state.mediaVolume
         }
         // AutoScroll | tooltip
-        if (state.experience) {
-            audioPlayerStore.audioExperience = state.experience
-        }
+        // if (state.experience) {
+        //     audioPlayerStore.audioExperience = state.experience
+        // }
     }
 })
 
@@ -304,7 +304,7 @@ const loadeddata = () => {
                 }
             }
             // Auto Play Setting 
-            if (settingStore.audioPlayerSetting.autoPlay) {
+            if (audioPlayerSetting.autoPlay) {
                 isPlaying.value = true
                 audioPlayerStore.isLoading = false
                 audioPlayerRef.value?.play();
@@ -401,7 +401,7 @@ const closePlayer = () => {
     emit('update:modelValue', false)
     emit('update:isAudio', null)
     // disable autoscroll as page will be stuck after player is unmounted
-    audioPlayerStore.audioExperience.autoScroll = false
+    //audioPlayerStore.audioExperience.autoScroll = false
 }
 
 const muteAudio = () => {
@@ -431,7 +431,7 @@ const changeMediaVolume = (volume: number) => {
 
 <template>
     <v-bottom-sheet :model-value="modelValue" @update:model-value="closePlayer"
-        :inset="settingStore.audioPlayerSetting.inset" :scrim="false" persistent no-click-animation
+        :inset="audioPlayerSetting.inset" :scrim="false" persistent no-click-animation
         scroll-strategy="none" @keyup.up="keyboardVolumUp" @keyup.down="keyboardVolumDown">
         <v-card>
             <v-progress-linear v-model="progressTimer" clickable :height="7" @click="playbackSeek" hide-details

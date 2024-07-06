@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { watchEffect } from 'vue';
 // axios
 import { instance } from '@/axios';
-// utils
-import { updateStorageItem } from '@/utils/storage';
 // types
 import type { Recitations } from '@/types/audio';
+// Store
+import { useSettingStore } from '@/stores';
+
+
+const { audioPlayerSetting } = useSettingStore()
 
 const emit = defineEmits<{
     "update:modelValue": [value: boolean]
@@ -22,7 +24,6 @@ const props = defineProps<{
     audioUrl?: string;
     audioFormat?: string | null;
     chapterName?: string;
-    audioExperience: { autoScroll: boolean, tooltip: boolean }
 }>()
 
 
@@ -43,12 +44,6 @@ const downloadFile = () => {
     });
 }
 
-
-watchEffect(() => {
-    if (props.audioExperience){
-        updateStorageItem("audio-player", {experience: props.audioExperience})
-    }
-})
 </script>
 <template>
     <v-menu :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)"
@@ -58,10 +53,10 @@ watchEffect(() => {
                 <template v-slot:activator="{ props }">
                     <v-list-item v-bind="props" :title="$tr.line('audio.reciters')"></v-list-item>
                 </template>
-                    <v-list-item v-for="item in recitions" :key="item.id" :title="item.name"
-                        :subtitle="item.style.name" :value="item.reciter_id" :active="selectedReciter === item.id"
-                        @click="$emit('update:getRecitions', item)">
-                    </v-list-item>
+                <v-list-item v-for="item in recitions" :key="item.id" :title="item.name" :subtitle="item.style.name"
+                    :value="item.reciter_id" :active="selectedReciter === item.id"
+                    @click="$emit('update:getRecitions', item)">
+                </v-list-item>
             </v-list-group>
             <!-- Playback Rate -->
             <v-list-group value="playbackSpeeds" prepend-icon="mdi-speedometer">
@@ -71,7 +66,7 @@ watchEffect(() => {
                 <v-list-item v-for="(v, k) in playbackSpeeds" :key="k" :title="v" :value="v"
                     :active="playbackRate === v" @click="$emit('update:playbackRate', v)"></v-list-item>
             </v-list-group>
-           
+
             <!-- Expreience -->
             <v-list-group value="exprience" prepend-icon="mdi-tune">
                 <template v-slot:activator="{ props }">
@@ -81,7 +76,7 @@ watchEffect(() => {
                     <v-list-item-title>{{ $tr.line("audio.autoScroll") }}</v-list-item-title>
                     <template v-slot:prepend>
                         <v-list-item-action start>
-                            <v-checkbox-btn v-model="audioExperience.autoScroll"></v-checkbox-btn>
+                            <v-checkbox-btn v-model="audioPlayerSetting.autoScroll"></v-checkbox-btn>
                         </v-list-item-action>
                     </template>
                 </v-list-item>
@@ -89,7 +84,7 @@ watchEffect(() => {
                     <v-list-item-title>{{ $tr.line("audio.tooltip") }}</v-list-item-title>
                     <template #prepend>
                         <v-list-item-action start>
-                            <v-checkbox-btn v-model="audioExperience.tooltip"></v-checkbox-btn>
+                            <v-checkbox-btn v-model="audioPlayerSetting.tooltip"></v-checkbox-btn>
                         </v-list-item-action>
                     </template>
                 </v-list-item>

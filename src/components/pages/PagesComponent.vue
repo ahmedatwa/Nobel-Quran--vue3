@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue';
 // stores
-import { useAudioPlayerStore, usePageStore, useTranslationsStore } from "@/stores";
+import { useAudioPlayerStore, usePageStore, useTranslationsStore, useSettingStore } from "@/stores";
 // components
 import { PagesTranslationsViewComponent, PagesReadingViewComponent } from '@/components/pages';
 // types
@@ -11,6 +11,8 @@ import type { PageHeaderData } from '@/types/page';
 const pageStore = usePageStore()
 const translationsStore = useTranslationsStore()
 const audioPlayerStore = useAudioPlayerStore()
+const { audioPlayerSetting } = useSettingStore()
+
 const tab = ref("translationTab")
 
 const props = defineProps<{
@@ -50,7 +52,7 @@ watchEffect(() => {
         <v-tabs-window v-model="tab">
             <v-tabs-window-item value="translationTab" class="mx-5">
                 <pages-translations-view-component :is-audio-playing="audioPlayer"
-                    :audio-experience="audioPlayerStore.audioExperience" :css-vars="settingCssVars"
+                    :audio-experience="audioPlayerSetting" :css-vars="settingCssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
                     :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
                     @update:intersecting-page-verse-number="emit('update:intersectingPageVerseNumber', $event)"
@@ -60,7 +62,7 @@ watchEffect(() => {
             </v-tabs-window-item>
             <v-tabs-window-item value="readingTab">
                 <pages-reading-view-component :is-audio-playing="audioPlayer" :css-vars="settingCssVars"
-                    :audio-experience="audioPlayerStore.audioExperience" :verse-timing="audioPlayerStore.verseTiming"
+                    :audio-experience="audioPlayerSetting" :verse-timing="audioPlayerStore.verseTiming"
                     @update:header-data="emit('update:headerData', $event)"
                     @update:intersecting-page-verse-number="emit('update:intersectingPageVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)">

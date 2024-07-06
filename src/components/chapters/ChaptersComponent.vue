@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
 // stores
-import { useAudioPlayerStore, useChapterStore, useTranslationsStore } from "@/stores";
+import { useAudioPlayerStore, useChapterStore, useTranslationsStore, useSettingStore } from "@/stores";
 // components
 import { ChapterReadingViewComponent, ChapterTranslationsViewComponent } from "@/components/chapters";
 // types
@@ -11,6 +11,7 @@ import type { ChapterHeaderData } from "@/types/chapter";
 const chapterStore = useChapterStore();
 const translationsStore = useTranslationsStore();
 const audioPlayerStore = useAudioPlayerStore();
+const { audioPlayerSetting } = useSettingStore()
 const tab = ref("translationTab");
 
 const props = defineProps<{
@@ -55,8 +56,9 @@ watchEffect(async () => {
     </v-tabs>
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="translationTab" class="mx-5">
-        <chapter-translations-view-component :is-audio-playing="audioPlayer" :is-translations-view="tab === 'translationTab'"
-          :audio-experience="audioPlayerStore.audioExperience" :css-vars="settingCssVars" :grouped-translations-authors="translationsStore.groupedTranslationsAuthors
+        <chapter-translations-view-component :is-audio-playing="audioPlayer"
+          :is-translations-view="tab === 'translationTab'" :audio-experience="audioPlayerSetting"
+          :css-vars="settingCssVars" :grouped-translations-authors="translationsStore.groupedTranslationsAuthors
             " :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
           @update:intersecting-verse-number="
             emit('update:intersectingVerseNumber', $event)

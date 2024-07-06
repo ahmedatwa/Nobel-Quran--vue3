@@ -34,7 +34,8 @@ const emit = defineEmits<{
                 <v-switch :label="$tr.line('setting.autoplay')" color="primary"
                     v-model="settingStore.audioPlayerSetting.autoPlay" hide-details></v-switch>
                 <v-switch :label="$tr.line('setting.playerFullWidth')" color="primary"
-                    v-model="settingStore.audioPlayerSetting.inset" hide-details></v-switch>
+                    v-model="settingStore.audioPlayerSetting.inset" :true-value="false" :false-value="true"
+                    hide-details></v-switch>
                 <v-switch :label="$tr.line('setting.dismissPlayer')" color="primary"
                     v-model="settingStore.audioPlayerSetting.dismissOnEnd" hide-details></v-switch>
                 <v-select v-model="audioPlayerStore.selectedReciter" :label="$tr.line('setting.reciter')"

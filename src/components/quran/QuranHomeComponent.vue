@@ -260,7 +260,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!chapters?.length">
-                                    <v-col cols="4" v-for="n in 114" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in 114" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
@@ -316,7 +316,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!juzStore.juzs?.length">
-                                    <v-col cols="4" v-for="n in 114" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in 114" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
@@ -371,7 +371,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!pageStore.pages?.length">
-                                    <v-col cols="4" v-for="n in 604" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in 604" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
@@ -422,7 +422,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!chapters?.length">
-                                    <v-col cols="4" v-for="n in 114" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in 114" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>

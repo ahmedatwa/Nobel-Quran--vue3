@@ -51,7 +51,7 @@ const isPreviousAyahDisabled = computed(() => {
                 :recitions="audioPlayerStore.recitations" :playback-rate="playbackRate"
                 :playback-speeds="audioPlayerStore.playbackSpeeds"
                 :selected-reciter="audioPlayerStore.selectedReciter.id"
-                :audio-url="audioPlayerStore.audioFiles?.audio_url" :audio-experience="audioPlayerStore.audioExperience"
+                :audio-url="audioPlayerStore.audioFiles?.audio_url"
                 :audio-format="audioPlayerStore.audioFiles?.format" :chapter-name="audioPlayerStore.chapterName"
                 @update:get-recitions="audioPlayerStore.getRecition"
                 @update:playback-rate="$emit('update:playbackRate', $event)">

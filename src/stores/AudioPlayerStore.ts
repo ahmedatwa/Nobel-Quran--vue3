@@ -16,7 +16,6 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const autoStartPlayer = ref(false);
   const chapterId = ref<number>(0);
   const selectedVerseKey = ref<string | undefined>("");
-  const audioExperience = ref({ autoScroll: true, tooltip: false });
   const selectedReciter = ref<Recitations>({
     id: 7,
     reciter_id: 6,
@@ -140,7 +139,6 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     selectedVerseKey,
     mapRecitions,
     verseTiming,
-    audioExperience,
     getRecitations,
     getAudio,
     getRecition,

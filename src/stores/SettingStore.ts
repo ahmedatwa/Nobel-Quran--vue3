@@ -6,9 +6,11 @@ export const useSettingStore = defineStore("setting-store", () => {
   const versesPages = ref([10, 20, 30, 40, 50]);
   const VersesPerPage = ref(10);
   const audioPlayerSetting = ref({
-    inset: true,
+    inset: false,
     autoPlay: true,
-    dismissOnEnd: true
+    dismissOnEnd: true,
+    autoScroll: true,
+    tooltip: true,
   })
 
   const cssVars = ref<CssVars>({
