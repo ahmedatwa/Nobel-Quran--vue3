@@ -13,7 +13,7 @@ interface VerseTimings {
   duration: number;
   timestamp_from: number;
   timestamp_to: number;
-  verseKey: string;
+  verse_key: string;
   inRange?: boolean;
   wordLocation?: string;
   verseNumber?: number | string;
@@ -57,6 +57,8 @@ type IsAudioPlayingProps = {
   format?: string;
 } | null;
 
+type PlayAudioEmitEvent = { audioID: number; verseKey?: string };
+
 export {
   VerseTimings,
   AudioFile,
@@ -64,4 +66,5 @@ export {
   mapRecitions,
   VerseTimingsProps,
   IsAudioPlayingProps,
+  PlayAudioEmitEvent,
 };

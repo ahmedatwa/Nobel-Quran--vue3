@@ -7,7 +7,7 @@ import { TitleButtonsComponent } from "@/components/quran";
 import { ButtonsActionListComponent } from "@/components/quran";
 // types
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
-import type { VerseTimingsProps, IsAudioPlayingProps } from "@/types/audio"
+import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmitEvent } from "@/types/audio"
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 
@@ -43,7 +43,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  "update:playAudio": [value: { audioID: number; verseKey?: string }];
+  "update:playAudio": [value: PlayAudioEmitEvent];
   "update:headerData": [value: ChapterHeaderData];
   "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();

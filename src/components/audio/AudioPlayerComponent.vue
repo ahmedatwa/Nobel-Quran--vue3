@@ -294,7 +294,8 @@ const loadeddata = () => {
             // Verse Play 
             if (audioPlayerStore.selectedVerseKey) {
                 const verseTiming = audioPlayerStore.audioFiles?.verse_timings.find((vt) =>
-                    vt.verseKey === audioPlayerStore.selectedVerseKey)
+                    vt.verse_key === audioPlayerStore.selectedVerseKey)
+                    
                 if (verseTiming) {
                     if (audioPlayerRef.value) {
                         audioPlayerRef.value.currentTime = milliSecondsToSeconds(verseTiming.timestamp_from);

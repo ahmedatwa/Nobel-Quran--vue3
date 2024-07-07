@@ -7,7 +7,7 @@ import { instance, makeGetAudioRecitersUrl } from "@/axios";
 import { makeGetRecitationsUrl } from "@/axios";
 // types
 import type { AudioFile, Recitations } from "@/types/audio";
-import type { mapRecitions, VerseTimingsProps } from "@/types/audio";
+import type { mapRecitions, VerseTimingsProps, PlayAudioEmitEvent } from "@/types/audio";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const chapterStore = useChapterStore();
@@ -63,7 +63,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     }
   });
 
-  const getAudio = async (payload: { audioID: number; verseKey?: string }) => {
+  const getAudio = async (payload: PlayAudioEmitEvent) => {
     //https://api.qurancdn.com/api/qdc/audio/reciters/9/audio_files?chapter=1&segments=true
     // if (payload.audioID === chapterId.value) return;
     chapterId.value = payload.audioID;

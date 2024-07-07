@@ -46,30 +46,3 @@ export const getChapterNameByJuzId = (
   return object;
 };
 
-export const getChapterNameByJuzIdAndChapterId = (
-  juzId: number | string,
-  chapterId: number | string
-) => {
-  let object = {
-    nameArabic: "",
-    nameSimple: "",
-    bismillahPre: false,
-  };
-  const juzData = jsonJuzsData[juzId as keyof typeof jsonJuzsData];
-  console.log(chapterId);
-
-  const id = juzData.map((id) => id === chapterId);
-
-  console.log(juzData);
-
-  jsonChaptersData.chapters.forEach((chapter) => {
-    if (chapter.id === Number(id)) {
-      object = {
-        nameSimple: chapter.name_simple,
-        nameArabic: chapter.name_arabic,
-        bismillahPre: chapter.bismillah_pre,
-      };
-    }
-  });
-  return object;
-};

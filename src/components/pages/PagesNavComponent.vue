@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watchEffect, onMounted } from "vue"
+import { ref, watchEffect, onMounted, computed } from "vue"
 // stores
 import { usePageStore } from "@/stores";
 // types
@@ -10,6 +10,11 @@ const pageStore = usePageStore()
 const selectedPageNumber = ref(1)
 const selectedVerseID = ref()
 
+const getVersePagination = computed(() => {
+    if (pageStore.selectedPage) {
+        return pageStore.selectedPage.pagination
+    }
+})
 const emit = defineEmits<{
     "update:selectedVerseKeyView": [value: string]
 }>()
@@ -55,9 +60,7 @@ watchEffect(async () => {
             if (pageStore.selectedPage.verses) {
                 if (selectedVerseID.value === pageStore.selectedPage.verses.length - 3 ||
                     selectedVerseID.value === pageStore.selectedPage.verses.length) {
-                    if (pageStore.selectedPage?.pagination) {
-                        await pageStore.getVerses(selectedPageNumber.value, true, pageStore.selectedPage?.pagination?.next_page)
-                    }
+                        await pageStore.getVerses(selectedPageNumber.value, true, getVersePagination.value?.next_page)
                 }
             }
 
@@ -68,7 +71,7 @@ watchEffect(async () => {
 onMounted(async () => {
     if (!pageStore.selectedPage) {
         if (pageStore.pages) {
-            pageStore.selectedPage = pageStore.pages[0]            
+            pageStore.selectedPage = pageStore.pages[0]
             selectedPageNumber.value = pageStore.selectedPage?.pageNumber
             selectedVerseID.value = 1
             if (!pageStore.selectedPage?.verses?.length) {

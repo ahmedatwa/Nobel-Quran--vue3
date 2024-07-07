@@ -4,10 +4,11 @@ import { computed, ref } from "vue"
 import { TafsirDialogComponent } from '@/components/tafsir';
 // types
 import type { Verse } from "@/types"
+import type { PlayAudioEmitEvent } from "@/types/audio";
 
 const isCopied = ref(false)
 const tafsirDialog = ref(false)
-const activeAudioData = ref<{ audioID: number, verseKey?: string } | null>(null)
+const activeAudioData = ref<PlayAudioEmitEvent>()
 
 const props = defineProps<{
     verse: Verse
@@ -16,7 +17,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    "update:playAudio": [value: { audioID: number, verseKey: string }]
+    "update:playAudio": [value: PlayAudioEmitEvent]
     "update:bookmarked": [value: number]
 }>()
 
@@ -25,11 +26,9 @@ const copyText = (text: string) => {
     isCopied.value = true
 }
 
-const playAudio = (audioID: number, verseKey: string) => {
-    activeAudioData.value = {
-        audioID, verseKey
-    }
-    emit("update:playAudio", { audioID, verseKey })
+const playAudio = (event: PlayAudioEmitEvent) => {
+    activeAudioData.value = event
+    emit("update:playAudio", event)
 }
 
 const iaPlaying = computed(() => {
@@ -52,7 +51,7 @@ const iaPlaying = computed(() => {
         </v-list-item>
         <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
             <v-btn :icon="iaPlaying ? 'mdi-pause' : 'mdi-play'" :size="size" variant="text" :key="verse.verse_key"
-                @click="playAudio(verse.chapter_id, verse.verse_key)" v-tooltip="'Play'"
+                @click="playAudio({ audioID: verse.chapter_id, verseKey: verse.verse_key })" v-tooltip="'Play'"
                 :color="iaPlaying ? 'primary' : ''">
             </v-btn>
         </v-list-item>

@@ -6,6 +6,7 @@ import { useAudioPlayerStore, useChapterStore, useTranslationsStore, useSettingS
 import { ChapterReadingViewComponent, ChapterTranslationsViewComponent } from "@/components/chapters";
 // types
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
+import type { PlayAudioEmitEvent } from "@/types/audio";
 
 // Stores
 const chapterStore = useChapterStore();
@@ -23,7 +24,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "update:headerData": [value: ChapterHeaderData];
-  "update:playAudio": [value: { audioID: number; verseKey?: string }];
+  "update:playAudio": [value: PlayAudioEmitEvent];
   "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
 

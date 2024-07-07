@@ -18,6 +18,7 @@ import {
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
+import type { PlayAudioEmitEvent } from "@/types/audio";
 // utils
 import { getStorage } from "@/utils/storage";
 
@@ -56,9 +57,9 @@ const emit = defineEmits<{
   "update:navigationModelValue": [value: boolean];
 }>();
 
-const playAudio = (event: { audioID: number; verseKey?: string }) => {
-  audioPlayerStore.getAudio({ ...event });
-  audioPlayer.value = { ...event };
+const playAudio = (event: PlayAudioEmitEvent) => {
+  audioPlayerStore.getAudio(event);
+  audioPlayer.value = event
   audioPlayerModelValue.value = true;
 };
 
