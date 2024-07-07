@@ -113,7 +113,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             v-for="(verses, page) in mapVersesByPage" :key="page" :id="`row-page-${page}`">
             <v-col class="verse-col" :id="`page-${page}`">
 
-              <div class="d-inline-flex" v-for="verse in verses" :key="verse.id"
+              <div class="d-inline-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
                 :id="`page-${page}-line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
                 :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
                 :data-verse-number="verse.verse_number" v-intersect.quite="{
