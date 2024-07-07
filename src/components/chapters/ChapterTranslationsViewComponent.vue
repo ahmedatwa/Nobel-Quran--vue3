@@ -161,14 +161,14 @@ watchEffect(async () => {
 // emitting header data on mounted so 
 // access to dismiss the navigation menu is available
 // will be done only once as it will be triggred from scroll source
-watch(() => getFirstVerseOfChapter.value, (newVal) => {
-  if (newVal) {
+watch(() => getFirstVerseOfChapter, (newVal) => {
+  if (newVal.value) {
     headerData.value = {
       left: chapterStore.selectedChapterName,
       right: {
-        pageNumber: newVal.page_number,
-        hizbNumber: newVal.hizb_number,
-        juzNumber: newVal.juz_number,
+        pageNumber: newVal.value.page_number,
+        hizbNumber: newVal.value.hizb_number,
+        juzNumber: newVal.value.juz_number,
       },
     };
     // emit header Data

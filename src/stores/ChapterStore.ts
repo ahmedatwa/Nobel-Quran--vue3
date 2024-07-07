@@ -112,6 +112,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
               chapter.verses?.push({ ...verse, bookmarked: false });
             }
           });
+          chapter.pagination = response.data.pagination;
         }
       })
       .catch((e) => {

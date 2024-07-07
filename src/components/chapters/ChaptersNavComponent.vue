@@ -14,7 +14,11 @@ const chapterStore = useChapterStore();
 const selectedVerseID = ref();
 const selectedChapterId = ref();
 const searchValue = ref("");
-
+const getVersePagination = computed(() => {
+  if (chapterStore.selectedChapter?.pagination) {
+    return chapterStore.selectedChapter?.pagination
+  }
+})
 const emit = defineEmits<{
   "update:selectedVerseKeyView": [value: string];
 }>();
@@ -38,11 +42,11 @@ onMounted(async () => {
 
 });
 
-watchEffect(() => {
-  if (selectedChapterId.value) {
-    scrollToElement(`#chapter${selectedChapterId.value}`, 700);
-  }
-});
+// watchEffect(() => {
+//   if (selectedChapterId.value) {
+//     scrollToElement(`#chapter${selectedChapterId.value}`, 700);
+//   }
+// });
 
 /**
  * creates range from verse count
@@ -78,9 +82,12 @@ const getSelectedVerse = async (id: number) => {
  * duplicate verses will be handeled by the chapter store
  */
 watchEffect(async () => {
+
   if (props.manualIntersectingMode) {
     const intersectingData = props.manualIntersectingMode
+
     selectedVerseID.value = intersectingData.currentVerseNumber;
+
     if (chapterStore.selectedChapter) {
       if (chapterStore.selectedChapter?.versesCount ===
         chapterStore.selectedChapter.verses?.length
@@ -88,17 +95,18 @@ watchEffect(async () => {
         chapterStore.isLoading.verses = false
         return;
       }
-
-
+      
       scrollToElement(`#verse${selectedVerseID.value}`, 100);
-      if (chapterStore.selectedChapter.verses) {
-        if (
-          intersectingData.currentVerseNumber ===
-          intersectingData.lastVerseNumber ||
-          intersectingData.currentVerseNumber ===
-          intersectingData.lastVerseNumber - 3
-        ) {
-          await getVerseByKey(`${selectedChapterId.value}:${chapterStore.selectedChapter.verses?.length + 1}`);
+
+      if (
+        intersectingData.currentVerseNumber ===
+        intersectingData.lastVerseNumber ||
+        intersectingData.currentVerseNumber ===
+        intersectingData.lastVerseNumber - 5
+      ) {
+        // await getVerseByKey(`${selectedChapterId.value}:${intersectingData.lastVerseNumber + 1}`);
+        if (getVersePagination.value?.next_page) {
+          await chapterStore.getVerses(selectedChapterId.value, true, getVersePagination.value?.next_page)
         }
       }
     }
@@ -135,13 +143,11 @@ const mouseEnter = async (k: string, value: Chapter | number) => {
 };
 
 const getVerseByKey = async (verseKey: string) => {
-  console.log(verseKey);
 
   if (chapterStore.selectedChapter) {
     const verseFound = chapterStore.selectedChapter.verses?.find(
       (cv) => cv.verse_key === verseKey
     );
-    console.log(verseFound);
 
     if (!verseFound) {
       await chapterStore.getVerseByKey(selectedChapterId.value, verseKey);
