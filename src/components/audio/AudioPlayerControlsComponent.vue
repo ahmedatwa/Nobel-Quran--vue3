@@ -72,49 +72,33 @@ const isPreviousAyahDisabled = computed(() => {
                 @click="audioPlayerStore.playPrevious"></v-btn>
             <!-- Play -->
             <v-btn :loading="audioPlayerStore.isLoading" :icon="isPlaying ? 'mdi-pause' : 'mdi-play'"
-                @click="$emit('update:playAudio', play = !play)" density="compact" class="me-2"
-                variant="text"></v-btn>
+                @click="$emit('update:playAudio', play = !play)" density="compact" class="me-2" variant="text"></v-btn>
             <!-- Next Ayah -->
             <v-btn icon="mdi-fast-forward" density="compact" class="me-2" variant="text"
                 v-tooltip:top="$tr.line('audio.nextAyah')" :disabled="isNextAyahDisabled"
                 @click="audioPlayerStore.playNext"></v-btn>
             <!-- Close -->
             <v-btn icon="mdi-close" @click="$emit('update:closePlayer', true)" density="compact" variant="text"
-                v-tooltip:top="$tr.line('audio.close')"></v-btn>
+                v-tooltip:top="$tr.line('audio.close')" class="me-2"></v-btn>
         </v-sheet>
 
 
-        <!-- test -->
-
-        <v-speed-dial class="d-none d-sm-inline-block"
-  location="top center"
-  transition="fade-transition"
->
-  <template v-slot:activator="{ props: activatorProps }">
-    <v-fab
-      v-bind="activatorProps"
-      size="large"
-      icon="$vuetify"
-    ></v-fab>
-  </template>
-
-  <v-btn key="1" icon="mdi-fast-forward"></v-btn>
-  <v-btn key="2" icon="mdi-rewind"></v-btn>
-  <v-btn key="3" icon="mdi-close"></v-btn>
-  <v-btn key="4" icon="$error"></v-btn>
-</v-speed-dial>
-
-
-
-
-
-        <v-sheet :width="200" class="ms-2 ">
-            <v-slider v-model="mediaVolume" max-width="170" :step="0.1" :max="1" :min="0"
-                @update:modelValue="$emit('update:changeMediaVolume', $event)" hide-details>
-                <template #prepend>
-                    <v-icon :icon="isMuted ? 'mdi-volume-off' : 'mdi-volume-high'"
-                        @click="$emit('update:muteAudio', true)"></v-icon>
-                </template></v-slider>
-        </v-sheet>
+        <!-- Volume -->
+        <v-menu>
+            <template v-slot:activator="{ props }">
+                <v-btn :icon="isMuted ? 'mdi-volume-off' : 'mdi-volume-high'" v-bind="props" density="compact"
+                    variant="text">
+                </v-btn>
+            </template>
+            <v-card min-width="250">
+                <v-list >
+                    <v-list-item >
+                    <v-slider v-model="mediaVolume" :step="0.1" :max="1" :min="0" class="mx-4"
+                        @update:modelValue="$emit('update:changeMediaVolume', $event)" hide-details>
+                    </v-slider>
+                </v-list-item>
+                </v-list>
+            </v-card>
+        </v-menu>
     </v-sheet>
 </template>

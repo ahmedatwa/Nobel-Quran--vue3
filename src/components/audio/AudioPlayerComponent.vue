@@ -436,15 +436,14 @@ const changeMediaVolume = (volume: number) => {
             <v-progress-linear v-model="progressTimer" clickable :height="7" @click="playbackSeek" hide-details
                 buffer-color="orange" :buffer-value="audioBuffer"
                 :max="audioPlayerStore.audioFiles?.duration"></v-progress-linear>
-            <v-container>
-                <v-row class="flex-nowrap" no-gutters>
-                    <v-col class="flex-grow-0 flex-shrink-0" cols="3">
+                <div class="d-flex my-4" :class="$vuetify.display.smAndDown ? 'flex-wrap' : 'justify-space-between'">
+                    <div class="ms-3 text-center" :class="$vuetify.display.smAndDown ? 'flex-grow-1 flex-shrink-0' :'order-1'">
                         <div class="text-body-1 text-truncate"><v-avatar size="x-small"
                                 :image="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`"></v-avatar>
                             {{ audioPlayerStore.selectedReciter.name }}</div>
                         <div class="text-caption"> {{ audioPlayerStore.chapterName }}</div>
-                    </v-col>
-                    <v-col class="flex-grow-1 flex-shrink-0 align-self-center">
+                    </div>
+                    <div :class="$vuetify.display.smAndDown ? 'order-1 flex-grow-1 flex-shrink-0' : 'order-2'" >
                         <audio-player-controls-component :playback-rate="playbackRate" :loop-audio="loopAudio"
                             :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
                             @update:is-audio="emit('update:isAudio', $event)"
@@ -460,14 +459,13 @@ const changeMediaVolume = (volume: number) => {
                                 @seek="playbackSeek" @loadeddata="loadeddata">
                             </audio>
                         </div>
-                    </v-col>
-                    <v-col class="flex-grow-0 flex-shrink-1" cols="2">
+                    </div>
+                    <div class="me-3 flex-grow-0 flex-shrink-0 order-3" >
                         <v-slide-x-reverse-transition>
                             <v-sheet v-if="elapsedTime" class="pa-2 text-right text-caption">{{ elapsedTime }}</v-sheet>
                         </v-slide-x-reverse-transition>
-                    </v-col>
-                </v-row>
-            </v-container>
+                    </div>
+                </div>
         </v-card>
     </v-bottom-sheet>
 </template>
