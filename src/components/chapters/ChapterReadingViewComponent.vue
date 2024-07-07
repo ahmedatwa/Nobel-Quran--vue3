@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch, watchEffect } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // components
 import { TitleButtonsComponent } from "@/components/quran";
 // types
-import type { ChapterHeaderData } from "@/types/chapter";
+import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
 import type { Verse, MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps, IsAudioPlayingProps } from "@/types/audio"
+// utils
+import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 
 const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
@@ -29,12 +31,13 @@ const chapterAudioId = computed(() => {
 const emit = defineEmits<{
   "update:playAudio": [value: { audioID: number; verseKey?: string }];
   "update:headerData": [value: ChapterHeaderData];
-  "update:intersectingVerseNumber": [value: number];
+  "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
 
 const props = defineProps<{
   isReadingView: boolean;
   isAudioPlaying: IsAudioPlayingProps
+  audioExperience: { autoScroll: boolean; tooltip: boolean };
   verseTiming: VerseTimingsProps
   cssVars?: { size: string; family: string };
 }>();
@@ -62,9 +65,17 @@ const mapVersesByPage = computed((): MapVersesByPage | undefined => {
 
 const onIntersect = async (intersecting: boolean, entries: any) => {
   isIntersecting.value = intersecting;
-  if (intersecting) {
+  if (intersecting && entries[0].intersectionRatio === 1) {
+    intersectingVerseNumber.value = Number(
+      entries[0].target.dataset.verseNumber
+    );
+
+    if (intersectingVerseNumber.value === 1) {
+      return
+    }
     // emit header data
-    headerData.value = {
+    const newHeaderData = ref<ChapterHeaderData>()
+      newHeaderData.value = {
       left: chapterStore.selectedChapterName,
       right: {
         pageNumber: entries[0].target.dataset.pageNumber,
@@ -73,18 +84,74 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
       },
     };
 
-    emit("update:headerData", headerData.value);
-
-    if (entries[0].intersectionRatio === 0.8) {
-      intersectingVerseNumber.value = Number(
-        entries[0].target.dataset.verseNumber
-      );
-      // emit verse id for scroll in verses list
-      // help to fetch new verses
-      emit("update:intersectingVerseNumber", intersectingVerseNumber.value);
+    if (newHeaderData.value !== headerData.value) {
+      headerData.value = newHeaderData.value
+      emit("update:headerData", headerData.value);
     }
+
+    // emit verse id for scroll in verses list
+    // help to fetch new verses
+    // sending current/last verse Numbers to the chapters Nav
+    emit("update:manualIntersectingMode", {
+      lastVerseNumber: chapterStore.getLastVerseOfChapter,
+      currentVerseNumber: intersectingVerseNumber.value
+    });
   }
 };
+
+// emitting header data on mounted so 
+// access to dismiss the navigation menu is available
+// will be done only once as it will be triggred from scroll source
+watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
+  if (newVal) {
+    headerData.value = {
+      left: chapterStore.selectedChapterName,
+      right: {
+        pageNumber: newVal.page_number,
+        hizbNumber: newVal.hizb_number,
+        juzNumber: newVal.juz_number,
+      },
+    };
+    // emit header Data
+    emit("update:headerData", headerData.value);
+  }
+
+}, { once: true })
+
+// auto mode with verse timing and feed header data
+watchEffect(async () => {
+  if (props.verseTiming.verseNumber) {
+    if (props.audioExperience.autoScroll) {
+      const el = document.querySelector(`#line-${props.verseTiming.verseNumber}`) as HTMLDivElement
+      if (!isInViewport(el)) {
+        // Avoid watchers by comparing 2 objects
+        const newHeaderData = ref<ChapterHeaderData>()
+        newHeaderData.value = {
+          left: chapterStore.selectedChapterName,
+          right: {
+            pageNumber: el.getAttribute("data-page-number") || "",
+            hizbNumber: el.getAttribute("data-hizb-number") || "",
+            juzNumber: el.getAttribute("data-juz-number") || "",
+          },
+        };
+
+
+        if (newHeaderData.value !== headerData.value) {
+          headerData.value = newHeaderData.value
+          // emit header Data
+          emit("update:headerData", headerData.value)
+        }
+        // Scroll into View
+        scrollToElement(`#line-${props.verseTiming.verseNumber}`)
+        // toggle active state
+        const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
+        if (element) {
+          //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
+        }
+      }
+    }
+  }
+});
 </script>
 
 <template>
@@ -114,7 +181,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             <v-col class="verse-col" :id="`page-${page}`">
 
               <div class="d-inline-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
-                :id="`page-${page}-line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
+                :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
                 :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
                 :data-verse-number="verse.verse_number" v-intersect.quite="{
                   handler: onIntersect,

@@ -67,7 +67,7 @@ watchEffect(async () => {
       </v-tabs-window-item>
       <v-tabs-window-item value="readingTab">
         <chapter-reading-view-component :is-audio-playing="audioPlayer" :css-vars="settingCssVars"
-          :verse-timing="audioPlayerStore.verseTiming" :is-reading-view="tab === 'readingTab'"
+          :verse-timing="audioPlayerStore.verseTiming" :is-reading-view="tab === 'readingTab'" :audio-experience="audioPlayerSetting"
           @update:header-data="emit('update:headerData', $event)" @update:manual-intersecting-mode="
             emit('update:manualIntersectingMode', $event)
             " @update:play-audio="emit('update:playAudio', $event)">

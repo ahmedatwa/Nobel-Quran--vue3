@@ -203,6 +203,21 @@ export const useChapterStore = defineStore("chapter-store", () => {
     }
   });
 
+  const getFirstVerseOfChapter = computed(() => {
+    if (selectedChapter.value?.verses) {
+      return selectedChapter.value.verses[0]
+    }
+  })
+  
+  const getLastVerseOfChapter = computed(() => {
+    if (selectedChapter.value?.verses) {
+      const verse = selectedChapter.value.verses.slice(-1)[0]
+      if (verse) {
+        return verse.verse_number
+      }
+    }
+    return 0
+  })
   return {
     chapters,
     searchValue,
@@ -215,6 +230,8 @@ export const useChapterStore = defineStore("chapter-store", () => {
     chaptersList,
     versesKeyMap,
     selectedChapterName,
+    getFirstVerseOfChapter,
+    getLastVerseOfChapter,
     getChapterName,
     getchapterInfo,
     getVerses,

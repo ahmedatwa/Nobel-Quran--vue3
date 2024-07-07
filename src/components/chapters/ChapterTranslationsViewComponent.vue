@@ -26,22 +26,6 @@ const verses = computed(() => {
 
 const isHoveringElement = ref("")
 
-const getFirstVerseOfChapter = computed(() => {
-  if (chapterStore.selectedChapter?.verses) {
-    return chapterStore.selectedChapter?.verses[0]
-  }
-})
-
-const getLastVerseOfChapter = computed(() => {
-  if (chapterStore.selectedChapter?.verses) {
-    const verse = chapterStore.selectedChapter?.verses.slice(-1)[0]
-    if (verse) {
-      return verse.verse_number
-    }
-  }
-  return 0
-})
-
 const chapterAudioId = computed(() => {
   if (chapterStore.selectedChapter) {
     return chapterStore.selectedChapter?.id;
@@ -95,7 +79,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     // help to fetch new verses
     // sending current/last verse Numbers to the chapters Nav
     emit("update:manualIntersectingMode", {
-      lastVerseNumber: getLastVerseOfChapter.value,
+      lastVerseNumber: chapterStore.getLastVerseOfChapter,
       currentVerseNumber: intersectingVerseNumber.value
     });
 
@@ -161,14 +145,14 @@ watchEffect(async () => {
 // emitting header data on mounted so 
 // access to dismiss the navigation menu is available
 // will be done only once as it will be triggred from scroll source
-watch(() => getFirstVerseOfChapter, (newVal) => {
-  if (newVal.value) {
+watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
+  if (newVal) {
     headerData.value = {
       left: chapterStore.selectedChapterName,
       right: {
-        pageNumber: newVal.value.page_number,
-        hizbNumber: newVal.value.hizb_number,
-        juzNumber: newVal.value.juz_number,
+        pageNumber: newVal.page_number,
+        hizbNumber: newVal.hizb_number,
+        juzNumber: newVal.juz_number,
       },
     };
     // emit header Data
