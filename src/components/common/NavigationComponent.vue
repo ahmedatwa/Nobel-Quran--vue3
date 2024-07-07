@@ -41,7 +41,7 @@ watchEffect(() => {
 })
 </script>
 <template>
-    <v-navigation-drawer :model-value="navigationModelValue" width="300" :temporary="$vuetify.display.mobile"
+    <v-navigation-drawer :model-value="navigationModelValue" width="300" :temporary="$vuetify.display.smAndDown"
         :permanent="$vuetify.display.mdAndUp">
         <template #prepend>
             <v-tabs v-model="navigationTab" align-tabs="center" :show-arrows="false" hide-slider class="mt-4"
