@@ -44,26 +44,28 @@ const iaPlaying = computed(() => {
 </script>
 
 <template>
-    <v-list class="text-center" :id="`verse-${verse.id}`" lines="one" :key="verse.verse_number">
-        <v-list-item>
-            <v-sheet class="text-caption text-no-wrap" :key="verse.verse_key" :size="size">{{ verse.verse_key }}</v-sheet>
+    <v-list class="text-center" :id="`verse-${verse.id}`" lines="one" :key="verse.verse_number"
+        :class="$vuetify.display.smAndDown ? 'd-flex justify-center' : ''">
+        <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
+            <v-sheet class="text-caption text-no-wrap" :key="verse.verse_key" :size="size">{{ verse.verse_key
+                }}</v-sheet>
         </v-list-item>
-        <v-list-item>
+        <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
             <v-btn :icon="iaPlaying ? 'mdi-pause' : 'mdi-play'" :size="size" variant="text" :key="verse.verse_key"
                 @click="playAudio(verse.chapter_id, verse.verse_key)" v-tooltip="'Play'"
                 :color="iaPlaying ? 'primary' : ''">
             </v-btn>
         </v-list-item>
-        <v-list-item>
+        <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
             <v-btn icon="mdi-book-open-variant-outline" variant="text" :size="size" :key="verse.verse_key"
                 v-tooltip="'Tafsir'" @click.stop="tafsirDialog = !tafsirDialog"></v-btn>
         </v-list-item>
-        <v-list-item>
+        <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
             <v-btn :icon="verse.bookmarked ? 'mdi-bookmark-check' : 'mdi-bookmark-minus-outline'" :size="size"
                 variant="text" :key="verse.verse_number" @click="$emit('update:bookmarked', verse.verse_number)"
                 v-tooltip="'Bookmark'" :color="verse.bookmarked ? 'primary' : ''"></v-btn>
-        </v-list-item>
-        <v-list-item>
+        </v-list-item :class="$vuetify.display.smAndDown ? 'float-right': ''">
+        <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
             <v-btn :icon="isCopied ? 'mdi-checkbox-multiple-marked' : 'mdi-content-copy'" variant="text" :size="size"
                 :key="verse.verse_key" @click="copyText(verse.text_uthmani)" v-tooltip="'Copy'"
                 :color="isCopied ? 'primary' : ''"></v-btn>
@@ -74,3 +76,4 @@ const iaPlaying = computed(() => {
         @update:model-value="tafsirDialog = $event">
     </tafsir-dialog-component>
 </template>
+<style></style>
