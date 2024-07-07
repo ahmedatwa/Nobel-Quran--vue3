@@ -46,7 +46,7 @@ const getCurrentJuzNumber = computed((): number => {
 })
 
 // Manual Mode Scroll
-const onIntersect = async (intersecting: boolean, entries: any) => {
+const onIntersect = (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     let newHeaderData: JuzHeaderData | null = null
     if (intersecting && props.selectedJuzTab === "translationsTab" && entries[0].intersectionRatio === 1) {
@@ -70,13 +70,14 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
                 headerData.value = newHeaderData
                 emit('update:headerData', headerData.value)
             }
+            // emit verse id for scroll in verses list 
+            // help to fetch new verses 
+            emit('update:manualIntersecting', {
+                currentVerseNumber: intersectingJuzVerseNumber.value,
+                lastVerseNumber: juzStore.getLastVerseOfJuz
+            })
         }
-        // emit verse id for scroll in verses list 
-        // help to fetch new verses 
-        emit('update:manualIntersecting', {
-            currentVerseNumber: intersectingJuzVerseNumber.value,
-            lastVerseNumber: juzStore.getLastVerseOfJuz
-        })
+
     }
 }
 
@@ -95,7 +96,7 @@ const isWordHighlighted = (location: string, verseKey: string) => {
 
 // watchers
 // auto mode with verse timing and feed header data
-watchEffect(async () => {
+watchEffect(() => {
     if (props.verseTiming.verseKey) {
         if (props.audioExperience.autoScroll) {
             const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)

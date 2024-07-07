@@ -49,7 +49,7 @@ const emit = defineEmits<{
 }>();
 
 // Manual Mode Scroll
-const onIntersect = async (intersecting: boolean, entries: any) => {
+const onIntersect = (intersecting: boolean, entries: any) => {
   isIntersecting.value = intersecting;
   if (intersecting && entries[0].intersectionRatio === 1) {
     intersectingVerseNumber.value = Number(
@@ -105,7 +105,7 @@ const isWordHighlighted = (location: string, verseKey: string) => {
 
 // watchers
 // auto mode with verse timing and feed header data
-watchEffect(async () => {
+watchEffect(() => {
   if (props.verseTiming.verseNumber) {
     if (props.audioExperience.autoScroll) {
       const el = document.querySelector(`#verse-row-${props.verseTiming.verseNumber}`) as HTMLDivElement
@@ -181,7 +181,8 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
           },
         }">
         <v-row :id="`verse-row-${verse.verse_number}`">
-          <v-col class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1" :cols="$vuetify.display.smAndDown ? '12' : '1'">
+          <v-col class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1"
+            :cols="$vuetify.display.smAndDown ? '12' : '1'">
             <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)" size="small"
               :is-audio-player="isAudioPlaying" :verse="verse" @update:bookmarked="setBookmarked">
             </buttons-action-list-component>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, ref, watchEffect } from "vue"
+import { onBeforeMount, ref, watchEffect, computed } from "vue"
 // stores
 import { useJuzStore } from "@/stores";
 // types
@@ -11,6 +11,12 @@ const juzStore = useJuzStore()
 const selectedId = ref(1)
 const selectedVerseID = ref(1)
 
+const getVersePagination = computed(() => {
+    const isFound = juzStore.juzList.find((j) => j.juz_number === selectedId.value)
+    if (isFound) {
+        return isFound.pagination
+    }
+})
 const emit = defineEmits<{
     "update:selectedVerseKeyView": [value: string]
 }>()
@@ -71,8 +77,6 @@ const mouseEnter = async (juzNumber: number) => {
  * duplicate verses will be handeled by the chapter store
 */
 watchEffect(async () => {
-    console.log(props.manualIntersecting);
-    
     if (props.manualIntersecting) {
         const intersectingData = props.manualIntersecting
         selectedVerseID.value = intersectingData.currentVerseNumber
@@ -92,8 +96,8 @@ watchEffect(async () => {
             intersectingData.currentVerseNumber ===
             intersectingData.lastVerseNumber - 5
         ) {
-            if (juzStore.selectedJuz?.pagination) {
-                await juzStore.getVerses(selectedId.value, true, juzStore.selectedJuz.pagination.next_page)
+            if (getVersePagination.value) {
+                await juzStore.getVerses(selectedId.value, true, getVersePagination.value.next_page)
             }
         }
     }

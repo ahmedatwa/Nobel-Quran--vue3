@@ -213,7 +213,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     if (selectedChapter.value?.verses) {
       const verse = selectedChapter.value.verses.slice(-1)[0]
       if (verse) {
-        return verse.verse_number
+        return verse.id
       }
     }
     return 0

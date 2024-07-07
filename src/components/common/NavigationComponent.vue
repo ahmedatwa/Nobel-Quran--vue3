@@ -15,7 +15,7 @@ const navigationTab = ref("chapters")
 const props = defineProps<{
     selected: string
     chapterManualIntersectingMode?: ManualIntersectingMode
-    juzManualIntersectingMode?: JuzVersesIntersecting
+    juzManualIntersecting?: JuzVersesIntersecting
     intersectingPageVerseNumber?: number
     navigationModelValue?: boolean
     activeJuzNumber?: number
@@ -61,7 +61,7 @@ watchEffect(() => {
                     </chapters-nav-component>
                 </v-tabs-window-item>
                 <v-tabs-window-item value="juzs">
-                    <juzs-nav-component :manual-intersecting="juzManualIntersectingMode"
+                    <juzs-nav-component :manual-intersecting="juzManualIntersecting"
                         :active-juz-number="activeJuzNumber"
                         @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
                     </juzs-nav-component>
