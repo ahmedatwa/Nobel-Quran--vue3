@@ -182,7 +182,7 @@ watchEffect(async () => {
 
               <div class="d-inline-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
                 :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
-                :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
+                :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number" :data-page-number="page"
                 :data-verse-number="verse.verse_number" v-intersect.quite="{
                   handler: onIntersect,
                   options: {
@@ -191,7 +191,7 @@ watchEffect(async () => {
                 }">
                 <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position" class=""
                   :data-hizb-number="verse.hizb_number" :data-juz-number="verse.juz_number"
-                  :data-chapter-id="verse.chapter_id">
+                  :data-chapter-id="verse.chapter_id" :data-page-number="page">
                   <div :class="isWordHighlighted(word.location, word.verse_key)
                     ? 'text-blue'
                     : ''
@@ -204,7 +204,7 @@ watchEffect(async () => {
               </div>
             </v-col>
             <v-col cols="12" class="my-4">
-              <v-divider><span class="text-caption">{{ page }}</span></v-divider>
+              <v-divider><span class="text-caption">{{ $tr.line('quranReader.textPage') }} {{ page }}</span></v-divider>
             </v-col>
           </v-row>
         </v-container>
