@@ -3,7 +3,7 @@ import { onBeforeMount, ref, watchEffect } from "vue"
 // stores
 import { useJuzStore } from "@/stores";
 // types
-import type { Juz } from "@/types/juz"
+import type { Juz, JuzVersesIntersecting } from "@/types/juz"
 import { scrollToElement } from "@/utils/useScrollToElement"
 
 // Stores
@@ -16,7 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps<{
-    intersectingJuzVerseNumber?: number
+    manualIntersecting?: JuzVersesIntersecting
     activeJuzNumber?: number
 }>()
 
@@ -71,23 +71,33 @@ const mouseEnter = async (juzNumber: number) => {
  * duplicate verses will be handeled by the chapter store
 */
 watchEffect(async () => {
-    if (props.intersectingJuzVerseNumber) {
-        selectedVerseID.value = props.intersectingJuzVerseNumber
-        //console.log(generateChapterVersesKeys(2));
+    console.log(props.manualIntersecting);
+    
+    if (props.manualIntersecting) {
+        const intersectingData = props.manualIntersecting
+        selectedVerseID.value = intersectingData.currentVerseNumber
+        console.log(intersectingData);
 
         if (juzStore.selectedJuz) {
             // return if end of verses count
-            if (juzStore.selectedJuz.verses_count === juzStore.selectedJuz.verses?.length) {
+            if (juzStore.selectedJuz.verses_count === intersectingData.lastVerseNumber) {
                 return
             }
+        }
 
+        // Load More Verses
+        if (
+            intersectingData.currentVerseNumber ===
+            intersectingData.lastVerseNumber ||
+            intersectingData.currentVerseNumber ===
+            intersectingData.lastVerseNumber - 5
+        ) {
             if (juzStore.selectedJuz?.pagination) {
-                if(juzStore.selectedJuz.pagination.next_page)
-                await juzStore.getVerses(selectedId.value, true, juzStore.selectedJuz?.pagination?.next_page)
+                await juzStore.getVerses(selectedId.value, true, juzStore.selectedJuz.pagination.next_page)
             }
-
         }
     }
+
 })
 
 /**

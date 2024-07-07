@@ -48,14 +48,10 @@ const headerData = computed(() => {
       right: data.right
     }
   } else if (props.headerData?.key === "juz") {
-    const data = props.headerData.value as JuzHeaderData
-    const chapterId = Number(data.left)
-    if (chapterId) {
-      const chapterName = getChapterName(chapterId)
-      return {
-        left: $lang?.locale.value === "ar" ? chapterName?.ar : chapterName?.en,
-        right: data.right
-      }
+    const juzHeaderData = props.headerData.value as JuzHeaderData
+    return {
+      left: $lang?.locale.value === "ar" ? juzHeaderData?.left?.nameArabic : juzHeaderData?.left?.nameSimple,
+      right: juzHeaderData.right
     }
   } else if (props.headerData) {
 

@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, nextTick, computed } from "vue"
+import { ref, inject, watchEffect, nextTick, computed, watch } from "vue"
 // stores
 import { useJuzStore, useChapterStore } from "@/stores";
 // components
 import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/quran"
 // utils
 import { getFirstVerseNumberInJuz } from "@/utils/verse"
+import { getChapterNameByChapterId } from "@/utils/chapter"
+import { getChapterNameByJuzId } from "@/utils/juz"
 // types
-import type { JuzHeaderData } from "@/types/juz";
+import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
 import type { VerseTimingsProps } from "@/types/audio";
+import { _range } from "@/utils/number";
 
 const juzStore = useJuzStore()
 const { getChapterName } = useChapterStore()
@@ -16,6 +19,8 @@ const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<JuzHeaderData | null>(null);
 const intersectingJuzVerseNumber = ref<number>()
+const intersectingChapterId = ref<number>()
+const currentChapterId = ref<number>()
 
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
@@ -29,7 +34,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
     "update:headerData": [value: JuzHeaderData | null]
-    "update:intersectingJuzVerseNumber": [value: number]
+    "update:manualIntersecting": [value: JuzVersesIntersecting]
     "update:activeJuzNumber": [value: number]
 }>()
 
@@ -40,30 +45,38 @@ const getCurrentJuzNumber = computed((): number => {
     return 0
 })
 
-
 // Manual Mode Scroll
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
-    if (intersecting && props.selectedJuzTab === "translationsTab") {
-        // emit header data
-        headerData.value = {
-            left: entries[0].target.dataset.chapterId,
-            right: {
-                pageNumber: entries[0].target.dataset.pageNumber,
-                hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: getCurrentJuzNumber.value,
+    let newHeaderData: JuzHeaderData | null = null
+    if (intersecting && props.selectedJuzTab === "translationsTab" && entries[0].intersectionRatio === 1) {
+        // Verse Id is used here as key won't be efficient for scroll
+        intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseId)
+        const chapterId: number = entries[0].target.dataset.chapterId
+        intersectingChapterId.value = chapterId
+
+        if (intersectingChapterId.value) {
+            // emit header data
+            newHeaderData = {
+                left: getChapterNameByChapterId(chapterId) || null,
+                right: {
+                    pageNumber: entries[0].target.dataset.pageNumber,
+                    hizbNumber: entries[0].target.dataset.hizbNumber,
+                    juzNumber: getCurrentJuzNumber.value,
+                }
+            }
+
+            if (newHeaderData !== headerData.value) {
+                headerData.value = newHeaderData
+                emit('update:headerData', headerData.value)
             }
         }
-
-        emit('update:headerData', headerData.value)
-
-        if (entries[0].intersectionRatio === 1) {
-            // Verse Id is used here as key won't be efficient for scroll
-            intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseId)
-            // emit verse id for scroll in verses list 
-            // help to fetch new verses 
-            emit('update:intersectingJuzVerseNumber', intersectingJuzVerseNumber.value)
-        }
+        // emit verse id for scroll in verses list 
+        // help to fetch new verses 
+        emit('update:manualIntersecting', {
+            currentVerseNumber: intersectingJuzVerseNumber.value,
+            lastVerseNumber: juzStore.getLastVerseOfJuz
+        })
     }
 }
 
@@ -87,16 +100,23 @@ watchEffect(async () => {
         if (props.audioExperience.autoScroll) {
             const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)
             if (el) {
-                headerData.value = {
-                    left: el.getAttribute("data-chapter-id") || '',
+                let newHeaderData: JuzHeaderData | null = null
+                const chapterId = el.getAttribute("data-chapter-id") || null
+                newHeaderData = {
+                    left: getChapterNameByJuzId(getCurrentJuzNumber.value, chapterId ? Number(chapterId) : 0),
                     right: {
                         pageNumber: el.getAttribute("data-page-number") || '',
                         hizbNumber: el.getAttribute("data-hizb-number") || '',
                         juzNumber: getCurrentJuzNumber.value,
                     }
                 }
+
                 // emit header Data
-                emit('update:headerData', headerData.value)
+                if (newHeaderData !== headerData.value) {
+                    headerData.value = newHeaderData
+                    emit('update:headerData', headerData.value)
+                }
+
                 // Scroll into View
                 // Verse Column
                 el?.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -171,12 +191,33 @@ const isNextJuzDisabled = computed(() => {
         return juzStore.selectedJuz.verses.length < juzStore.selectedJuz.verses_count
     }
 })
+
+// emitting header data on mounted so 
+// access to dismiss the navigation menu is available
+// will be done only once as it will be triggred from scroll source
+watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
+    if (newVal) {
+        headerData.value = {
+            left: getChapterNameByChapterId(newVal.chapter_id) || null,
+            right: {
+                pageNumber: newVal.page_number,
+                hizbNumber: newVal.hizb_number,
+                juzNumber: newVal.juz_number,
+            },
+        };
+        // emit header Data
+        currentChapterId.value = newVal.chapter_id
+        emit("update:headerData", headerData.value);
+    }
+
+}, { once: true })
+
 </script>
 
 <template>
     <v-container fluid>
-        <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVersesByChapterMap" :key="key"
-            :id="`verse-row${key}`">
+        <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVersesByChapterMap"
+            :key="key" :id="`verse-row${key}`">
             <v-col cols="12">
                 <title-buttons-component :chapter-id="Number(key)"
                     :grouped-translations-authors="groupedTranslationsAuthors" :is-audio-player="isAudioPlaying"
@@ -189,10 +230,11 @@ const isNextJuzDisabled = computed(() => {
                 </title-buttons-component>
             </v-col>
             <v-col cols="12" :id="`verse-col-${key}`">
-                <v-row v-for="(verse, __index) in verses" :key="verse.verse_number" :data-hizb-number="verse.hizb_number"
-                    :data-verse-number="verse.verse_number" :id="`row${verse.verse_number}`" :data-verse-id="verse.id"
-                    :data-page-number="verse.page_number" :data-verse-key="verse.verse_key"
-                    :data-chapter-id="verse.chapter_id" :data-intersecting="isIntersecting" v-intersect.quite="{
+                <v-row v-for="(verse, __index) in verses" :key="verse.verse_number"
+                    :data-hizb-number="verse.hizb_number" :data-verse-number="verse.verse_number"
+                    :id="`row${verse.verse_number}`" :data-verse-id="verse.id" :data-page-number="verse.page_number"
+                    :data-verse-key="verse.verse_key" :data-chapter-id="verse.chapter_id"
+                    :data-intersecting="isIntersecting" v-intersect="{
                         handler: onIntersect,
                         options: {
                             threshold: [0, 0.5, 1.0]

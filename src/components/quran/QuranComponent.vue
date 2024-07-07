@@ -16,7 +16,7 @@ import {
 } from "@/stores";
 // types
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
-import type { JuzHeaderData } from "@/types/juz";
+import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 // utils
 import { getStorage } from "@/utils/storage";
@@ -34,7 +34,7 @@ const navigationModelValue = inject<boolean>("navigationModelValue");
 const selectedTab = ref("");
 const selectedPage = ref(1);
 const chapterManualIntersectingModeData = ref<ManualIntersectingMode>();
-const intersectingJuzVerseNumber = ref<number>();
+const juzManualIntersectingMode = ref<JuzVersesIntersecting>();
 const intersectingPageVerseNumber = ref<number>();
 const audioPlayerModelValue = ref(false);
 const selectedVerseKeyView = ref("");
@@ -103,14 +103,14 @@ onBeforeMount(() => {
 <template>
   <navigation-component v-model:navigation-model-value="navigationModelValue" :selected="selected"
     @update:selected-tab="selectedTab = $event" :chapter-manual-intersecting-mode="chapterManualIntersectingModeData"
-    :intersecting-juz-verse-number="intersectingJuzVerseNumber" @update:selected-page="selectedPage = $event"
+    :juz-manual-intersecting="juzManualIntersectingMode" @update:selected-page="selectedPage = $event"
     :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
     :intersecting-page-verse-number="intersectingPageVerseNumber"
     @update:selected-verse-key-view="selectedVerseKeyView = $event"></navigation-component>
   <!-- Juz -->
   <juzs-component :selected="selectedTab === 'juzs'" :selected-tab="selectedTab" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:translation-drawer="translationDrawer = $event"
-    @update:intersecting-juz-verse-number="intersectingJuzVerseNumber = $event"
+    @update:manual-intersecting="juzManualIntersectingMode = $event"
     :selected-verse-key-View="selectedVerseKeyView" @update:play-audio="playAudio"
     @update:header-data="$emit('update:headerData', { key: 'juz', value: $event as JuzHeaderData })"
     @update:active-juz-number="activeJuzNumber = $event"></juzs-component>

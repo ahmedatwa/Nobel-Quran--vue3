@@ -48,14 +48,10 @@ type ReturnObject = {
   nameSimple: string;
   bismillahPre: boolean;
 };
-export const getChapterNameByChapterId = (
-  chapterId: number
-): ReturnObject | undefined => {
-  const chapter = jsonChaptersData.chapters.find(
-    (chapter) => chapter.id === chapterId
-  );
+export const getChapterNameByChapterId = (chapterId: number): ReturnObject | undefined => {
+  const chapter = jsonChaptersData.chapters.find((c) => c.id === Number(chapterId));  
   if (chapter) {
-    return {
+   return {
       nameSimple: chapter.name_simple,
       nameArabic: chapter.name_arabic,
       bismillahPre: chapter.bismillah_pre,

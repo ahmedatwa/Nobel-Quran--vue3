@@ -23,6 +23,14 @@ export const isVerseKeyWithinRanges = (verseKey: string, range?: string[]) => {
   if (range) return range.includes(verseKey);
 };
 
+export const isVerseNumberWithinRanges = (
+  verseNumber: number,
+  range: number[]
+) => {
+  const min = range[0];
+  const max = range.slice(-1)[0];
+  return verseNumber >= min && verseNumber <= max;
+};
 /**
  * Get the verse number from its key. A key is the combination between the verse's chapter
  * and its number separated by ":" e.g. 1:5.
@@ -99,13 +107,17 @@ export const makeWordLocation = (
  * @returns {surah: number, from: Number, to: Number}
  */
 export const getVerseNumberRangeFromKey = (
-  verseKey: string,
+  verseKey: string
 ): { surah: number; from: number; to: number } => {
   const splits = verseKey.split(COLON_SPLITTER);
   const surahNumber = splits[0];
   const verseNumber = splits[1]; // for example (3-5)
-  const [from, to] = verseNumber.split('-'); // for example [3, 5]
-  return { surah: Number(surahNumber), from: Number(from), to: to ? Number(to) : Number(from) };
+  const [from, to] = verseNumber.split("-"); // for example [3, 5]
+  return {
+    surah: Number(surahNumber),
+    from: Number(from),
+    to: to ? Number(to) : Number(from),
+  };
 };
 
 export const verseFields = [

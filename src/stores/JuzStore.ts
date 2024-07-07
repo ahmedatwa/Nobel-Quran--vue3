@@ -109,7 +109,7 @@ export const useJuzStore = defineStore("juz-store", () => {
             }
           });
           juz.pagination = response.data.pagination;
-          if(selectedJuz.value?.pagination) {
+          if (selectedJuz.value?.pagination) {
             selectedJuz.value.pagination = response.data.pagination;
           }
         }
@@ -202,6 +202,22 @@ export const useJuzStore = defineStore("juz-store", () => {
     }
   };
 
+  const getFirstVerseOfJuz = computed(() => {
+    if (selectedJuz.value?.verses) {
+      return selectedJuz.value?.verses[0];
+    }
+  });
+
+  const getLastVerseOfJuz = computed(() => {
+    if (selectedJuz.value?.verses) {
+      const verse = selectedJuz.value.verses.slice(-1)[0];
+      if (verse) {
+        return verse.verse_number;
+      }
+    }
+    return 0;
+  });
+
   return {
     isLoading,
     juzs,
@@ -212,6 +228,8 @@ export const useJuzStore = defineStore("juz-store", () => {
     juzVersesByChapterMap,
     currentSort,
     currentSortDir,
+    getFirstVerseOfJuz,
+    getLastVerseOfJuz,
     getChapterNameByVerseKey,
     getJuzs,
     sort,

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useJuzStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran"
 // types
-import type { JuzHeaderData } from "@/types/juz"
+import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz"
 import type { MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps } from "@/types/audio";
 
@@ -23,7 +23,7 @@ const verses = computed(() => {
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
     "update:headerData": [value: JuzHeaderData | null]
-    "update:intersectingJuzVerseNumber": [value: number]
+    "update:manualIntersecting": [value: JuzVersesIntersecting]
 }>()
 
 const props = defineProps<{
@@ -52,31 +52,51 @@ const mapVersesByPage = computed((): MapVersesByPage | undefined => {
 
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
-   // const chapterId = entries[0].target.dataset.chapterId
-    if (intersecting && props.selectedJuzTab === "readingTab") {
+    // const chapterId = entries[0].target.dataset.chapterId
+    if (intersecting && props.selectedJuzTab === "readingTab" && entries[0].intersectionRatio >= 0.8) {
+        intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
+        let newHeaderData: JuzHeaderData | null = null
         // emit header data
-
-        headerData.value = {
-            left: "",
+        newHeaderData = {
+            left: getChapterNameByJuzId(juzStore.selectedJuz?.id, entries[0].target.dataset.chapterId),
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
                 juzNumber: juzStore.selectedJuz ? juzStore.selectedJuz?.juz_number : 0,
             }
         }
-
-        emit('update:headerData', headerData.value)
-
-        if (entries[0].intersectionRatio >= 0.5) {
-            intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
-
-            // emit verse id for scroll in verses list 
-            // help to fetch new verses 
-            emit('update:intersectingJuzVerseNumber', intersectingJuzVerseNumber.value)
+        if (newHeaderData !== headerData.value) {
+            headerData.value = newHeaderData
+            emit('update:headerData', headerData.value)
         }
+        // emit verse id for scroll in verses list 
+        // help to fetch new verses 
+        emit('update:manualIntersecting', {
+            currentVerseNumber: intersectingJuzVerseNumber.value,
+            lastVerseNumber: juzStore.getLastVerseOfJuz
+        })
 
     }
 }
+
+// emitting header data on mounted so 
+// access to dismiss the navigation menu is available
+// will be done only once as it will be triggred from scroll source
+watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
+    if (newVal) {
+        headerData.value = {
+            left: getChapterNameByJuzId(juzStore.selectedJuz?.id, newVal.chapter_id),
+            right: {
+                pageNumber: newVal.page_number,
+                hizbNumber: newVal.hizb_number,
+                juzNumber: newVal.juz_number,
+            },
+        };
+        // emit header Data
+        emit("update:headerData", headerData.value);
+    }
+
+}, { once: true })
 </script>
 
 <template>
@@ -88,6 +108,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
                         <v-row v-for="(verses, page, index) in mapVersesByPage" :key="page" :data-page-id="page"
                             class="verse-row" no-gutters justify="center" :align="'start'">
                             <v-col cols="12">
+
                                 <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="1"
                                     @update:play-audio="$emit('update:playAudio', $event)" isInfoDialog>
                                     <template #title>
@@ -127,7 +148,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
                                             " class="word">
                                             <div v-if="word.char_type_name === 'end'" style="font-family: p3-v1;">({{
                                                 word.text_uthmani
-                                            }})
+                                                }})
                                             </div>
                                             <div v-else>{{ word.text_uthmani }}</div>
                                         </div>

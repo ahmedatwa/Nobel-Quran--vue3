@@ -69,6 +69,6 @@ export const localizeNumber = (number: number, locale?: string) => {
   return Number(value);
 };
 
-export const _range = (end: number, start: number) => {
-  return Array.from({ length: end - start + 1 }, (_, i) => i + start);
+export const _range = (end: number | string, start: number | string) => {
+  return Array.from({ length: Number(end) - Number(start) + 1 }, (_, i) => i + Number(start));
 };

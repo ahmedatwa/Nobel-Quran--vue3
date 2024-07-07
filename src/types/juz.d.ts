@@ -28,7 +28,7 @@ interface juzVersesByPageMap {
 }
 
 interface JuzHeaderData {
-  left: string | number;
+  left: { nameArabic: string; nameSimple: string; bismillahPre: boolean } | null;
   right: {
     pageNumber: string | number;
     hizbNumber: string | number;
@@ -37,6 +37,18 @@ interface JuzHeaderData {
 }
 
 type JuzVerseMapping = {
-  [key: number]: string
-}
-export { Juz, JuzHeaderData, juzVersesByPageMap, JuzVerseMapping };
+  [key: number]: string;
+};
+
+type JuzVersesIntersecting = {
+  currentVerseNumber: number;
+  lastVerseNumber: number;
+};
+
+export {
+  Juz,
+  JuzHeaderData,
+  juzVersesByPageMap,
+  JuzVerseMapping,
+  JuzVersesIntersecting,
+};

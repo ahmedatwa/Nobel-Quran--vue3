@@ -5,7 +5,7 @@ import { JuzReadingViewComponent, JuzTranslationsViewComponent } from '@/compone
 // stores
 import { useJuzStore, useTranslationsStore, useAudioPlayerStore, useSettingStore } from "@/stores";
 // types
-import type { JuzHeaderData } from '@/types/juz';
+import type { JuzHeaderData, JuzVersesIntersecting } from '@/types/juz';
 
 const translationsStore = useTranslationsStore()
 const juzStore = useJuzStore()
@@ -23,7 +23,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     "update:headerData": [value: JuzHeaderData | null]
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
-    "update:intersectingJuzVerseNumber": [value: number]
+    "update:manualIntersecting": [value: JuzVersesIntersecting]
     "update:activeJuzNumber": [value: number]
 }>()
 
@@ -43,7 +43,7 @@ const emit = defineEmits<{
                     :audio-experience="audioPlayerSetting" :css-vars="settingCssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
                     :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
-                    @update:intersecting-juz-verse-number="emit('update:intersectingJuzVerseNumber', $event)"
+                    @update:manual-intersecting="emit('update:manualIntersecting', $event)"
                     @update:play-audio="emit('update:playAudio', $event)"
                     @update:active-juz-number="$emit('update:activeJuzNumber', $event)">
                 </juz-translations-view-component>
@@ -52,7 +52,7 @@ const emit = defineEmits<{
                 <juz-reading-view-component :audio-player="audioPlayer" :css-vars="settingCssVars"
                     :selected-juz-tab="selectedJuzTab" :verse-timing="audioPlayerStore.verseTiming"
                     @update:header-data="emit('update:headerData', $event)"
-                    @update:intersecting-juz-verse-number="emit('update:intersectingJuzVerseNumber', $event)"
+                    @update:manual-intersecting="emit('update:manualIntersecting', $event)"
                     @update:play-audio="emit('update:playAudio', $event)">
                 </juz-reading-view-component>
             </v-tabs-window-item>

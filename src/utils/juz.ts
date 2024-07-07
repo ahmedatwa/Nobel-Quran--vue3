@@ -17,26 +17,59 @@ import jsonChaptersData from "@/json/chapters.json";
  * @param {string} juzId
  * @returns {string[]} chapterIds
  */
+type Object = {
+  nameArabic: string;
+  nameSimple: string;
+  bismillahPre: boolean;
+};
 export const getChapterNameByJuzId = (
-    juzId: string | number | undefined,
-    index: number
-  ) => {
-    let object = {
-      nameArabic: "",
-      nameSimple: "",
-      bismillahPre: false,
-    };
-    const juzData = jsonJuzsData[juzId as keyof typeof jsonJuzsData];
-  
-    const chapterId = juzData[index];
-    jsonChaptersData.chapters.forEach((chapter) => {
-      if (chapter.id === Number(chapterId)) {
-        object = {
-          nameSimple: chapter.name_simple,
-          nameArabic: chapter.name_arabic,
-          bismillahPre: chapter.bismillah_pre,
-        };
-      }
-    });
-    return object;
+  juzId: string | number | undefined,
+  index: number
+): Object => {
+  const juzData = jsonJuzsData[juzId as keyof typeof jsonJuzsData];
+  const chapterId = juzData[index];
+  let object = {
+    nameArabic: "",
+    nameSimple: "string",
+    bismillahPre: false,
   };
+
+  jsonChaptersData.chapters.forEach((chapter) => {
+    if (chapter.id === Number(chapterId)) {
+      object = {
+        nameSimple: chapter.name_simple,
+        nameArabic: chapter.name_arabic,
+        bismillahPre: chapter.bismillah_pre,
+      };
+    }
+  });
+  return object;
+};
+
+export const getChapterNameByJuzIdAndChapterId = (
+  juzId: number | string,
+  chapterId: number | string
+) => {
+  let object = {
+    nameArabic: "",
+    nameSimple: "",
+    bismillahPre: false,
+  };
+  const juzData = jsonJuzsData[juzId as keyof typeof jsonJuzsData];
+  console.log(chapterId);
+
+  const id = juzData.map((id) => id === chapterId);
+
+  console.log(juzData);
+
+  jsonChaptersData.chapters.forEach((chapter) => {
+    if (chapter.id === Number(id)) {
+      object = {
+        nameSimple: chapter.name_simple,
+        nameArabic: chapter.name_arabic,
+        bismillahPre: chapter.bismillah_pre,
+      };
+    }
+  });
+  return object;
+};
