@@ -14,6 +14,11 @@ const chapterStore = useChapterStore();
 const selectedVerseID = ref();
 const selectedChapterId = ref();
 const searchValue = ref("");
+const selectedChapterVersesCount = computed(() => {
+  if (chapterStore.selectedChapter) {
+    return chapterStore.selectedChapter?.versesCount
+  }
+})
 const getVersePagination = computed(() => {
   if (chapterStore.selectedChapter?.pagination) {
     return chapterStore.selectedChapter?.pagination
@@ -88,26 +93,22 @@ watchEffect(async () => {
 
     selectedVerseID.value = intersectingData.currentVerseNumber;
 
-    if (chapterStore.selectedChapter) {
-      if (chapterStore.selectedChapter?.versesCount ===
-        chapterStore.selectedChapter.verses?.length
-      ) {
-        chapterStore.isLoading.verses = false
-        return;
-      }
-      
-      scrollToElement(`#verse${selectedVerseID.value}`, 100);
+    if (selectedChapterVersesCount.value === intersectingData.lastVerseNumber) {
+      chapterStore.isLoading.verses = false
+      return;
+    }
 
-      if (
-        intersectingData.currentVerseNumber ===
-        intersectingData.lastVerseNumber ||
-        intersectingData.currentVerseNumber ===
-        intersectingData.lastVerseNumber - 5
-      ) {
-        // await getVerseByKey(`${selectedChapterId.value}:${intersectingData.lastVerseNumber + 1}`);
-        if (getVersePagination.value?.next_page) {
-          await chapterStore.getVerses(selectedChapterId.value, true, getVersePagination.value?.next_page)
-        }
+    scrollToElement(`#verse${selectedVerseID.value}`, 100);
+
+    if (
+      intersectingData.currentVerseNumber ===
+      intersectingData.lastVerseNumber ||
+      intersectingData.currentVerseNumber ===
+      intersectingData.lastVerseNumber - 5
+    ) {
+      // await getVerseByKey(`${selectedChapterId.value}:${intersectingData.lastVerseNumber + 1}`);
+      if (getVersePagination.value?.next_page) {
+        await chapterStore.getVerses(selectedChapterId.value, true, getVersePagination.value?.next_page)
       }
     }
   }

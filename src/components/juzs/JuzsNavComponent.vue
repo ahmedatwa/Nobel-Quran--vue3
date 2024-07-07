@@ -11,6 +11,11 @@ const juzStore = useJuzStore()
 const selectedId = ref(1)
 const selectedVerseID = ref(1)
 
+const selectedJuzVersesCount = computed(() => {
+    if (juzStore.selectedJuz) {
+        return juzStore.selectedJuz.verses_count
+    }
+})
 const getVersePagination = computed(() => {
     const isFound = juzStore.juzList.find((j) => j.juz_number === selectedId.value)
     if (isFound) {
@@ -82,11 +87,10 @@ watchEffect(async () => {
         selectedVerseID.value = intersectingData.currentVerseNumber
         console.log(intersectingData);
 
-        if (juzStore.selectedJuz) {
-            // return if end of verses count
-            if (juzStore.selectedJuz.verses_count === intersectingData.lastVerseNumber) {
-                return
-            }
+        // return if end of verses count
+        if (selectedJuzVersesCount.value === intersectingData.lastVerseNumber) {
+            juzStore.isLoading = false
+            return
         }
 
         // Load More Verses
