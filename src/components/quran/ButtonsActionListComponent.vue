@@ -46,7 +46,7 @@ const iaPlaying = computed(() => {
 <template>
     <v-list class="text-center" :id="`verse-${verse.id}`" lines="one" :key="verse.verse_number">
         <v-list-item>
-            <v-sheet class="text-caption" :key="verse.verse_key" :size="size">{{ verse.verse_key }}</v-sheet>
+            <v-sheet class="text-caption text-no-wrap" :key="verse.verse_key" :size="size">{{ verse.verse_key }}</v-sheet>
         </v-list-item>
         <v-list-item>
             <v-btn :icon="iaPlaying ? 'mdi-pause' : 'mdi-play'" :size="size" variant="text" :key="verse.verse_key"
