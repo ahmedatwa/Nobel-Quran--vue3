@@ -10,11 +10,8 @@ import type { ChapterHeaderData } from "@/types/chapter";
 import type { JuzHeaderData } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 import { langKey } from "@/types/symbols";
-// stores
-import { useChapterStore } from "@/stores";
 
 const _theme = useTheme();
-const { getChapterName } = useChapterStore()
 const $lang = inject(langKey);
 const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
