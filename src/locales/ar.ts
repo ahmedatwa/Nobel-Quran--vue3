@@ -67,6 +67,7 @@ export default {
     textJuzs: "أجزاء",
     textVerse: "آية",
     textVerses: "آيات",
+    textPages: "الصفحات",
     textRelevation: "ترتيب نزول الوحي",
     inputSearch: "بحث",
     textAyah: "آية",
