@@ -1,6 +1,3 @@
-import "./assets/style.css";
- 
- 
 import { registerPlugins } from "./plugins";
 import i18nPlugin from "./plugins/i18n";
 import { en, ar } from "@/locales";
@@ -12,6 +9,11 @@ import Axios from "axios";
 // Composables
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import "./assets/style.css";
+
+// fonts
+import "@fontsource-variable/open-sans/wght.css";
+
 
 const pinia = createPinia();
 

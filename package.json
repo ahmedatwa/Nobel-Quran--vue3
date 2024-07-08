@@ -7,6 +7,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/gulzar": "^5.0.20",
     "axios": "^1.7.2",
     "pinia": "^2.1.7",
     "roboto-fontface": "*",
