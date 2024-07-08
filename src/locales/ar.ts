@@ -6,6 +6,11 @@ export default {
     verses: "آيات",
     quran: "القرآن",
     translation: "الترجمة",
+    audioPlayer: "مشغل الصوت",
+    playerFullWidth: "مشغل الصوت بالعرض الكامل",
+    dismissPlayer: "استبعاد المشغل عند انتهاء التشغيل",
+    reciter: "القارئ",
+    fontSize: "حجم الخط",
   },
   audio: {
     download: "تحميل",
@@ -14,6 +19,9 @@ export default {
     prevAyah: "الآية السابقة",
     nextAyah: "الآية التالية",
     close: "إغلاق المشغل",
+    experience: "تجربة",
+    autoScroll: "التمرير التلقائي",
+    tooltip: "إظهار تلميح الأداة عند تشغيل الصوت",
   },
   common: {
     headingTitle: "القرآن الكريم",
@@ -33,9 +41,17 @@ export default {
     buttonPlay: "تشغيل الصوت",
     textSurahInfo: "معلومات السورة",
     textPage: "صفحة",
+    nextPage: "الصفحة التالية",
+    prevPage: "الصفحة السابقة",
+    startPage: "بداية الصفحة",
+    nextJuz: "الجزء التالي",
+    prevJuz: "الجزء السابق",
+    startJuz: "بداية الجزء",
+    loadingChapterInfo: "جارٍ تحميل معلومات السورة...",
   },
   PageNav: {
     textPage: "صفحة",
+    textJuz: "جزء",
   },
   surahNav: {
     textChapters: "السور",
@@ -57,10 +73,11 @@ export default {
     buttonSort: "ترتيب",
     textPage: "صفحة",
     intoTitle: "اقرأ وادرس وتعلم القرآن الكريم.",
-    introSubtitle: "تطبيق القرآن ماك هو صدقة جارية. أتمنى أن يسهل على الجميع قراءة القرآن الكريم ودراسته وتعلمه. وللقرآن الكريم أسماء عديدة منها: القرآن الكريم، والكتاب، والفرقان، والموعظة والذكر، والنور."
+    introSubtitle:
+      "تطبيق القرآن ماك هو صدقة جارية. أتمنى أن يسهل على الجميع قراءة القرآن الكريم ودراسته وتعلمه. وللقرآن الكريم أسماء عديدة منها: القرآن الكريم، والكتاب، والفرقان، والموعظة والذكر، والنور.",
   },
   tafsir: {
     title: "تفسير",
     loading: "جاري تحميل التفسير...",
-  }
+  },
 };
