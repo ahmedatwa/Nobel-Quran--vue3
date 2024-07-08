@@ -8,14 +8,13 @@ import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/
 import type { PageHeaderData, GroupVersesByChapterID } from "@/types/page";
 import { VerseTimingsProps } from "@/types/audio";
 // utils
-import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement } from "@/utils/useScrollToElement";
 import { getChapterNameByChapterId } from "@/utils/chapter"
 
 const pageStore = usePageStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<PageHeaderData | null>(null);
-const intersectingPageVerseNumber = ref<number>()
 
 /**
  * group verses by chapter id
