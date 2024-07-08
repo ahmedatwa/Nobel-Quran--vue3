@@ -17,6 +17,7 @@ export const scrollToElement = async (
 
 export const SMOOTH_SCROLL_TO_CENTER = {
   block: "center", // 'block' relates to vertical alignment. see: https://stackoverflow.com/a/48635751/1931451 for nearest.
+  behavior:"smooth"
 } as ScrollIntoViewOptions;
 
 export const SMOOTH_SCROLL_TO_TOP = {
