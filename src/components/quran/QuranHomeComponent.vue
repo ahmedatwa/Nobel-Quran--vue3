@@ -249,7 +249,7 @@ const prevJuzPage = () => {
                         @update:model-value="$emit('update:modelValue', $event as string)" grow>
                         <v-tab value="chapters" prepend-icon="mdi-book-alphabet" @click="chaptersCurrentSort = 'id'">{{
                             $tr.line('home.textChapters')
-                            }}</v-tab>
+                        }}</v-tab>
                         <v-tab value="juzs" prepend-icon="mdi-bookshelf">{{ $tr.line('home.textJuzs') }}</v-tab>
                         <v-tab value="pages" prepend-icon="mdi-page-layout-sidebar-left">{{ $tr.line('home.textPages')
                             }}</v-tab>
@@ -308,8 +308,9 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                        <v-pagination v-model="chaptersCurrentPage" :length="chaptersPaginationLength"
-                                            @next="nextChapterPage" @prev="prevChapterPage"></v-pagination>
+                                        <v-pagination rounded v-model="chaptersCurrentPage"
+                                            :length="chaptersPaginationLength" @next="nextChapterPage"
+                                            @prev="prevChapterPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -365,7 +366,7 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                        <v-pagination v-model="juzCurrentPage" :length="juzsPaginationLength"
+                                        <v-pagination rounded v-model="juzCurrentPage" :length="juzsPaginationLength"
                                             @next="nextJuzPage" @prev="prevJuzPage"></v-pagination>
                                     </v-col>
                                 </v-row>
@@ -416,7 +417,7 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                        <v-pagination v-model="pagesCurrentPage" :length="pagesPaginationLength"
+                                        <v-pagination rounded v-model="pagesCurrentPage" :length="pagesPaginationLength"
                                             @next="nextPagesPage" @prev="prevPagesPage"></v-pagination>
                                     </v-col>
                                 </v-row>
@@ -471,8 +472,8 @@ const prevJuzPage = () => {
                                         </v-card>
                                     </v-col>
                                     <v-col cols="12">
-                                        <v-pagination v-model="chaptersCurrentPage"
-                                            :length="Math.ceil(114 / chaptersPageSize)" @next="nextChapterPage"
+                                        <v-pagination rounded v-model="chaptersCurrentPage"
+                                            :length="chaptersPaginationLength" @next="nextChapterPage"
                                             @prev="prevChapterPage"></v-pagination>
                                     </v-col>
                                 </v-row>
