@@ -90,10 +90,17 @@
 .quran-reader-container {
   text-align: center;
 }
-.quran-reader-container h2 h3 {
+.quran-reader-container h2 {
   font-family: var(--quran-content-title) !important;
   font-weight: var(--font-weight-bold) !important;
   font-size: var(--quran-font-size-5) !important;
+  word-spacing: var(--spacing-xxsmall)
+}
+
+.quran-reader-container h3 {
+  font-family: var(--quran-content-title) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  font-size: var(--quran-font-size-4) !important;
   word-spacing: var(--spacing-xxsmall)
 }
 

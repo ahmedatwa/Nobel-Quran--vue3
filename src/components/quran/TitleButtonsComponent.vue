@@ -40,9 +40,9 @@ const isPlaying = computed(() => {
 <template>
     <v-container>
         <v-row class="d-flex">
-            <v-col cols="12" class="text-center my-4" v-if="$slots.title">
-                <slot name="title" class="quran-reader-container"> </slot>
-                <slot name="subtitle" class="quran-reader-container"> </slot>
+            <v-col cols="12" class="text-center my-4 quran-reader-container" v-if="$slots.title">
+                <slot name="title"> </slot>
+                <slot name="subtitle"> </slot>
             </v-col>
             <v-col class="me-auto text-left">
                 <v-btn v-if="isInfoDialog" @click.stop="infoDialog = !infoDialog"
