@@ -40,7 +40,7 @@ const isPlaying = computed(() => {
 <template>
     <v-container>
         <v-row class="d-flex">
-            <v-col cols="12" class="text-center my-4 quran-content-title" v-if="$slots.title">
+            <v-col cols="12" class="text-center my-4" v-if="$slots.title">
                 <slot name="title" class="quran-reader-container"> </slot>
                 <slot name="subtitle" class="quran-reader-container"> </slot>
             </v-col>
