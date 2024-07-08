@@ -175,7 +175,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <v-container>
+  <v-container class="smooth-scroll-behaviour">
     <v-row justify="center" :align="'center'" no-gutters>
       <v-col cols="12">
         <title-buttons-component :is-audio-player="isAudioPlaying" :chapter-id="chapterAudioId"

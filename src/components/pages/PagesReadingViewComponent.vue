@@ -161,7 +161,7 @@ const getStartOfPage = () => {
 </script>
 
 <template>
-    <v-container>
+    <v-container class="smooth-scroll-behaviour">
         <v-row justify="center" :align="'center'" no-gutters>
             <v-card class="quran-reader-container" width="auto" flat>
                 <v-card-text>

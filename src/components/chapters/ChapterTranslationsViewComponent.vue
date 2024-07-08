@@ -181,7 +181,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <v-container fluid>
+  <v-container fluid class="smooth-scroll-behaviour" >
     <v-row :align="'center'" justify="center" dense>
       <v-col cols="12">
         <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors" :chapter-id="chapterAudioId"

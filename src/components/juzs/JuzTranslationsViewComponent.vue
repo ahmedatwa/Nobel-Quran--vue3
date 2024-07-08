@@ -221,7 +221,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
 </script>
 
 <template>
-    <v-container fluid>
+    <v-container fluid class="smooth-scroll-behaviour">
         <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVersesByChapterMap"
             :key="key" :id="`verse-row${key}`">
             <v-col cols="12">

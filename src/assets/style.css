@@ -140,3 +140,7 @@
 .action-list {
   padding: 2px !important;
 }
+
+.smooth-scroll-behaviour {
+    transform: translate3d(0,0,0);
+}

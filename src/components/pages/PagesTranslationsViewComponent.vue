@@ -201,7 +201,7 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
 </script>
 
 <template>
-    <v-container fluid>
+    <v-container fluid class="smooth-scroll-behaviour">
         <v-row :align="'center'" justify="center" dense v-for="(verses, chapterId) in groupVersesByChapter"
             :key="chapterId">
             <v-col cols="12">
