@@ -12,7 +12,7 @@ import { createPinia } from "pinia";
 import "./assets/style.css";
 
 // fonts
-import "@fontsource-variable/open-sans/wght.css";
+import '@fontsource/gulzar';
 
 
 const pinia = createPinia();
