@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, computed, nextTick } from "vue"
+import { ref, inject, watchEffect, computed, nextTick, watch } from "vue"
 // stores
 import { usePageStore } from "@/stores";
 // components
@@ -8,11 +8,10 @@ import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/
 import type { PageHeaderData, GroupVersesByChapterID } from "@/types/page";
 import { VerseTimingsProps } from "@/types/audio";
 // utils
-import { scrollToElement } from "@/utils/useScrollToElement"
+import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 import { getChapterNameByChapterId } from "@/utils/chapter"
 
 const pageStore = usePageStore()
-
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<PageHeaderData | null>(null);
@@ -22,9 +21,18 @@ const intersectingPageVerseNumber = ref<number>()
  * group verses by chapter id
  * so i can get chapter name
  */
+const selectedVerses = computed(() => {
+    if (pageStore.selectedPageId) {
+        const isFound = pageStore.pagesList.find((page) => page.pageNumber === pageStore.selectedPageId)
+        if (isFound) {
+            pageStore.selectedPage = isFound
+            return isFound.verses
+        }
+    }
+})
 const groupVersesByChapter = computed(() => {
-    if (pageStore.selectedPage) {
-        return pageStore.selectedPage.verses?.reduce((i: GroupVersesByChapterID, o) => {
+    if (selectedVerses.value) {
+        return selectedVerses.value?.reduce((i: GroupVersesByChapterID, o) => {
             (i[o.chapter_id] = i[o.chapter_id] || []).push(o);
             return i;
         }, {});
@@ -50,25 +58,24 @@ const emit = defineEmits<{
 // Manual Mode Scroll
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
-    if (intersecting) {
+    let newHeaderData: PageHeaderData | null = null
+    if (intersecting && entries[0].intersectionRatio === 1) {
+        const chapterId: number = entries[0].target.dataset.chapterId
         // emit header data
-        headerData.value = {
-            left: "",
+        // Avoid watchers by comparing 2 objects
+        newHeaderData = {
+            left: getChapterNameByChapterId(chapterId) || null,
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
                 juzNumber: entries[0].target.dataset.juzNumber,
-            }
-        }
+            },
+        };
 
-        emit('update:headerData', headerData.value)
-
-        if (entries[0].intersectionRatio === 0.5) {
-            intersectingPageVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
-            // emit verse id for scroll in verses list 
-            // help to fetch new verses 
-            emit('update:intersectingPageVerseNumber', intersectingPageVerseNumber.value)
-
+        if (newHeaderData !== headerData.value) {
+            headerData.value = newHeaderData
+            // emit header Data
+            emit("update:headerData", headerData.value)
         }
     }
 }
@@ -100,19 +107,19 @@ watchEffect(async () => {
         if (props.audioExperience.autoScroll) {
             const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)
             if (el) {
-                headerData.value = {
-                    left: "",
-                    right: {
-                        pageNumber: el.getAttribute("data-page-number") || '',
-                        hizbNumber: el.getAttribute("data-hizb-number") || '',
-                        juzNumber: el.getAttribute("data-juz-number") || '',
-                    }
-                }
+                // headerData.value = {
+                //     //left: ,
+                //     right: {
+                //         pageNumber: el.getAttribute("data-page-number") || '',
+                //         hizbNumber: el.getAttribute("data-hizb-number") || '',
+                //         juzNumber: el.getAttribute("data-juz-number") || '',
+                //     }
+                // }
                 // emit header Data
-                emit('update:headerData', headerData.value)
+                // emit('update:headerData', headerData.value)
                 // Scroll into View
                 // Verse Column
-                scrollToElement(`verse-word${props.verseTiming.verseKey}`)
+                scrollToElement(`#verse-row${props.verseTiming.verseKey}`)
             }
         }
     }
@@ -140,7 +147,7 @@ const getPrevPage = async () => {
             console.log(getFirstVerseRow.value);
 
             nextTick(() => {
-                scrollToElement(`#row${getFirstVerseRow.value}`)
+                scrollToElement(`#verse-row${getFirstVerseRow.value}`)
             })
         }
     }
@@ -165,7 +172,7 @@ const getNextPage = async () => {
         if (getFirstVerseRow.value) {
             console.log(getFirstVerseRow.value);
             nextTick(() => {
-                scrollToElement(`#row${getFirstVerseRow.value}`)
+                scrollToElement(`#verse-row${getFirstVerseRow.value}`)
             })
         }
     }
@@ -173,12 +180,21 @@ const getNextPage = async () => {
 
 const getStartOfPage = () => {
     if (getFirstVerseRow.value) {
-        //const el = document.querySelector(`#row${getFirstVerseRow.value}`)
-        scrollToElement(`#row${getFirstVerseRow.value}`)
+        scrollToElement(`#verse-row${getFirstVerseRow.value}`)
     }
 }
 
+/**
+ * inital header data
+ */
+watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
+    console.log(newHeaderData);
 
+    if (newHeaderData) {
+        headerData.value = newHeaderData
+        emit('update:headerData', headerData.value)
+    }
+}, { once: true })
 </script>
 
 <template>
@@ -191,15 +207,16 @@ const getStartOfPage = () => {
                     @update:play-audio="$emit('update:playAudio', $event)">
                     <template #title>
                         <h2>{{ getChapterNameByChapterId(chapterId)?.nameArabic }}</h2>
-                        <h3>{{ getChapterNameByChapterId(chapterId)?.bismillahPre ? $tr.line("quranReader.textBismillah") : '' }}</h3>
+                        <h3>{{ getChapterNameByChapterId(chapterId)?.bismillahPre ?
+                            $tr.line("quranReader.textBismillah") : '' }}</h3>
                     </template>
                 </title-buttons-component>
             </v-col>
             <v-col cols="12" class="mb-2" v-for="verse in verses" :key="verse.verse_key"
                 :data-hizb-number="verse.hizb_number" :data-juz-number="verse.juz_number"
                 :data-chapter-id="verse.chapter_id" :data-verse-number="verse.verse_number"
-                :data-verse-key="verse.verse_key" :data-page-number="verse.page_number" :id="`row${verse.verse_number}`"
-                :data-intersecting="isIntersecting" v-intersect.quite="{
+                :data-verse-key="verse.verse_key" :data-page-number="verse.page_number"
+                :id="`verse-row${verse.verse_number}`" :data-intersecting="isIntersecting" v-intersect.quite="{
                     handler: onIntersect,
                     options: {
                         threshold: [0, 0.5, 1.0],

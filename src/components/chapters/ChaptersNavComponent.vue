@@ -25,7 +25,7 @@ const getVersePagination = computed(() => {
   }
 })
 const emit = defineEmits<{
-  "update:selectedVerseKeyView": [value: string];
+  "update:selectedVerseNumber": [value: number];
 }>();
 
 const props = defineProps<{
@@ -47,11 +47,11 @@ onMounted(async () => {
 
 });
 
-// watchEffect(() => {
-//   if (selectedChapterId.value) {
-//     scrollToElement(`#chapter${selectedChapterId.value}`, 700);
-//   }
-// });
+watchEffect(() => {
+  if (selectedChapterId.value) {
+    scrollToElement(`#chapter${selectedChapterId.value}`, 700);
+  }
+});
 
 /**
  * creates range from verse count
@@ -66,16 +66,14 @@ const getSelectedChapter = async (chapter: Chapter) => {
   chapterStore.selectedChapter = chapter;
   selectedChapterId.value = chapter.id;
   selectedVerseID.value = 1;
-  // setStorage("chapter", { data: chapter, verse: selectedVerseID.value });
 };
 
 const getSelectedVerse = async (id: number) => {
   selectedVerseID.value = id;
-  emit("update:selectedVerseKeyView", `${selectedChapterId.value}:${id}`);
-  // setStorage("chapter", {
-  //   data: chapterStore.selectedChapter,
-  //   verse: selectedVerseID.value,
-  // });
+  const verseKey = selectedChapterId.value + ":" + id
+  await getVerseByKey(verseKey)
+  emit("update:selectedVerseNumber", id);
+
 };
 
 /**
@@ -87,7 +85,6 @@ const getSelectedVerse = async (id: number) => {
  * duplicate verses will be handeled by the chapter store
  */
 watchEffect(async () => {
-
   if (props.manualIntersectingMode) {
     const intersectingData = props.manualIntersectingMode
 
@@ -136,6 +133,7 @@ const mouseEnter = async (k: string, value: Chapter | number) => {
         verseKey,
         chapterStore.versesKeyMap
       );
+      
       if (!verseInRange) {
         await getVerseByKey(verseKey);
       }

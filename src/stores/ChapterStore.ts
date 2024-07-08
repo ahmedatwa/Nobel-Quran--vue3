@@ -205,19 +205,32 @@ export const useChapterStore = defineStore("chapter-store", () => {
 
   const getFirstVerseOfChapter = computed(() => {
     if (selectedChapter.value?.verses) {
-      return selectedChapter.value.verses[0]
+      return selectedChapter.value.verses[0];
     }
-  })
-  
+  });
+
   const getLastVerseOfChapter = computed(() => {
     if (selectedChapter.value?.verses) {
-      const verse = selectedChapter.value.verses.slice(-1)[0]
+      const verse = selectedChapter.value.verses.slice(-1)[0];
       if (verse) {
-        return verse.id
+        return verse.id;
       }
     }
-    return 0
-  })
+    return 0;
+  });
+
+  const getFirstVerseHeaderData = computed(() => {
+    if (selectedChapter.value?.verses) {
+      return {
+        left: selectedChapterName.value,
+        right: {
+          pageNumber: selectedChapter.value.verses[0].page_number,
+          hizbNumber: selectedChapter.value.verses[0].hizb_number,
+          juzNumber: selectedChapter.value.verses[0].juz_number,
+        },
+      };
+    }
+  });
   return {
     chapters,
     searchValue,
@@ -232,6 +245,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     selectedChapterName,
     getFirstVerseOfChapter,
     getLastVerseOfChapter,
+    getFirstVerseHeaderData,
     getChapterName,
     getchapterInfo,
     getVerses,

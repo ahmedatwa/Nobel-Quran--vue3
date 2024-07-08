@@ -38,7 +38,8 @@ const chapterManualIntersectingModeData = ref<ManualIntersectingMode>();
 const juzManualIntersecting = ref<JuzVersesIntersecting>();
 const intersectingPageVerseNumber = ref<number>();
 const audioPlayerModelValue = ref(false);
-const selectedVerseKeyView = ref("");
+// when user select specific verse number from chapters Nav
+const chapterSelectedVerseNumber = ref<number>();
 const activeJuzNumber = ref<number>();
 const activePageNumber = ref<number>();
 const audioPlayer = ref<{
@@ -107,17 +108,16 @@ onBeforeMount(() => {
     :juz-manual-intersecting="juzManualIntersecting" @update:selected-page="selectedPage = $event"
     :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
     :intersecting-page-verse-number="intersectingPageVerseNumber"
-    @update:selected-verse-key-view="selectedVerseKeyView = $event"></navigation-component>
+    @update:selected-verse-number="chapterSelectedVerseNumber = $event"></navigation-component>
   <!-- Juz -->
   <juzs-component :selected="selectedTab === 'juzs'" :selected-tab="selectedTab" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:translation-drawer="translationDrawer = $event"
-    @update:manual-intersecting="juzManualIntersecting = $event"
-    :selected-verse-key-View="selectedVerseKeyView" @update:play-audio="playAudio"
+    @update:manual-intersecting="juzManualIntersecting = $event" @update:play-audio="playAudio"
     @update:header-data="$emit('update:headerData', { key: 'juz', value: $event as JuzHeaderData })"
-    @update:active-juz-number="activeJuzNumber = $event"></juzs-component>
+    @update:active-juz-number="activeJuzNumber = $event" ></juzs-component>
   <!-- Chapters -->
   <chapters-component :selected="selectedTab === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
-    :selected-verse-key-View="selectedVerseKeyView" :setting-css-vars="settingCssVars"
+    :selected-verse-number="chapterSelectedVerseNumber" :setting-css-vars="settingCssVars"
     @update:manual-intersecting-mode="chapterManualIntersectingModeData = $event"
     @update:header-data="$emit('update:headerData', { key: 'chapter', value: $event as ChapterHeaderData })"
     @update:play-audio="playAudio">
@@ -126,7 +126,7 @@ onBeforeMount(() => {
   <pages-component :selected="selectedTab === 'pages'" :selected-page="selectedPage" :audio-player="audioPlayer"
     :setting-css-vars="settingCssVars" @update:intersecting-page-verse-number="intersectingPageVerseNumber = $event"
     @update:translation-drawer="translationDrawer = $event" @update:active-page-number="activePageNumber = $event"
-    @update:header-data="$emit('update:headerData', { key: 'pages', value: $event as PageHeaderData })"
+    @update:header-data="$emit('update:headerData', { key: 'page', value: $event as PageHeaderData })"
     @update:play-audio="playAudio"></pages-component>
 
   <translation-list-component @update:selected-translations="updateTranslations"></translation-list-component>

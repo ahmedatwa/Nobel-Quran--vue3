@@ -18,10 +18,10 @@ const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<PageHeaderData | null>(null);
 const intersectingPageVerseNumber = ref<number>()
-        /**
- * group verses by chapter id
- * so i can get chapter name
- */
+/**
+* group verses by chapter id
+* so i can get chapter name
+*/
 const groupVersesByChapter = computed(() => {
     if (pageStore.selectedPage) {
         return pageStore.selectedPage.verses?.reduce((i: any, o) => {
@@ -60,19 +60,24 @@ const isWordHighlighted = (location: string, verseKey: string) => {
 
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
-    if (intersecting) {
+    let newHeaderData: PageHeaderData | null = null
+    if (intersecting && entries[0].intersectionRatio === 1) {
+        const chapterId: number = entries[0].target.dataset.chapterId
         // emit header data
-        headerData.value = {
-            left: "",
+        newHeaderData = {
+            left: getChapterNameByChapterId(chapterId) || null,
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
                 juzNumber: entries[0].target.dataset.juzNumber,
-            }
+            },
+        };
+
+        if (newHeaderData !== headerData.value) {
+            headerData.value = newHeaderData
+            // emit header Data
+            emit("update:headerData", headerData.value)
         }
-
-        emit('update:headerData', headerData.value)
-
         if (entries[0].intersectionRatio === 0.5) {
             intersectingPageVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
             // emit verse id for scroll in verses list 
@@ -170,13 +175,12 @@ const getStartOfPage = () => {
                                     </template>
                                 </title-buttons-component>
                             </v-col>
-                            <v-col class="verse-col d-flex flex-wrap justify-center align-self-end" :id="`chapter-${chapterId}`"
-                                cols="11">
+                            <v-col class="verse-col d-flex flex-wrap justify-center align-self-end"
+                                :id="`chapter-${chapterId}`" cols="11">
                                 <div class="d-inline-flex" v-for="verse in verses" :key="verse.id"
-                                    :id="`line-${verse.verse_number}`"
-                                    :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
-                                    :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"
-                                    v-intersect.quite="{
+                                    :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
+                                    :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
+                                    :data-verse-number="verse.verse_number" v-intersect.quite="{
                                         handler: onIntersect,
                                         options: {
                                             threshold: [0, 0.5, 1.0],
@@ -191,7 +195,7 @@ const getStartOfPage = () => {
                                             " class="word">
                                             <div v-if="word.char_type_name === 'end'" style="font-family: p3-v1;">({{
                                                 word.text_uthmani
-                                            }})
+                                                }})
                                             </div>
                                             <div v-else>{{ word.text_uthmani }}</div>
                                         </div>
@@ -200,20 +204,24 @@ const getStartOfPage = () => {
                             </v-col>
                         </v-row>
                         <v-row justify="center" :align="'center'">
-            <!-- Prev -->
-            <v-col cols="12" class="text-center" v-if="pageStore.selectedPage && pageStore.selectedPage.verses.length">
-                <v-btn v-if="pageStore.selectedPage?.pageNumber > 1" prepend-icon="mdi-arrow-left-bottom" class="me-2"
-                    variant="outlined" @click="getPrevPage">{{
-                        $tr.line('quranReader.prevPage') }}</v-btn>
-                <!-- up -->
-                <v-btn prepend-icon="mdi-arrow-up-right" variant="outlined" class="me-2" @click="getStartOfPage">{{
-                    $tr.line('quranReader.startPage') }}</v-btn>
-                <!-- Next -->
-                <v-btn v-if="pageStore.selectedPage?.pageNumber <= 604" prepend-icon="mdi-arrow-right-bottom"
-                    class="me-2" variant="outlined" @click="getNextPage">{{
-                        $tr.line('quranReader.nextPage') }}</v-btn>
-            </v-col>
-        </v-row>
+                            <!-- Prev -->
+                            <v-col cols="12" class="text-center"
+                                v-if="pageStore.selectedPage && pageStore.selectedPage.verses.length">
+                                <v-btn v-if="pageStore.selectedPage?.pageNumber > 1"
+                                    prepend-icon="mdi-arrow-left-bottom" class="me-2" variant="outlined"
+                                    @click="getPrevPage">{{
+                                        $tr.line('quranReader.prevPage') }}</v-btn>
+                                <!-- up -->
+                                <v-btn prepend-icon="mdi-arrow-up-right" variant="outlined" class="me-2"
+                                    @click="getStartOfPage">{{
+                                        $tr.line('quranReader.startPage') }}</v-btn>
+                                <!-- Next -->
+                                <v-btn v-if="pageStore.selectedPage?.pageNumber <= 604"
+                                    prepend-icon="mdi-arrow-right-bottom" class="me-2" variant="outlined"
+                                    @click="getNextPage">{{
+                                        $tr.line('quranReader.nextPage') }}</v-btn>
+                            </v-col>
+                        </v-row>
                     </v-container>
                 </v-card-text>
             </v-card>

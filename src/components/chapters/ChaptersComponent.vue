@@ -18,7 +18,7 @@ const tab = ref("translationTab");
 const props = defineProps<{
   audioPlayer: { audioID: number; isPlaying?: boolean; format?: string } | null;
   selected: boolean;
-  selectedVerseKeyView?: string;
+  selectedVerseNumber?: number;
   settingCssVars?: { size: string; family: string };
 }>();
 
@@ -28,20 +28,24 @@ const emit = defineEmits<{
   "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
 
-watchEffect(() => {
-  if (props.selectedVerseKeyView) {
-    const el = document.getElementById(
-      `verse-word${props.selectedVerseKeyView}`
-    );
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-});
 
+/**
+ * initial emit for header data 
+ * as it will be lost when switching tabs 
+ * fetching verses if selected chapter is null
+ */
 watchEffect(async () => {
   if (props.selected) {
     if (!chapterStore.selectedChapter) {
       chapterStore.selectedChapter = chapterStore.chaptersList[0];
       await chapterStore.getVerses(1, true);
+      if (chapterStore.getFirstVerseHeaderData) {
+        emit("update:headerData", chapterStore.getFirstVerseHeaderData)
+      }
+    } else {
+      if (chapterStore.getFirstVerseHeaderData) {
+        emit("update:headerData", chapterStore.getFirstVerseHeaderData)
+      }
     }
   }
 });
@@ -59,19 +63,19 @@ watchEffect(async () => {
       <v-tabs-window-item value="translationTab" class="mx-5">
         <chapter-translations-view-component :is-audio-playing="audioPlayer"
           :is-translations-view="tab === 'translationTab'" :audio-experience="audioPlayerSetting"
-          :css-vars="settingCssVars" :grouped-translations-authors="translationsStore.groupedTranslationsAuthors
-            " :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
-          @update:manual-intersecting-mode="
-            emit('update:manualIntersectingMode', $event)
-            " @update:play-audio="emit('update:playAudio', $event)">
+          :selected-verse-Number="selectedVerseNumber" :css-vars="settingCssVars"
+          :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
+          :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
+          @update:manual-intersecting-mode=" emit('update:manualIntersectingMode', $event)"
+          @update:play-audio="emit('update:playAudio', $event)">
         </chapter-translations-view-component>
       </v-tabs-window-item>
       <v-tabs-window-item value="readingTab">
         <chapter-reading-view-component :is-audio-playing="audioPlayer" :css-vars="settingCssVars"
-          :verse-timing="audioPlayerStore.verseTiming" :is-reading-view="tab === 'readingTab'" :audio-experience="audioPlayerSetting"
-          @update:header-data="emit('update:headerData', $event)" @update:manual-intersecting-mode="
-            emit('update:manualIntersectingMode', $event)
-            " @update:play-audio="emit('update:playAudio', $event)">
+          :verse-timing="audioPlayerStore.verseTiming" :is-reading-view="tab === 'readingTab'"
+          :audio-experience="audioPlayerSetting" @update:header-data="emit('update:headerData', $event)"
+          @update:manual-intersecting-mode="emit('update:manualIntersectingMode', $event)"
+          :selected-verse-Number="selectedVerseNumber" @update:play-audio="emit('update:playAudio', $event)">
         </chapter-reading-view-component>
       </v-tabs-window-item>
     </v-tabs-window>

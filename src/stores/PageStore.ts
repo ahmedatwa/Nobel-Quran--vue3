@@ -7,7 +7,7 @@ import { instance } from "@/axios";
 // utils
 import { _range } from "@/utils/number";
 import { getAllPages } from "@/utils/pages";
-
+import { getChapterNameByChapterId } from "@/utils/chapter";
 // types
 import type { Page } from "@/types/page";
 import type { Verse } from "@/types/verse";
@@ -23,13 +23,16 @@ export const usePageStore = defineStore("page-store", () => {
   const perPage = ref(10);
   const translationsStore = useTranslationsStore();
   const selectedPage = ref<Page | null>(null);
+  const selectedPageId = ref<number>();
   const searchValue = ref("");
   const pagesList = ref<Page[]>([]);
 
   const pages = computed(() => {
     if (pagesList.value) {
       return pagesList.value.filter((page) => {
-        return page.pageNumber.toLocaleString().includes(searchValue.value.toLocaleLowerCase());
+        return page.pageNumber
+          .toLocaleString()
+          .includes(searchValue.value.toLocaleLowerCase());
       });
     }
   });
@@ -48,6 +51,7 @@ export const usePageStore = defineStore("page-store", () => {
     limit: number = perPage.value
   ) => {
     isLoading.value = loading;
+    selectedPageId.value = id;
     await instance
       .get(
         `/verses/by_page/${id}?translations=${translationsStore.selectedTranslationsIdsString}&page=${page}&per_page=${limit}&${urlFields.value}`
@@ -65,9 +69,8 @@ export const usePageStore = defineStore("page-store", () => {
             }
           });
           page.pagination = response.data.pagination;
-          if(selectedPage.value?.pagination){
+          if (selectedPage.value?.pagination) {
             selectedPage.value.pagination = response.data.pagination;
-
           }
         }
       })
@@ -96,13 +99,41 @@ export const usePageStore = defineStore("page-store", () => {
     }
   );
 
+  const getFirstVerseOfPage = computed(() => {
+    if (selectedPage.value) {
+      return selectedPage.value.verses[0];
+    }
+  });
+
+  const getLastVerseOfPage = computed(() => {
+    if (selectedPage.value) {
+      return selectedPage.value.verses.slice(-1)[0];
+    }
+  });
+
+  const getInitialHeaderData = computed(() => {
+    if (getFirstVerseOfPage.value) {
+      return {
+        left: getChapterNameByChapterId(getFirstVerseOfPage.value.chapter_id),
+        right: {
+          pageNumber: getFirstVerseOfPage.value.page_number,
+          hizbNumber: getFirstVerseOfPage.value.hizb_number,
+          juzNumber: getFirstVerseOfPage.value.juz_number,
+        },
+      };
+    }
+  });
   return {
     pages,
     pagesList,
     perPage,
     isLoading,
     selectedPage,
+    selectedPageId,
     searchValue,
+    getLastVerseOfPage,
+    getFirstVerseOfPage,
+    getInitialHeaderData,
     getVerses,
   };
 });

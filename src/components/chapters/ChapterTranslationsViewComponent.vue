@@ -40,6 +40,7 @@ const props = defineProps<{
   verseTiming: VerseTimingsProps
   audioExperience: { autoScroll: boolean; tooltip: boolean };
   cssVars?: { size: string; family: string };
+  selectedVerseNumber?: number;
 }>();
 
 const emit = defineEmits<{
@@ -51,6 +52,7 @@ const emit = defineEmits<{
 // Manual Mode Scroll
 const onIntersect = (intersecting: boolean, entries: any) => {
   isIntersecting.value = intersecting;
+  let newHeaderData: ChapterHeaderData | null = null
   if (intersecting && entries[0].intersectionRatio === 1) {
     intersectingVerseNumber.value = Number(
       entries[0].target.dataset.verseNumber
@@ -61,8 +63,7 @@ const onIntersect = (intersecting: boolean, entries: any) => {
     }
     // emit header data
     // Avoid watchers by comparing 2 objects
-    const newHeaderData = ref<ChapterHeaderData>()
-    newHeaderData.value = {
+    newHeaderData = {
       left: chapterStore.selectedChapterName,
       right: {
         pageNumber: entries[0].target.dataset.pageNumber,
@@ -71,8 +72,8 @@ const onIntersect = (intersecting: boolean, entries: any) => {
       },
     };
 
-    if (newHeaderData.value !== headerData.value) {
-      headerData.value = newHeaderData.value
+    if (newHeaderData !== headerData.value) {
+      headerData.value = newHeaderData
       emit("update:headerData", headerData.value);
     }
     // emit verse id for scroll in verses list
@@ -109,10 +110,10 @@ watchEffect(() => {
   if (props.verseTiming.verseNumber) {
     if (props.audioExperience.autoScroll) {
       const el = document.querySelector(`#verse-row-${props.verseTiming.verseNumber}`) as HTMLDivElement
+      let newHeaderData: ChapterHeaderData | null = null
       if (!isInViewport(el)) {
         // Avoid watchers by comparing 2 objects
-        const newHeaderData = ref<ChapterHeaderData>()
-        newHeaderData.value = {
+        newHeaderData = {
           left: chapterStore.selectedChapterName,
           right: {
             pageNumber: el.getAttribute("data-page-number") || "",
@@ -122,8 +123,8 @@ watchEffect(() => {
         };
 
 
-        if (newHeaderData.value !== headerData.value) {
-          headerData.value = newHeaderData.value
+        if (newHeaderData !== headerData.value) {
+          headerData.value = newHeaderData
           // emit header Data
           emit("update:headerData", headerData.value)
         }
@@ -160,6 +161,17 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
   }
 
 }, { once: true })
+
+/**
+ * watch if user selected verse number 
+ * scroll to the verse after fetching
+ */
+ watchEffect(() => {
+  if (props.selectedVerseNumber) {
+    console.log(props.selectedVerseNumber);
+    scrollToElement(`#verse-row-${props.selectedVerseNumber}`)
+  }
+});
 </script>
 
 <template>

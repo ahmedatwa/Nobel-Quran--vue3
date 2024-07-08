@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, computed } from "vue";
+import { ref, inject, watchEffect } from "vue";
 // components
 import { SettingDrawerComponent } from "@/components/common";
 import { useTheme } from "vuetify";
@@ -20,6 +20,8 @@ const languages = ref([
   { key: "ar", value: "Arabic", rtl: true },
 ]);
 
+const headerDataValue = ref<ChapterHeaderData | JuzHeaderData | PageHeaderData>()
+
 const props = defineProps<{
   headerData: { key: string, value: ChapterHeaderData | PageHeaderData | JuzHeaderData } | null;
   isLoading?: boolean;
@@ -37,23 +39,57 @@ const toggleTheme = () => {
   setStorage("theme", _theme.global.name.value);
 };
 
-const headerData = computed(() => {
-  if (props.headerData?.key === "chapter") {
-    const data = props.headerData.value as ChapterHeaderData
-    return {
-      left: $lang?.locale.value === "ar" ? data.left[1] : data.left[0],
-      right: data.right
-    }
-  } else if (props.headerData?.key === "juz") {
-    const juzHeaderData = props.headerData.value as JuzHeaderData
-    return {
-      left: $lang?.locale.value === "ar" ? juzHeaderData?.left?.nameArabic : juzHeaderData?.left?.nameSimple,
-      right: juzHeaderData.right
-    }
-  } else if (props.headerData) {
+watchEffect(() => {
+  if (props.headerData) {
+    switch (props.headerData.key) {
+      case "chapter":
+        const chapterData = props.headerData.value as ChapterHeaderData
+        headerDataValue.value = {
+          left: $lang?.locale.value === "ar" ? chapterData.left[1] : chapterData.left[0],
+          right: chapterData.right
+        }
+        break;
+      case "juz":
+        const juzData = props.headerData.value as JuzHeaderData
+        headerDataValue.value = {
+          left: $lang?.locale.value === "ar" ? juzData.left?.nameArabic : juzData.left?.nameSimple,
+          right: juzData.right
+        }
+        break;
+      case "page":
+        const pageData = props.headerData.value as PageHeaderData
+        headerDataValue.value = {
+          left: $lang?.locale.value === "ar" ? pageData.left?.nameArabic : pageData.left?.nameSimple,
+          right: pageData.right
+        }
+        break;
 
-  } else {
-    return ""
+      default:
+        break;
+    }
+
+
+    // if (props.headerData.key === "chapter") {
+    //   const data = props.headerData.value as ChapterHeaderData
+    //   return {
+    //     left: $lang?.locale.value === "ar" ? data.left[1] : data.left[0],
+    //     right: data.right
+    //   }
+    // } else if (props.headerData.key === "juz") {
+    //   const juzHeaderData = props.headerData.value as JuzHeaderData
+    //   return {
+    //     left: $lang?.locale.value === "ar" ? juzHeaderData?.left?.nameArabic : juzHeaderData?.left?.nameSimple,
+    //     right: juzHeaderData.right
+    //   }
+    // } else if (props.headerData.key === "page") {
+    //   const pageHeaderData = props.headerData.value as PageHeaderData
+    //   return {
+    //     left: $lang?.locale.value === "ar" ? pageHeaderData?.left?.nameArabic : pageHeaderData?.left?.nameSimple,
+    //     right: pageHeaderData.right
+    //   }
+    // } else {
+    //   return ""
+    // }
   }
 });
 </script>
@@ -83,16 +119,16 @@ const headerData = computed(() => {
         {{ $tr.locale.value }}
       </v-btn>
     </template>
-    <template #extension v-if="headerData">
+    <template #extension v-if="headerDataValue">
       <v-btn @click="navigationModelValue = !navigationModelValue"
         :append-icon="navigationModelValue ? 'mdi-menu-down' : 'mdi-menu-up'">
-        {{ headerData.left }}
+        {{ headerDataValue.left }}
       </v-btn>
       <v-sheet class="ms-auto me-4 text-body-2">
         {{ $tr.line("common.headerSurahData", [
-          headerData.right?.hizbNumber,
-          headerData.right?.juzNumber,
-          headerData.right?.pageNumber,
+          headerDataValue.right?.hizbNumber,
+          headerDataValue.right?.juzNumber,
+          headerDataValue.right?.pageNumber,
         ])
         }}
       </v-sheet>

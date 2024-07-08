@@ -25,7 +25,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     "update:selectedTab": [value: string]
     "update:selectedPage": [value: number]
-    "update:selectedVerseKeyView": [value: string]
+    "update:selectedVerseNumber": [value: number]
 }>()
 
 watchEffect(() => {
@@ -57,13 +57,13 @@ watchEffect(() => {
             <v-tabs-window v-model="navigationTab">
                 <v-tabs-window-item value="chapters">
                     <chapters-nav-component :manual-intersecting-mode="chapterManualIntersectingMode"
-                        @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
+                        @update:selected-verse-number="$emit('update:selectedVerseNumber', $event)">
                     </chapters-nav-component>
                 </v-tabs-window-item>
                 <v-tabs-window-item value="juzs">
                     <juzs-nav-component :manual-intersecting="juzManualIntersecting"
                         :active-juz-number="activeJuzNumber"
-                        @update:selected-verse-key-view="$emit('update:selectedVerseKeyView', $event)">
+                        @update:selected-verse-number="$emit('update:selectedVerseNumber', $event)">
                     </juzs-nav-component>
                 </v-tabs-window-item>
                 <v-tabs-window-item value="pages">

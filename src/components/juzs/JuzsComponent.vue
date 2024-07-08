@@ -16,7 +16,6 @@ const selectedJuzTab = ref("translationsTab")
 const props = defineProps<{
     audioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
     selected: boolean
-    selectedVerseKeyView?: string
     settingCssVars?: { size: string, family: string }
 }>()
 
