@@ -114,10 +114,9 @@ export const useChapterStore = defineStore("chapter-store", () => {
           });
 
           chapter.pagination = response.data.pagination;
-          if(selectedChapter.value) {
-            selectedChapter.value.pagination = chapter.pagination
-            selectedChapter.value.verses = chapter.verses
-
+          if (selectedChapter.value?.id === chapter.id) {
+            selectedChapter.value.pagination = chapter.pagination;
+            selectedChapter.value.verses = chapter.verses;
           }
         }
       })
@@ -206,8 +205,8 @@ export const useChapterStore = defineStore("chapter-store", () => {
   // selected chapter verses
   const selectedChapterVerses = computed(() => {
     if (selectedChapter.value) {
-        return selectedChapter.value.verses;
-      }
+      return selectedChapter.value.verses;
+    }
   });
 
   const versesKeyMap = computed(() => {
