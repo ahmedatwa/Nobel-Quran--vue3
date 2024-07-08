@@ -49,7 +49,7 @@ export const getAllPages = (lang: string = "en"): Page[] => {
   return [...Array(DEFAULT_NUMBER_OF_PAGES)].map((__n, index) => {
     const page = index + 1;
     return {
-      pageNumber: localizeNumber(page, lang),
+      pageNumber: Number(localizeNumber(page, lang)),
       verses: [],
       pagination: null,
       chaptersMap: getChaptersForPage(page),
