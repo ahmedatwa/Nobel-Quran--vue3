@@ -14,6 +14,7 @@ const chapterStore = useChapterStore();
 const selectedVerseID = ref();
 const selectedChapterId = ref();
 const searchValue = ref("");
+
 const selectedChapterVersesCount = computed(() => {
   if (chapterStore.selectedChapter) {
     return chapterStore.selectedChapter?.versesCount
@@ -87,7 +88,8 @@ const getSelectedVerse = async (id: number) => {
 watchEffect(async () => {
   if (props.manualIntersectingMode) {
     const intersectingData = props.manualIntersectingMode
-
+    console.log(intersectingData);
+    
     selectedVerseID.value = intersectingData.currentVerseNumber;
 
     if (selectedChapterVersesCount.value === intersectingData.lastVerseNumber) {

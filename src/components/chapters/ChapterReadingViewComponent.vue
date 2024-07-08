@@ -6,7 +6,7 @@ import { useChapterStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran";
 // types
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
-import type { Verse, MapVersesByPage } from "@/types/verse";
+import type { MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps, IsAudioPlayingProps } from "@/types/audio"
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
@@ -15,19 +15,22 @@ const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
-const verses = computed((): Verse[] | undefined => {
+
+const verses = computed(() => {
   if (chapterStore.selectedChapterVerses) {
-    return chapterStore.selectedChapterVerses?.sort(
+    return chapterStore.selectedChapterVerses.sort(
       (a, b) => a.verse_number - b.verse_number
     );
   }
 });
+
 const chapterAudioId = computed(() => {
   if (chapterStore.selectedChapter) {
     return chapterStore.selectedChapter?.id;
   }
   return 0;
 });
+
 const emit = defineEmits<{
   "update:playAudio": [value: { audioID: number; verseKey?: string }];
   "update:headerData": [value: ChapterHeaderData];
@@ -94,7 +97,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     // help to fetch new verses
     // sending current/last verse Numbers to the chapters Nav
     emit("update:manualIntersectingMode", {
-      lastVerseNumber: chapterStore.getLastVerseOfChapter,
+      lastVerseNumber: chapterStore.getLastVerseNumberOfChapter,
       currentVerseNumber: intersectingVerseNumber.value
     });
   }

@@ -16,6 +16,7 @@ const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
+
 const verses = computed(() => {
   if (chapterStore.selectedChapterVerses) {
     return chapterStore.selectedChapterVerses.sort(
@@ -80,7 +81,7 @@ const onIntersect = (intersecting: boolean, entries: any) => {
     // help to fetch new verses
     // sending current/last verse Numbers to the chapters Nav
     emit("update:manualIntersectingMode", {
-      lastVerseNumber: chapterStore.getLastVerseOfChapter,
+      lastVerseNumber: chapterStore.getLastVerseNumberOfChapter,
       currentVerseNumber: intersectingVerseNumber.value
     });
 

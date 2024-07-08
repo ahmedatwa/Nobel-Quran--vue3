@@ -112,7 +112,13 @@ export const useChapterStore = defineStore("chapter-store", () => {
               chapter.verses?.push({ ...verse, bookmarked: false });
             }
           });
+
           chapter.pagination = response.data.pagination;
+          if(selectedChapter.value) {
+            selectedChapter.value.pagination = chapter.pagination
+            selectedChapter.value.verses = chapter.verses
+
+          }
         }
       })
       .catch((e) => {
@@ -197,39 +203,38 @@ export const useChapterStore = defineStore("chapter-store", () => {
     return "";
   });
 
+  // selected chapter verses
   const selectedChapterVerses = computed(() => {
     if (selectedChapter.value) {
-      const isFound = chaptersList.value.find(
-        (chapter) => chapter.id === selectedChapter.value?.id
-      );
-      if (isFound) {
-        selectedChapter.value.verses = isFound.verses;
-        return isFound.verses;
+        return selectedChapter.value.verses;
       }
-    }
   });
+
   const versesKeyMap = computed(() => {
     if (selectedChapterVerses.value) {
       return selectedChapterVerses.value?.map((v) => v.verse_key);
     }
   });
 
+  // first verse in chapter
   const getFirstVerseOfChapter = computed(() => {
     if (selectedChapterVerses.value) {
       return selectedChapterVerses.value[0];
     }
   });
 
-  const getLastVerseOfChapter = computed(() => {
+  // last verse in chapter verses length
+  const getLastVerseNumberOfChapter = computed(() => {
     if (selectedChapterVerses.value) {
       const verse = selectedChapterVerses.value.slice(-1)[0];
       if (verse) {
-        return verse.id;
+        return verse.verse_number;
       }
     }
     return 0;
   });
 
+  // initial header data to be sent onMounted
   const getFirstVerseHeaderData = computed(() => {
     if (getFirstVerseOfChapter.value) {
       return {
@@ -255,7 +260,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     versesKeyMap,
     selectedChapterName,
     getFirstVerseOfChapter,
-    getLastVerseOfChapter,
+    getLastVerseNumberOfChapter,
     getFirstVerseHeaderData,
     selectedChapterVerses,
     getChapterName,
