@@ -231,13 +231,13 @@ export const useChapterStore = defineStore("chapter-store", () => {
   });
 
   const getFirstVerseHeaderData = computed(() => {
-    if (selectedChapter.value?.verses) {
+    if (getFirstVerseOfChapter.value) {
       return {
         left: selectedChapterName.value,
         right: {
-          pageNumber: selectedChapter.value.verses[0].page_number,
-          hizbNumber: selectedChapter.value.verses[0].hizb_number,
-          juzNumber: selectedChapter.value.verses[0].juz_number,
+          pageNumber: getFirstVerseOfChapter.value.page_number,
+          hizbNumber: getFirstVerseOfChapter.value.hizb_number,
+          juzNumber: getFirstVerseOfChapter.value.juz_number,
         },
       };
     }
