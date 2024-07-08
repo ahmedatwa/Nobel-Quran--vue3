@@ -64,11 +64,25 @@ export const getPageNumberFromIndexAndPerPage = (
   return Math.ceil((index + 1) / perPage);
 };
 
-export const localizeNumber = (number: number, locale?: string) => {
-  const value = number.toLocaleString(getLangFullLocale(locale) || "en-US");
-  return Number(value);
+export const localizeNumber = (number: number | string, locale?: string) => {
+  if (typeof number === "string") {
+    const regex = /[\-\:]/g;
+    if (number.match(regex)) {
+      const parts = number.split("-");
+      const part_1 = Number(parts[0]).toLocaleString(getLangFullLocale(locale));
+      const part_2 = Number(parts[1]).toLocaleString(getLangFullLocale(locale));
+      const result = part_1.concat("-", part_2);
+      return result;
+    } else {
+      return Number(number).toLocaleString(getLangFullLocale(locale));
+    }
+  }
+  return number.toLocaleString(getLangFullLocale(locale));
 };
 
 export const _range = (end: number | string, start: number | string) => {
-  return Array.from({ length: Number(end) - Number(start) + 1 }, (_, i) => i + Number(start));
+  return Array.from(
+    { length: Number(end) - Number(start) + 1 },
+    (_, i) => i + Number(start)
+  );
 };

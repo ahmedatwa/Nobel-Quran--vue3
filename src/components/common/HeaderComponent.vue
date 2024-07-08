@@ -67,29 +67,6 @@ watchEffect(() => {
       default:
         break;
     }
-
-
-    // if (props.headerData.key === "chapter") {
-    //   const data = props.headerData.value as ChapterHeaderData
-    //   return {
-    //     left: $lang?.locale.value === "ar" ? data.left[1] : data.left[0],
-    //     right: data.right
-    //   }
-    // } else if (props.headerData.key === "juz") {
-    //   const juzHeaderData = props.headerData.value as JuzHeaderData
-    //   return {
-    //     left: $lang?.locale.value === "ar" ? juzHeaderData?.left?.nameArabic : juzHeaderData?.left?.nameSimple,
-    //     right: juzHeaderData.right
-    //   }
-    // } else if (props.headerData.key === "page") {
-    //   const pageHeaderData = props.headerData.value as PageHeaderData
-    //   return {
-    //     left: $lang?.locale.value === "ar" ? pageHeaderData?.left?.nameArabic : pageHeaderData?.left?.nameSimple,
-    //     right: pageHeaderData.right
-    //   }
-    // } else {
-    //   return ""
-    // }
   }
 });
 </script>

@@ -6,6 +6,8 @@ import { useChapterStore, useJuzStore, usePageStore } from "@/stores";
 import type { Chapter } from "@/types/chapter"
 import type { Juz, JuzVerseMapping } from "@/types/juz"
 import type { Page } from "@/types/page"
+// utils
+import { localizeNumber } from "@/utils/number"
 
 // Stores
 const chapterStore = useChapterStore()
@@ -17,19 +19,30 @@ const chaptersCurrentSortDir = ref("asc");
 const chaptersCurrentSort = ref("id");
 const chaptersPageSize = ref(21)
 const chaptersCurrentPage = ref(1)
+const totalChapters = ref(114)
+const chaptersPaginationLength = computed(() => {
+    return Math.ceil(totalChapters.value / chaptersPageSize.value)
+})
 // Pages
 const pagesSearchValue = ref("")
 const pagesCurrentSortDir = ref("asc");
 const pagesCurrentSort = ref("pageNumber");
 const pagesPageSize = ref(21)
 const pagesCurrentPage = ref(1)
+const totalPages = ref(604)
+const pagesPaginationLength = computed(() => {
+    return Math.ceil(totalPages.value / pagesPageSize.value)
+})
 // Juz
 const juzSearchValue = ref("")
 const juzCurrentSortDir = ref("asc");
 const juzCurrentSort = ref("juzNumber");
 const juzPageSize = ref(12)
 const juzCurrentPage = ref(1)
-
+const totalJuzs = ref(30)
+const juzsPaginationLength = computed(() => {
+    return Math.ceil(totalJuzs.value / juzPageSize.value)
+})
 
 defineProps<{
     modelValue: string
@@ -84,6 +97,7 @@ const chaptersSort = (s: string) => {
     }
     chaptersCurrentSort.value = s;
 };
+
 
 const getSelected = (key: string, value: Page | Chapter | Juz) => {
     emit("update:isLoading", true)
@@ -260,7 +274,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!chapters?.length">
-                                    <v-col cols="12" md="4" v-for="n in 114" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in totalChapters" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
@@ -280,9 +294,11 @@ const prevJuzPage = () => {
                                                         <div class="d-flex" style="flex-direction: column;">
                                                             <span>{{ chapter.nameArabic }}</span>
                                                             <br />
-                                                            <small>{{ chapter.versesCount }} {{
-                                                                $tr.line('home.textAyah')
-                                                            }}</small>
+                                                            <small>{{ localizeNumber(chapter.versesCount,
+                                                                $tr.locale.value) }}
+                                                                {{
+                                                                    $tr.line('home.textAyah')
+                                                                }}</small>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -292,9 +308,8 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                        <v-pagination v-model="chaptersCurrentPage"
-                                            :length="Math.ceil(114 / chaptersPageSize)" @next="nextChapterPage"
-                                            @prev="prevChapterPage"></v-pagination>
+                                        <v-pagination v-model="chaptersCurrentPage" :length="chaptersPaginationLength"
+                                            @next="nextChapterPage" @prev="prevChapterPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -316,7 +331,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!juzStore.juzs?.length">
-                                    <v-col cols="12" md="4" v-for="n in 114" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in totalJuzs" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
@@ -325,19 +340,22 @@ const prevJuzPage = () => {
                                         <v-card :data-id="juz.id" @click="getSelected('juz', juz)" :border="true"
                                             @mouseenter="mouseEnter('juz', juz)" height="100">
                                             <v-sheet class="d-flex ma-2">
-                                                <span class="me-auto">{{ $tr.line("home.textJuz") }} {{ juz.juz_number
-                                                    }}</span>
-                                                <span class="text-caption">{{ juz.verses_count }} {{
-                                                    $tr.line('home.textVerse') }}</span>
+                                                <span class="me-auto">{{ $tr.line("home.textJuz") }}
+                                                    {{ localizeNumber(juz.juz_number, $tr.locale.value) }}</span>
+                                                <span class="text-caption">{{ localizeNumber(juz.verses_count,
+                                                    $tr.locale.value) }} {{
+                                                        $tr.line('home.textVerse') }}</span>
                                             </v-sheet>
                                             <v-card-text>
-                                                <v-sheet v-for="(chapter, index) in juz.chapters"
-                                                    :key="chapter.chapterId" class="w-100">
+                                                <v-sheet v-for="chapter in juz.chapters" :key="chapter.chapterId"
+                                                    class="w-100">
                                                     <div class="d-flex text-blue-grey-lighten-2">
-                                                        <div class="me-auto">{{ index + 1 }} - {{ $tr.rtl.value ?
+                                                        <div class="me-auto">- {{ $tr.rtl.value ?
                                                             chapter.ar : chapter.en }}
                                                         </div>
-                                                        <div>{{ $tr.line("home.textVerses") }} {{ chapter.verses }}
+                                                        <div>{{ $tr.line("home.textVerses") }} {{
+                                                            localizeNumber(chapter.verses,
+                                                                $tr.locale.value) }}
                                                         </div>
                                                     </div>
                                                 </v-sheet>
@@ -347,7 +365,7 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                        <v-pagination v-model="juzCurrentPage" :length="Math.ceil(30 / juzPageSize)"
+                                        <v-pagination v-model="juzCurrentPage" :length="juzsPaginationLength"
                                             @next="nextJuzPage" @prev="prevJuzPage"></v-pagination>
                                     </v-col>
                                 </v-row>
@@ -371,7 +389,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!pageStore.pages?.length">
-                                    <v-col cols="12" md="4" v-for="n in 604" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in totalPages" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
@@ -380,12 +398,13 @@ const prevJuzPage = () => {
                                         <v-card @click="getSelected('page', page)" :border="true"
                                             @mouseenter="mouseEnter('page', page)">
                                             <v-sheet class="d-flex ms-2 mt-2">
-                                                {{ $tr.line("home.textPage") }} {{ page.pageNumber }}
+                                                {{ $tr.line("home.textPage") }} {{ localizeNumber(page.pageNumber,
+                                                    $tr.locale.value) }}
                                             </v-sheet>
                                             <v-card-text v-if="page.chaptersMap">
                                                 <v-sheet v-for="(chapter, index) in page.chaptersMap" :key="index">
                                                     <div class="d-flex text-blue-grey-lighten-2">
-                                                        <div class="me-auto" v-if="chapter">{{ index + 1 }} - {{
+                                                        <div class="me-auto" v-if="chapter">- {{
                                                             $tr.rtl.value ?
                                                                 chapter.nameArabic : chapter.nameSimple }}
                                                         </div>
@@ -397,9 +416,8 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                        <v-pagination v-model="pagesCurrentPage"
-                                            :length="Math.ceil(604 / pagesPageSize)" @next="nextPagesPage"
-                                            @prev="prevPagesPage"></v-pagination>
+                                        <v-pagination v-model="pagesCurrentPage" :length="pagesPaginationLength"
+                                            @next="nextPagesPage" @prev="prevPagesPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -422,7 +440,7 @@ const prevJuzPage = () => {
                                     </v-col>
                                 </v-row>
                                 <v-row v-if="!chapters?.length">
-                                    <v-col cols="12" md="4" v-for="n in 114" :key="n">
+                                    <v-col cols="12" md="4" v-for="n in totalChapters" :key="n">
                                         <v-skeleton-loader type="image"></v-skeleton-loader>
                                     </v-col>
                                 </v-row>
@@ -442,9 +460,10 @@ const prevJuzPage = () => {
                                                         <div class="d-flex" style="flex-direction: column;">
                                                             <span>{{ chapter.nameArabic }}</span>
                                                             <br />
-                                                            <small>{{ chapter.versesCount }} {{
-                                                                $tr.line('home.textAyah')
-                                                            }}</small>
+                                                            <small>{{ localizeNumber(chapter.versesCount,
+                                                                $tr.locale.value) }} {{
+                                                                    $tr.line('home.textAyah')
+                                                                }}</small>
                                                         </div>
                                                     </div>
                                                 </div>
