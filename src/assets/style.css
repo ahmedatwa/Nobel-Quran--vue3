@@ -91,7 +91,7 @@
   text-align: center;
 }
 .quran-reader-container h2 h3 {
-  font-family: var(--quran-reader-font-family-Surahnames) !important;
+  font-family: var(--quran-content-title) !important;
   font-weight: var(--font-weight-bold) !important;
   font-size: var(--quran-font-size-5) !important;
   word-spacing: var(--spacing-xxsmall)
