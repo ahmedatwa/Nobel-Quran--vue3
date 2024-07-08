@@ -68,9 +68,13 @@ export const usePageStore = defineStore("page-store", () => {
               page.verses?.push({ ...verse, bookmarked: false });
             }
           });
+          
           page.pagination = response.data.pagination;
-          if (selectedPage.value?.pagination) {
-            selectedPage.value.pagination = response.data.pagination;
+          if (selectedPage.value?.pageNumber === page.pageNumber) {
+            if (selectedPage.value) {
+              selectedPage.value.verses = page.verses;
+              selectedPage.value.pagination = page.pagination;
+            }
           }
         }
       })

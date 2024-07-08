@@ -25,14 +25,11 @@ const defaultStyles = reactive({
  * so i can get chapter name
  */
 const selectedVerses = computed(() => {
-    if (pageStore.selectedPageId) {
-        const isFound = pageStore.pagesList.find((page) => page.pageNumber === pageStore.selectedPageId)
-        if (isFound) {
-            pageStore.selectedPage = isFound
-            return isFound.verses
-        }
+    if (pageStore.selectedPage) {
+        return pageStore.selectedPage.verses
     }
 })
+
 const groupVersesByChapter = computed(() => {
     if (selectedVerses.value) {
         return selectedVerses.value?.reduce((i: GroupVersesByChapterID, o) => {
