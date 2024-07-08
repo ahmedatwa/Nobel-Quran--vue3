@@ -17,8 +17,8 @@ const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 const verses = computed(() => {
-  if (chapterStore.selectedChapter?.verses) {
-    return chapterStore.selectedChapter?.verses.sort(
+  if (chapterStore.selectedChapterVerses) {
+    return chapterStore.selectedChapterVerses.sort(
       (a, b) => a.verse_number - b.verse_number
     );
   }
@@ -166,7 +166,7 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
  * watch if user selected verse number 
  * scroll to the verse after fetching
  */
- watchEffect(() => {
+watchEffect(() => {
   if (props.selectedVerseNumber) {
     console.log(props.selectedVerseNumber);
     scrollToElement(`#verse-row-${props.selectedVerseNumber}`)

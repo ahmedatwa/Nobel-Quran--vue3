@@ -197,21 +197,32 @@ export const useChapterStore = defineStore("chapter-store", () => {
     return "";
   });
 
-  const versesKeyMap = computed(() => {
+  const selectedChapterVerses = computed(() => {
     if (selectedChapter.value) {
-      return selectedChapter.value.verses?.map((v) => v.verse_key);
+      const isFound = chaptersList.value.find(
+        (chapter) => chapter.id === selectedChapter.value?.id
+      );
+      if (isFound) {
+        selectedChapter.value.verses = isFound.verses;
+        return isFound.verses;
+      }
+    }
+  });
+  const versesKeyMap = computed(() => {
+    if (selectedChapterVerses.value) {
+      return selectedChapterVerses.value?.map((v) => v.verse_key);
     }
   });
 
   const getFirstVerseOfChapter = computed(() => {
-    if (selectedChapter.value?.verses) {
-      return selectedChapter.value.verses[0];
+    if (selectedChapterVerses.value) {
+      return selectedChapterVerses.value[0];
     }
   });
 
   const getLastVerseOfChapter = computed(() => {
-    if (selectedChapter.value?.verses) {
-      const verse = selectedChapter.value.verses.slice(-1)[0];
+    if (selectedChapterVerses.value) {
+      const verse = selectedChapterVerses.value.slice(-1)[0];
       if (verse) {
         return verse.id;
       }
@@ -246,6 +257,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     getFirstVerseOfChapter,
     getLastVerseOfChapter,
     getFirstVerseHeaderData,
+    selectedChapterVerses,
     getChapterName,
     getchapterInfo,
     getVerses,

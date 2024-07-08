@@ -16,8 +16,8 @@ const isIntersecting = ref(false);
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 const verses = computed((): Verse[] | undefined => {
-  if (chapterStore.selectedChapter) {
-    return chapterStore.selectedChapter.verses?.sort(
+  if (chapterStore.selectedChapterVerses) {
+    return chapterStore.selectedChapterVerses?.sort(
       (a, b) => a.verse_number - b.verse_number
     );
   }
