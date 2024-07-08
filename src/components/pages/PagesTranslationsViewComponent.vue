@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, computed, nextTick, watch } from "vue"
+import { ref, inject, watchEffect } from "vue"
+import { computed, nextTick, watch, reactive } from "vue"
 // stores
 import { usePageStore } from "@/stores";
 // components
@@ -15,7 +16,10 @@ const pageStore = usePageStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<PageHeaderData | null>(null);
-
+const defaultStyles = reactive({
+    fontSize: "var(--quran-font-size-3)",
+    fontFamily: "var(--quran-font-family-amiri)"
+})
 /**
  * group verses by chapter id
  * so i can get chapter name
@@ -43,7 +47,7 @@ const props = defineProps<{
     groupedTranslationsAuthors?: string;
     verseTiming: VerseTimingsProps;
     audioExperience: { autoScroll: boolean, tooltip: boolean }
-    cssVars?: { size: string, family: string }
+    cssVars?: Record<"fontSize" | "fontFamily", string>
 }>()
 
 const emit = defineEmits<{
@@ -239,7 +243,7 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                                     <h3 v-if="word.char_type_name === 'end'">
                                         ({{ word.text_uthmani }})
                                     </h3>
-                                    <h3 v-else> {{ word.text_uthmani }}
+                                    <h3 :style="[defaultStyles, cssVars]" v-else> {{ word.text_uthmani }}
                                         <v-tooltip v-if="audioExperience.tooltip" activator="parent"
                                             :target="`#target${word.id}`" :model-value="isWordHighlighted(word.location, word.verse_key)
                                                 " location="top center" origin="bottom center"
@@ -289,10 +293,5 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
 
 :deep(.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line) {
     padding-inline: 3px;
-}
-
-.quran-translation-view h3 {
-    font-size: v-bind("props.cssVars?.size");
-    font-family: v-bind("props.cssVars?.family");
 }
 </style>

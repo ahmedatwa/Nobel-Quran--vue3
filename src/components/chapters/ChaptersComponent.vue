@@ -19,7 +19,7 @@ const props = defineProps<{
   audioPlayer: { audioID: number; isPlaying?: boolean; format?: string } | null;
   selected: boolean;
   selectedVerseNumber?: number;
-  settingCssVars?: { size: string; family: string };
+  cssVars?: Record<"fontSize" | "fontFamily", string>
 }>();
 
 const emit = defineEmits<{
@@ -63,7 +63,7 @@ watchEffect(async () => {
       <v-tabs-window-item value="translationTab" class="mx-5">
         <chapter-translations-view-component :is-audio-playing="audioPlayer"
           :is-translations-view="tab === 'translationTab'" :audio-experience="audioPlayerSetting"
-          :selected-verse-Number="selectedVerseNumber" :css-vars="settingCssVars"
+          :selected-verse-Number="selectedVerseNumber" :css-vars="cssVars"
           :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
           :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
           @update:manual-intersecting-mode=" emit('update:manualIntersectingMode', $event)"
@@ -71,7 +71,7 @@ watchEffect(async () => {
         </chapter-translations-view-component>
       </v-tabs-window-item>
       <v-tabs-window-item value="readingTab">
-        <chapter-reading-view-component :is-audio-playing="audioPlayer" :css-vars="settingCssVars"
+        <chapter-reading-view-component :is-audio-playing="audioPlayer" :css-vars="cssVars"
           :verse-timing="audioPlayerStore.verseTiming" :is-reading-view="tab === 'readingTab'"
           :audio-experience="audioPlayerSetting" @update:header-data="emit('update:headerData', $event)"
           @update:manual-intersecting-mode="emit('update:manualIntersectingMode', $event)"

@@ -16,7 +16,7 @@ const selectedJuzTab = ref("translationsTab")
 const props = defineProps<{
     audioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
     selected: boolean
-    settingCssVars?: { size: string, family: string }
+    cssVars?: Record<"fontSize" | "fontFamily", string>
 }>()
 
 const emit = defineEmits<{
@@ -39,7 +39,7 @@ const emit = defineEmits<{
         <v-tabs-window v-model="selectedJuzTab">
             <v-tabs-window-item value="translationsTab" class="mx-5">
                 <juz-translations-view-component :is-audio-playing="audioPlayer" :selected-juz-tab="selectedJuzTab"
-                    :audio-experience="audioPlayerSetting" :css-vars="settingCssVars"
+                    :audio-experience="audioPlayerSetting" :css-vars="cssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
                     :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
                     @update:manual-intersecting="emit('update:manualIntersecting', $event)"
@@ -48,7 +48,7 @@ const emit = defineEmits<{
                 </juz-translations-view-component>
             </v-tabs-window-item>
             <v-tabs-window-item value="readingTab">
-                <juz-reading-view-component :audio-player="audioPlayer" :css-vars="settingCssVars"
+                <juz-reading-view-component :audio-player="audioPlayer" :css-vars="cssVars"
                     :selected-juz-tab="selectedJuzTab" :verse-timing="audioPlayerStore.verseTiming"
                     @update:header-data="emit('update:headerData', $event)"
                     @update:manual-intersecting="emit('update:manualIntersecting', $event)"
@@ -75,7 +75,7 @@ const emit = defineEmits<{
 }
 
 .quran-content {
-    font-family: v-bind("props.settingCssVars?.family");
-    font-size: v-bind("props.settingCssVars?.size");
+    font-family: v-bind("props.cssVars?.fontFamily");
+    font-size: v-bind("props.cssVars?.fontSize");
 }
 </style>

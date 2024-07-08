@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, reactive } from "vue";
 import { useJuzStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran"
 // types
@@ -20,6 +20,11 @@ const verses = computed(() => {
     }
 })
 
+const defaultStyles = reactive({
+  fontSize: "var(--quran-font-size-3)",
+  fontFamily: "var(--quran-font-family-amiri)"
+})
+
 const emit = defineEmits<{
     "update:playAudio": [value: { audioID: number, verseKey?: string }]
     "update:headerData": [value: JuzHeaderData | null]
@@ -29,7 +34,7 @@ const emit = defineEmits<{
 const props = defineProps<{
     audioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
     verseTiming: VerseTimingsProps
-    cssVars?: { size: string, family: string }
+    cssVars?: Record<"fontSize" | "fontFamily", string>
     selectedJuzTab: string
 }>()
 
@@ -150,7 +155,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                                                 word.text_uthmani
                                                 }})
                                             </div>
-                                            <div v-else>{{ word.text_uthmani }}</div>
+                                            <div :style="[defaultStyles, cssVars]" v-else>{{ word.text_uthmani }}</div>
                                         </div>
                                     </h3>
                                 </div>
@@ -174,8 +179,4 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
     padding-inline: 0px
 }
 
-.quran-reader-container .verse-col {
-    font-size: v-bind("props.cssVars?.size");
-    font-family: v-bind("props.cssVars?.family");
-}
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, computed, watch } from "vue";
+import { ref, inject, watchEffect, computed, watch, reactive } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -16,6 +16,11 @@ const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
+
+const defaultStyles = reactive({
+  fontSize: "var(--quran-font-size-3)",
+  fontFamily: "var(--quran-font-family-amiri)"
+})
 
 const verses = computed(() => {
   if (chapterStore.selectedChapterVerses) {
@@ -40,7 +45,7 @@ const props = defineProps<{
   groupedTranslationsAuthors?: string;
   verseTiming: VerseTimingsProps
   audioExperience: { autoScroll: boolean; tooltip: boolean };
-  cssVars?: { size: string; family: string };
+  cssVars?: Record<"fontSize" | "fontFamily", string>
   selectedVerseNumber?: number;
 }>();
 
@@ -216,7 +221,7 @@ watchEffect(() => {
                   <h3 v-if="word.char_type_name === 'end'">
                     ({{ word.text_uthmani }})
                   </h3>
-                  <h3 v-else> {{ word.text_uthmani }}
+                  <h3 :style="[defaultStyles, cssVars]" v-else> {{ word.text_uthmani }}
                     <v-tooltip v-if="audioExperience.tooltip" activator="parent" :target="`#word-tooltip-${word.id}`"
                       :model-value="isWordHighlighted(word.location, word.verse_key)
                         " location="top center" origin="bottom center" :text="word.translation.text">
@@ -231,7 +236,7 @@ watchEffect(() => {
             <v-list>
               <v-list-item class="text-left" v-for="translation in verse.translations" :key="translation.id">
                 <div class="translation" v-html="translation.text"></div>
-                <v-sheet class="text-caption mt-2 text-disabled">
+                <v-sheet class="text-caption mt-2 text-disabled quran-translations-font">
                   -- {{ translation.resource_name }}</v-sheet>
               </v-list-item>
             </v-list>
@@ -252,10 +257,5 @@ watchEffect(() => {
 
 :deep(.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line) {
   padding-inline: 3px;
-}
-
-.quran-translation-view h3 {
-  font-size: v-bind("props.cssVars?.size");
-  font-family: v-bind("props.cssVars?.family");
 }
 </style>

@@ -1,11 +1,9 @@
-@import "./fonts.scss";
-
 :root {
   --direct: rtl;
-  --quran-reader-font-family-amiri: "Amiri", serif;
-  --quran-reader-font-family-aref: "Aref Ruqaa", serif;
-  --quran-reader-font-family-noto-naksh: "Noto Naskh Arabic Variable", serif;
-  --quran-reader-font-family-noto-kufi: "Noto Kufi Arabic Variable", sans-serif;
+  --quran-font-family-amiri: "Amiri", serif;
+  --quran-font-family-aref: "Aref Ruqaa", serif;
+  --quran-font-family-noto-naksh: "Noto Naskh Arabic Variable", serif;
+  --quran-font-family-noto-kufi: "Noto Kufi Arabic Variable", sans-serif;
   /* Noto Naskh Arabic Variable', serif */
   --quran-reader-direction: rtl;
   --quran-content-title: "Gulzar", serif;
@@ -133,6 +131,10 @@
   display: flex;
   direction: rtl;
   flex-wrap: wrap;
+  }
+
+.quran-translations-font {
+  font-size: var(--translation-font-size-3);
 }
 
 .action-list {

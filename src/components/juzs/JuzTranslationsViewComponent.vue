@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, nextTick, computed, watch } from "vue"
+import { ref, inject, watchEffect, nextTick, computed, watch, reactive } from "vue"
 // stores
 import { useJuzStore, useChapterStore } from "@/stores";
 // components
@@ -22,12 +22,17 @@ const intersectingJuzVerseNumber = ref<number>()
 const intersectingChapterId = ref<number>()
 const currentChapterId = ref<number>()
 
+const defaultStyles = reactive({
+  fontSize: "var(--quran-font-size-3)",
+  fontFamily: "var(--quran-font-family-amiri)"
+})
+
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
     groupedTranslationsAuthors?: string;
     verseTiming: VerseTimingsProps
     audioExperience: { autoScroll: boolean, tooltip: boolean }
-    cssVars?: { size: string, family: string }
+    cssVars?: Record<"fontSize" | "fontFamily", string>
     selectedJuzTab: string
 }>()
 
@@ -255,7 +260,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                                 <v-list-item-title class="word" :id="`word-tooltip${word.id}`"
                                     :data-verse-key="verse.verse_key"
                                     :class="isWordHighlighted(word.location, word.verse_key) ? 'text-blue' : ''">
-                                    <h3>{{ word.text_uthmani }}
+                                    <h3 :style="[defaultStyles, cssVars]">{{ word.text_uthmani }}
                                         <v-tooltip activator="parent" :target="`#target${word.id}`"
                                             v-if="audioExperience.tooltip"
                                             :model-value="isWordHighlighted(word.location, word.verse_key)"
@@ -305,10 +310,5 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
 
 :deep(.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line) {
     padding-inline: 3px;
-}
-
-.quran-translation-view h3 {
-    font-size: v-bind("props.cssVars?.size");
-    font-family: v-bind("props.cssVars?.family");
 }
 </style>

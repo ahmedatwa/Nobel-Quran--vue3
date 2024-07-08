@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, watchEffect } from "vue";
+import { ref, computed, watch, watchEffect, reactive } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -15,6 +15,11 @@ const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
+
+const defaultStyles = reactive({
+  fontSize: "var(--quran-font-size-3)",
+  fontFamily: "var(--qura-font-family-amiri)"
+})
 
 const verses = computed(() => {
   if (chapterStore.selectedChapterVerses) {
@@ -42,7 +47,7 @@ const props = defineProps<{
   isAudioPlaying: IsAudioPlayingProps
   audioExperience: { autoScroll: boolean; tooltip: boolean };
   verseTiming: VerseTimingsProps
-  cssVars?: { size: string; family: string };
+  cssVars?: Record<"fontSize" | "fontFamily", string>
   selectedVerseNumber?: number;
 }>();
 
@@ -194,7 +199,6 @@ watchEffect(() => {
           <v-row class="verse-row" no-gutters justify="center" :align="'start'"
             v-for="(verses, page) in mapVersesByPage" :key="page" :id="`row-page-${page}`">
             <v-col class="verse-col" :id="`page-${page}`">
-
               <div class="d-inline-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
                 :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
                 :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number" :data-page-number="page"
@@ -213,7 +217,7 @@ watchEffect(() => {
                     " class="word">
                     <div v-if="word.char_type_name === 'end'">({{ word.text_uthmani }})
                     </div>
-                    <div v-else>{{ word.text_uthmani }}</div>
+                    <div :style="[defaultStyles, cssVars]" v-else>{{ word.text_uthmani }}</div>
                   </div>
                 </h3>
               </div>
@@ -236,8 +240,7 @@ watchEffect(() => {
   padding-inline: 0px;
 }
 
-.quran-reader-container .verse-col {
-  font-size: v-bind("props.cssVars?.size");
-  font-family: v-bind("props.cssVars?.family");
-}
-</style>
+// .quran-reader-container .verse-col {
+//   font-size: v-bind("props.cssVars?.size");
+//   font-family: v-bind("props.cssVars?.family");
+// }</style>

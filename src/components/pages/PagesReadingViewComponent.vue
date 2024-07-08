@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, inject, nextTick } from "vue";
+import { ref, computed, inject, nextTick, reactive } from "vue";
 // stores
 import { usePageStore } from "@/stores";
 // components
@@ -31,6 +31,11 @@ const groupVersesByChapter = computed(() => {
     }
 })
 
+const defaultStyles = reactive({
+    fontSize: "var(--quran-font-size-3)",
+    fontFamily: "var(--quran-font-family-amiri)"
+})
+
 // const chapterAudioId = computed(() => {
 //     if (pageStore.selectedPage) {
 //         return pageStore.selectedPage
@@ -49,7 +54,7 @@ const props = defineProps<{
     groupedTranslationsAuthors?: string;
     verseTiming: VerseTimingsProps;
     audioExperience: { autoScroll: boolean, tooltip: boolean }
-    cssVars?: { size: string, family: string }
+    cssVars?: Record<"fontSize" | "fontFamily", string>
 }>()
 
 // Highlight Active Words
@@ -187,15 +192,14 @@ const getStartOfPage = () => {
                                         },
                                     }">
                                     <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position"
-                                        class="" :data-hizb-number="verse.hizb_number"
+                                        class="" :data-hizb-number="verse.hizb_number" :style="[defaultStyles, cssVars]"
                                         :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id">
                                         <div :class="isWordHighlighted(word.position, word.verse_key)
                                             ? 'text-blue'
                                             : ''
                                             " class="word">
-                                            <div v-if="word.char_type_name === 'end'" style="font-family: p3-v1;">({{
-                                                word.text_uthmani
-                                                }})
+                                            <div v-if="word.char_type_name === 'end'">
+                                                ({{ word.text_uthmani }})
                                             </div>
                                             <div v-else>{{ word.text_uthmani }}</div>
                                         </div>
@@ -238,7 +242,7 @@ const getStartOfPage = () => {
 }
 
 .quran-reader-container .verse-col {
-    font-size: v-bind("props.cssVars?.size");
-    font-family: v-bind("props.cssVars?.family");
+    font-size: v-bind("props.cssVars?.fontSize");
+    font-family: v-bind("props.cssVars?.fontFamily");
 }
 </style>

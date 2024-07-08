@@ -77,12 +77,11 @@ watch(
   }
 );
 // Front Styles
-const settingCssVars = computed(() => {
+const quranCssVars = computed(() => {
   if (settingStore.cssVars) {
     return {
-      size: `var(--quran-font-size-${settingStore.cssVars.quranFontFamily.toLowerCase()})`,
-      family: `var(--quran-reader-font-family-${settingStore.cssVars.quranFrontSize})`,
-      translationsSize: `var(--translation-font-size-${settingStore.cssVars.translationsFontSize})`,
+      fontFamily: `var(--quran-font-family-${settingStore.cssVars.quranFontFamily.toLowerCase()})`,
+      fontSize: `var(--quran-font-size-${settingStore.cssVars.quranFrontSize})`,
     };
   }
 });
@@ -106,20 +105,20 @@ onBeforeMount(() => {
     @update:selected-verse-number="chapterSelectedVerseNumber = $event"></navigation-component>
   <!-- Juz -->
   <juzs-component :selected="selectedTab === 'juzs'" :selected-tab="selectedTab" :audio-player="audioPlayer"
-    :setting-css-vars="settingCssVars" @update:translation-drawer="translationDrawer = $event"
+    :css-vars="quranCssVars" @update:translation-drawer="translationDrawer = $event"
     @update:manual-intersecting="juzManualIntersecting = $event" @update:play-audio="playAudio"
     @update:header-data="$emit('update:headerData', { key: 'juz', value: $event as JuzHeaderData })"
     @update:active-juz-number="activeJuzNumber = $event"></juzs-component>
   <!-- Chapters -->
   <chapters-component :selected="selectedTab === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
-    :selected-verse-number="chapterSelectedVerseNumber" :setting-css-vars="settingCssVars"
+    :selected-verse-number="chapterSelectedVerseNumber" :css-vars="quranCssVars"
     @update:manual-intersecting-mode="chapterManualIntersectingModeData = $event"
     @update:header-data="$emit('update:headerData', { key: 'chapter', value: $event as ChapterHeaderData })"
     @update:play-audio="playAudio">
   </chapters-component>
   <!-- Pages -->
   <pages-component :selected="selectedTab === 'pages'" :selected-page="selectedPage" :audio-player="audioPlayer"
-    :setting-css-vars="settingCssVars" @update:intersecting-page-verse-number="intersectingPageVerseNumber = $event"
+    :css-vars="quranCssVars" @update:intersecting-page-verse-number="intersectingPageVerseNumber = $event"
     @update:translation-drawer="translationDrawer = $event" @update:active-page-number="activePageNumber = $event"
     @update:header-data="$emit('update:headerData', { key: 'page', value: $event as PageHeaderData })"
     @update:play-audio="playAudio"></pages-component>
