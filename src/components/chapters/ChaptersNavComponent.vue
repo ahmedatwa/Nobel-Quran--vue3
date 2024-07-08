@@ -59,7 +59,7 @@ watchEffect(() => {
  */
 const versesCount = computed(() => {
   if (chapterStore.selectedChapter) {
-    return _range(chapterStore.selectedChapter.versesCount, 1);
+    return _range(chapterStore.selectedChapter.versesCount, 1).filter((n) => n.toLocaleString().includes(searchValue.value))
   }
 });
 
@@ -89,7 +89,7 @@ watchEffect(async () => {
   if (props.manualIntersectingMode) {
     const intersectingData = props.manualIntersectingMode
     console.log(intersectingData);
-    
+
     selectedVerseID.value = intersectingData.currentVerseNumber;
 
     if (selectedChapterVersesCount.value === intersectingData.lastVerseNumber) {
@@ -135,7 +135,7 @@ const mouseEnter = async (k: string, value: Chapter | number) => {
         verseKey,
         chapterStore.versesKeyMap
       );
-      
+
       if (!verseInRange) {
         await getVerseByKey(verseKey);
       }
@@ -196,7 +196,7 @@ const getVerseByKey = async (verseKey: string) => {
           </v-card-title>
           <v-divider></v-divider>
           <v-sheet height="650" class="overflow-y-auto">
-            <v-skeleton-loader type="list-item" v-for="n in chapterStore.selectedChapter?.versesCount" :key="n"
+            <v-skeleton-loader type="list-item" v-for="n in versesCount" :key="n"
               v-if="chapterStore.isLoading.chapters"></v-skeleton-loader>
             <v-list class="mb-5">
               <v-list-item v-for="n in versesCount" :key="n" :value="n" class="text-center"
