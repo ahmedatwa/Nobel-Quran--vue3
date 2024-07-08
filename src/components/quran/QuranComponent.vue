@@ -80,14 +80,9 @@ watch(
 const settingCssVars = computed(() => {
   if (settingStore.cssVars) {
     return {
-      size: settingStore.cssVars?.quranFrontSize
-        ? "var(--quran-font-size-" + settingStore.cssVars.quranFrontSize + ")"
-        : "var(--quran-font-size-3)",
-      family: settingStore.cssVars?.quranFontFamily
-        ? "var(--quran-reader-font-family-" +
-        settingStore.cssVars.quranFontFamily +
-        ")"
-        : "var(--quran-reader-font-family-indoPak)",
+      size: `var(--quran-font-size-${settingStore.cssVars.quranFontFamily.toLowerCase()})`,
+      family: `var(--quran-reader-font-family-${settingStore.cssVars.quranFrontSize})`,
+      translationsSize: `var(--translation-font-size-${settingStore.cssVars.translationsFontSize})`,
     };
   }
 });
@@ -114,7 +109,7 @@ onBeforeMount(() => {
     :setting-css-vars="settingCssVars" @update:translation-drawer="translationDrawer = $event"
     @update:manual-intersecting="juzManualIntersecting = $event" @update:play-audio="playAudio"
     @update:header-data="$emit('update:headerData', { key: 'juz', value: $event as JuzHeaderData })"
-    @update:active-juz-number="activeJuzNumber = $event" ></juzs-component>
+    @update:active-juz-number="activeJuzNumber = $event"></juzs-component>
   <!-- Chapters -->
   <chapters-component :selected="selectedTab === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
     :selected-verse-number="chapterSelectedVerseNumber" :setting-css-vars="settingCssVars"

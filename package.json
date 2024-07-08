@@ -7,6 +7,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/noto-kufi-arabic": "^5.0.20",
+    "@fontsource-variable/noto-naskh-arabic": "^5.0.21",
+    "@fontsource/amiri": "^5.0.13",
+    "@fontsource/aref-ruqaa": "^5.0.13",
     "@fontsource/gulzar": "^5.0.20",
     "axios": "^1.7.2",
     "pinia": "^2.1.7",

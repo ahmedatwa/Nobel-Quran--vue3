@@ -71,16 +71,12 @@ const emit = defineEmits<{
                     </v-sheet>
                 </v-sheet>
                 <v-divider class="mb-2"></v-divider>
-                <v-sheet class="ma-2">
+                <v-sheet>
                     <p class="text-subtitle-2 mb-3">{{ $tr.line("setting.translation") }}</p>
-                    <div class="mb-3 mx-2">
-                        <v-btn-toggle v-model="settingStore.cssVars.translationsFontFamily" variant="outlined" divided
-                            :elevation="1">
-                            <v-btn v-for="(v, k) in settingStore.fontFamilyGroup" :key="k" :value="v">
-                                {{ v }}
-                            </v-btn>
-                        </v-btn-toggle>
-                    </div>
+                    <!-- <div class="my-3">
+                        <v-select label="Font" :items="settingStore.fontFamilyGroup"
+                        v-model="settingStore.cssVars.quranFontFamily" hide-details></v-select>
+                    </div> -->
                     <v-sheet id="translations-font-size" class="d-flex justify-center my-3">
                         <div class="ma-2 py-5">{{ $tr.line('setting.fontSize') }}</div>
                         <div class="ma-2 pa-2">
