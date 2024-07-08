@@ -63,10 +63,6 @@ const onIntersect = (intersecting: boolean, entries: any) => {
     intersectingVerseNumber.value = Number(
       entries[0].target.dataset.verseNumber
     );
-
-    if (intersectingVerseNumber.value === 1) {
-      return
-    }
     // emit header data
     // Avoid watchers by comparing 2 objects
     newHeaderData = {
