@@ -52,6 +52,8 @@ export default {
   PageNav: {
     textPage: "صفحة",
     textJuz: "جزء",
+    searchPages: "البحث في الصفحات",
+    searchJuz: "بحث في الأجزاء"
   },
   surahNav: {
     textChapters: "السور",

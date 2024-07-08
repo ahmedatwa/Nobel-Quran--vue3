@@ -99,7 +99,7 @@ watchEffect(() => {
     <v-card>
         <v-card-title>
             <v-text-field prepend-inner-icon="mdi-magnify" class="mt-3 mx-2" v-model="pageStore.searchValue"
-                hide-details variant="outlined" density="compact"></v-text-field>
+                hide-details variant="outlined" density="compact" :label="$tr.line('PageNav.searchPages')"></v-text-field>
         </v-card-title>
         <v-sheet height="600" style="overflow: scroll; ">
             <v-list class="text-center">
