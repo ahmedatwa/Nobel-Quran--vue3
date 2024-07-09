@@ -15,7 +15,7 @@ export const useSettingStore = defineStore("setting-store", () => {
 
   const cssVars = ref<CssVars>({
     quranFrontSize: 3,
-    quranFontFamily: "Noto-Naskh",
+    quranFontFamily: "Noto-Kufi",
     translationsFontSize: 3,
     translationsFontFamily: "1",
   });
