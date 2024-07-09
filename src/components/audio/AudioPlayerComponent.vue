@@ -426,15 +426,11 @@ const changeMediaVolume = (volume: number) => {
     }
 }
 
-const test = (e: any) => {
-    console.log(e);
-    
-}
 </script>
 
 
 <template>
-    <v-bottom-sheet :model-value="modelValue" @update:model-value="closePlayer" @keydown="test"
+    <v-bottom-sheet :model-value="modelValue" @update:model-value="closePlayer"
         :inset="audioPlayerSetting.inset" :scrim="false" persistent no-click-animation
         scroll-strategy="none" @keyup.up="keyboardVolumUp" @keyup.down="keyboardVolumDown">
         <v-card>
