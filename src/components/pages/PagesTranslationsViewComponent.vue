@@ -9,7 +9,7 @@ import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/
 import type { PageHeaderData, GroupVersesByChapterID } from "@/types/page";
 import { VerseTimingsProps } from "@/types/audio";
 // utils
-import { scrollToElement } from "@/utils/useScrollToElement";
+import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 import { getChapterNameByChapterId } from "@/utils/chapter"
 
 const pageStore = usePageStore()
@@ -105,8 +105,8 @@ const getFirstVerseRow = computed(() => {
 watchEffect(async () => {
     if (props.verseTiming.verseKey) {
         if (props.audioExperience.autoScroll) {
-            const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)
-            if (el) {
+            const el = document.querySelector(`#verse-word${props.verseTiming.verseKey}`) as HTMLDivElement
+            if (!isInViewport(el)) {
                 // headerData.value = {
                 //     //left: ,
                 //     right: {
@@ -118,8 +118,9 @@ watchEffect(async () => {
                 // emit header Data
                 // emit('update:headerData', headerData.value)
                 // Scroll into View
-                // Verse Column
-                scrollToElement(`#verse-row${props.verseTiming.verseKey}`)
+                if (props.isAudioPlaying?.isPlaying) {
+                    scrollToElement(`#verse-row${props.verseTiming.verseKey}`)
+                }
             }
         }
     }

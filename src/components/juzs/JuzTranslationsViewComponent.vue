@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, nextTick, computed, watch, reactive } from "vue"
+import { ref, inject, watchEffect, nextTick } from "vue"
+import { computed, watch, reactive } from "vue"
 // stores
 import { useJuzStore, useChapterStore } from "@/stores";
 // components
@@ -8,6 +9,8 @@ import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/
 import { getFirstVerseNumberInJuz } from "@/utils/verse"
 import { getChapterNameByChapterId } from "@/utils/chapter"
 import { getChapterNameByJuzId } from "@/utils/juz"
+import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
+
 // types
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
 import type { VerseTimingsProps } from "@/types/audio";
@@ -104,8 +107,8 @@ const isWordHighlighted = (location: string, verseKey: string) => {
 watchEffect(() => {
     if (props.verseTiming.verseKey) {
         if (props.audioExperience.autoScroll) {
-            const el = document.getElementById(`verse-word${props.verseTiming.verseKey}`)
-            if (el) {
+            const el = document.querySelector(`#verse-word${props.verseTiming.verseKey}`) as HTMLDivElement
+            if (!isInViewport(el)) {
                 let newHeaderData: JuzHeaderData | null = null
                 const chapterId = el.getAttribute("data-chapter-id") || null
                 newHeaderData = {
@@ -124,8 +127,10 @@ watchEffect(() => {
                 }
 
                 // Scroll into View
-                // Verse Column
-                el?.scrollIntoView({ behavior: "smooth", block: "center" })
+                if (props.isAudioPlaying?.isPlaying) {
+                    scrollToElement(`#verse-word${props.verseTiming.verseKey}`)
+                    el?.scrollIntoView({ behavior: "smooth", block: "center" })
+                }
             }
         }
     }
@@ -221,7 +226,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
 </script>
 
 <template>
-    <v-container fluid class="smooth-scroll-behaviour">
+    <v-container fluid class="smooth-scroll-behaviour" id="juz-translations-container">
         <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVersesByChapterMap"
             :key="key" :id="`verse-row${key}`">
             <v-col cols="12">

@@ -395,6 +395,7 @@ const closePlayer = () => {
     if (audioPlayerRef.value) {
         audioPlayerRef.value.pause();
     }
+   // audioPlayerStore.audioFiles = null
     audioPlayerStore.chapterId = 0
     audioPlayerStore.selectedVerseKey = ""
     cleanupListeners()

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, computed, watch, reactive } from "vue";
+import { ref, inject, watchEffect } from "vue";
+import { computed, watch, reactive } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -137,7 +138,9 @@ watchEffect(() => {
         }
         ;
         // Scroll into View
-        scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
+        if (props.isAudioPlaying?.isPlaying) {
+          scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
+        }
         // toggle active state
         const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
         if (element) {
@@ -175,14 +178,14 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
  */
 watchEffect(() => {
   if (props.selectedVerseNumber) {
-    console.log(props.selectedVerseNumber);
     scrollToElement(`#verse-row-${props.selectedVerseNumber}`)
   }
 });
+
 </script>
 
 <template>
-  <v-container fluid class="smooth-scroll-behaviour">
+  <v-container fluid class="smooth-scroll-behaviour" id="chapters-translations-container">
     <v-row :align="'center'" justify="center" dense>
       <v-col cols="12">
         <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors" :chapter-id="chapterAudioId"
