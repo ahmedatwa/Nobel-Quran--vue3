@@ -10,6 +10,7 @@ import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter"
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmitEvent } from "@/types/audio"
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
+import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
@@ -91,8 +92,12 @@ const onIntersect = (intersecting: boolean, entries: any) => {
 
 const setBookmarked = (verseNumber: number) => {
   chapterStore.selectedChapter?.verses?.forEach((v) => {
-    if (v.verse_number === verseNumber) v.bookmarked = true;
-    return;
+    if (v.verse_number === verseNumber) {
+      v.bookmarked = true
+      setStorage('bookmarked-verse', v)
+      return;
+    }
+
   });
 };
 
@@ -177,7 +182,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <v-container fluid class="smooth-scroll-behaviour" >
+  <v-container fluid class="smooth-scroll-behaviour">
     <v-row :align="'center'" justify="center" dense>
       <v-col cols="12">
         <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors" :chapter-id="chapterAudioId"
