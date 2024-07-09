@@ -45,7 +45,6 @@ onMounted(async () => {
     selectedChapterId.value = chapterStore.selectedChapter.id
     selectedVerseID.value = 1
   }
-
 });
 
 watchEffect(() => {

@@ -60,7 +60,7 @@ watchEffect(async () => {
             if (pageStore.selectedPage.verses) {
                 if (selectedVerseID.value === pageStore.selectedPage.verses.length - 3 ||
                     selectedVerseID.value === pageStore.selectedPage.verses.length) {
-                        await pageStore.getVerses(selectedPageNumber.value, true, getVersePagination.value?.next_page)
+                    await pageStore.getVerses(selectedPageNumber.value, true, getVersePagination.value?.next_page)
                 }
             }
 
@@ -81,6 +81,7 @@ onMounted(async () => {
         }
     } else {
         selectedPageNumber.value = pageStore.selectedPage.pageNumber
+        scrollToElement(`#page${selectedPageNumber.value}`)
     }
 })
 
@@ -99,7 +100,8 @@ watchEffect(() => {
     <v-card>
         <v-card-title>
             <v-text-field prepend-inner-icon="mdi-magnify" class="mt-3 mx-2" v-model="pageStore.searchValue"
-                hide-details variant="outlined" density="compact" :label="$tr.line('PageNav.searchPages')"></v-text-field>
+                hide-details variant="outlined" density="compact"
+                :label="$tr.line('PageNav.searchPages')"></v-text-field>
         </v-card-title>
         <v-sheet height="600" style="overflow: scroll; ">
             <v-list class="text-center">
