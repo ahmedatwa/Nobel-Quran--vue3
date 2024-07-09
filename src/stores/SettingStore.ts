@@ -22,8 +22,6 @@ export const useSettingStore = defineStore("setting-store", () => {
 
   const fontFamilyGroup = ref([
     "Amiri",
-    "Aref",
-    "Noto-Naskh",
     "Noto-Kufi",
   ]);
 
