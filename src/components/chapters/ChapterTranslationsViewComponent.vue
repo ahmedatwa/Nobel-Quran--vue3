@@ -94,7 +94,7 @@ const setBookmarked = (verseNumber: number) => {
   chapterStore.selectedChapter?.verses?.forEach((v) => {
     if (v.verse_number === verseNumber) {
       v.bookmarked = true
-      setStorage('bookmarked-verse', v)
+      setStorage('bookmarked-verse', v, localStorage)
       return;
     }
 
