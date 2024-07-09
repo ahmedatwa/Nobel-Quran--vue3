@@ -14,11 +14,8 @@ import "./assets/style.css";
 // fonts
 import '@fontsource/gulzar';
 import '@fontsource/amiri';
-// Supports weights 400-700
-import '@fontsource-variable/noto-naskh-arabic';
 // Supports weights 100-900
 import '@fontsource-variable/noto-kufi-arabic';
-import '@fontsource/aref-ruqaa';
 
 const pinia = createPinia();
 
