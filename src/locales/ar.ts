@@ -4,7 +4,7 @@ export default {
     audio: "صوتي",
     autoplay: "تشغيل تلقائي",
     verses: "آيات",
-    quran: "القرآن",
+    quran: "خط القرآن",
     translation: "الترجمة",
     audioPlayer: "مشغل الصوت",
     playerFullWidth: "مشغل الصوت بالعرض الكامل",
@@ -52,7 +52,7 @@ export default {
   PageNav: {
     textPage: "صفحة",
     textJuz: "جزء",
-    searchPages: "البحث في الصفحات",
+    searchPages: "بحث في الصفحات",
     searchJuz: "بحث في الأجزاء"
   },
   surahNav: {

@@ -5,6 +5,8 @@ import { TafsirDialogComponent } from '@/components/tafsir';
 // types
 import type { Verse } from "@/types"
 import type { PlayAudioEmitEvent } from "@/types/audio";
+// utils
+import { localizeNumber } from "@/utils/number";
 
 const isCopied = ref(false)
 const tafsirDialog = ref(false)
@@ -46,8 +48,8 @@ const iaPlaying = computed(() => {
     <v-list class="text-center" :id="`verse-${verse.id}`" lines="one" :key="verse.verse_number"
         :class="$vuetify.display.smAndDown ? 'd-flex justify-center' : ''">
         <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
-            <v-sheet class="text-caption text-no-wrap" :key="verse.verse_key" :size="size">{{ verse.verse_key
-                }}</v-sheet>
+            <v-sheet class="text-caption text-no-wrap" :key="verse.verse_key" :size="size">
+                {{ localizeNumber(verse.verse_key, $tr.locale.value) }}</v-sheet>
         </v-list-item>
         <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
             <v-btn :icon="iaPlaying ? 'mdi-pause' : 'mdi-play'" :size="size" variant="text" :key="verse.verse_key"

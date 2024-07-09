@@ -6,7 +6,7 @@ export default {
     playerFullWidth: "Audio Player Full Width",
     dismissPlayer: "Dismiss Player when playback ends",
     verses: "Verses",
-    quran: "Quran",
+    quran: "Quran Font",
     translation: "Translation",
     reciter: "Reciter",
     fontSize: "Font Size",

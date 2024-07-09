@@ -28,7 +28,7 @@ const emit = defineEmits<{
             </div>
         </template>
         <v-card class="ma-3">
-            <v-divider color="orange" :thickness="2"></v-divider>
+            <v-divider :thickness="2"></v-divider>
             <v-card-text class="mx-2">
                 <p class="text-subtitle-2 mb-2">{{ $tr.line("setting.audioPlayer") }}</p>
                 <v-switch :label="$tr.line('setting.autoplay')" color="primary"
@@ -38,24 +38,43 @@ const emit = defineEmits<{
                     hide-details></v-switch>
                 <v-switch :label="$tr.line('setting.dismissPlayer')" color="primary"
                     v-model="settingStore.audioPlayerSetting.dismissOnEnd" hide-details></v-switch>
-                <v-select v-model="audioPlayerStore.selectedReciter" :label="$tr.line('setting.reciter')"
+                <!-- Reciters -->
+                <v-sheet class="my-3">
+                    <v-btn variant="tonal" block>
+                        {{ audioPlayerStore.selectedReciter.name }}
+                        <v-menu activator="parent">
+                            <v-list>
+                                <v-list-item v-for="reciter in audioPlayerStore.recitations" :key="reciter.reciter_id"
+                                    @click="audioPlayerStore.selectedReciter = reciter" :title="reciter.name"
+                                    :subtitle="reciter.style.name">
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+                    </v-btn>
+                </v-sheet>
+
+                <!-- <v-select v-model="audioPlayerStore.selectedReciter" :label="$tr.line('setting.reciter')"
                     :items="audioPlayerStore.recitations" item-title="name" item-value="reciter_id" return-object>
                     <template v-slot:item="{ props, item }">
                         <v-list-item v-bind="props" :subtitle="item.raw.style.name"
                             :title="item.raw.name"></v-list-item>
                     </template>
-                </v-select>
+                </v-select> -->
 
-                <v-divider class="mb-2"></v-divider>
+                <v-divider class="my-2" :thickness="2"></v-divider>
                 <p class="text-subtitle-2 mb-3">{{ $tr.line("setting.quran") }}</p>
-                <v-select label="Verses Per Page" :items="settingStore.versesPages" v-model="settingStore.VersesPerPage"
-                    hide-details></v-select>
-                <v-divider class="mb-2"></v-divider>
-                <v-sheet class="">
-                    <div class="my-3">
-                        <v-select label="Font" :items="settingStore.fontFamilyGroup"
-                            v-model="settingStore.cssVars.quranFontFamily" hide-details></v-select>
-                    </div>
+                <v-sheet class="d-flex flex-column">
+                    <v-btn variant="tonal" block>
+                        {{ settingStore.cssVars.quranFontFamily }}
+                        <v-menu activator="parent">
+                            <v-list>
+                                <v-list-item v-for="(font, index) in settingStore.fontFamilyGroup" :key="index"
+                                    :value="font" @click="settingStore.cssVars.quranFontFamily = font">
+                                    <v-list-item-title>{{ font }}</v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-menu>
+                    </v-btn>
                     <v-sheet id="quran-font-size" class="d-flex justify-center my-3">
                         <div class="ma-2 py-5">{{ $tr.line('setting.fontSize') }}</div>
                         <div class="ma-2 pa-2"><v-btn icon="mdi-minus" class="d-inline" variant="plain"
@@ -70,7 +89,7 @@ const emit = defineEmits<{
 
                     </v-sheet>
                 </v-sheet>
-                <v-divider class="mb-2"></v-divider>
+                <v-divider class="my-2" :thickness="2"></v-divider>
                 <v-sheet>
                     <p class="text-subtitle-2 mb-3">{{ $tr.line("setting.translation") }}</p>
                     <!-- <div class="my-3">
@@ -91,7 +110,7 @@ const emit = defineEmits<{
                         </div>
                     </v-sheet>
                 </v-sheet>
-                <v-btn variant="outlined" class="pa-2 ma-2" block>
+                <v-btn variant="tonal" class="pa-2 ma-2" block>
                     <v-sheet class="text-body-2">{{ translationsStore.groupedTranslationsAuthors }}</v-sheet>
                     <v-menu activator="parent" :close-on-content-click="false">
                         <v-list lines="two">

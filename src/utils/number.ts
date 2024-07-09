@@ -67,11 +67,13 @@ export const getPageNumberFromIndexAndPerPage = (
 export const localizeNumber = (number: number | string, locale?: string) => {
   if (typeof number === "string") {
     const regex = /[\-\:]/g;
-    if (number.match(regex)) {
-      const parts = number.split("-");
+    const match = number.match(regex);
+    if (match) {
+      const char = match[0];
+      const parts = number.split(char);
       const part_1 = Number(parts[0]).toLocaleString(getLangFullLocale(locale));
       const part_2 = Number(parts[1]).toLocaleString(getLangFullLocale(locale));
-      const result = part_1.concat("-", part_2);
+      const result = part_1.concat(char, part_2);
       return result;
     } else {
       return Number(number).toLocaleString(getLangFullLocale(locale));
