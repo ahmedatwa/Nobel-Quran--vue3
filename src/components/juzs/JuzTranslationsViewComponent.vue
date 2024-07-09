@@ -23,8 +23,8 @@ const intersectingChapterId = ref<number>()
 const currentChapterId = ref<number>()
 
 const defaultStyles = reactive({
-  fontSize: "var(--quran-font-size-3)",
-  fontFamily: "var(--quran-font-family-amiri)"
+    fontSize: "var(--quran-font-size-3)",
+    fontFamily: "var(--quran-font-family-amiri)"
 })
 
 const props = defineProps<{
@@ -260,7 +260,10 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                                 <v-list-item-title class="word" :id="`word-tooltip${word.id}`"
                                     :data-verse-key="verse.verse_key"
                                     :class="isWordHighlighted(word.location, word.verse_key) ? 'text-blue' : ''">
-                                    <h3 :style="[defaultStyles, cssVars]">{{ word.text_uthmani }}
+                                    <h3 v-if="word.char_type_name === 'end'">
+                                        ({{ word.text_uthmani }})
+                                    </h3>
+                                    <h3 :style="[defaultStyles, cssVars]" v-else>{{ word.text_uthmani }}
                                         <v-tooltip activator="parent" :target="`#target${word.id}`"
                                             v-if="audioExperience.tooltip"
                                             :model-value="isWordHighlighted(word.location, word.verse_key)"
