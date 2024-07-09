@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 // stores
 import { useAudioPlayerStore } from "@/stores";
 // components
@@ -10,6 +10,7 @@ const audioPlayerStore = useAudioPlayerStore()
 const mediaVolume = ref(1)
 const dialog = ref(false)
 const play = ref(false)
+const volumeIcon = ref("mdi-volume-high")
 
 const emit = defineEmits<{
     "update:isAudio": [value: { audioID: number, verseKey?: string, format?: string, isPlaying?: boolean } | null]
@@ -41,6 +42,15 @@ const isPreviousAyahDisabled = computed(() => {
 })
 
 
+watch(mediaVolume, (newVol) => {
+    if (newVol === 0) {
+        volumeIcon.value = "mdi-volume-off"
+    } else if (newVol <= 0.6 && newVol > 0) {
+        volumeIcon.value = "mdi-volume-medium"
+    } else if (newVol > 0.6) {
+        volumeIcon.value = "mdi-volume-high"
+    }
+})
 
 </script>
 <template>
@@ -86,17 +96,17 @@ const isPreviousAyahDisabled = computed(() => {
         <!-- Volume -->
         <v-menu>
             <template v-slot:activator="{ props }">
-                <v-btn :icon="isMuted ? 'mdi-volume-off' : 'mdi-volume-high'" v-bind="props" density="compact"
+                <v-btn :icon="volumeIcon" v-bind="props" density="compact"
                     variant="text">
                 </v-btn>
             </template>
             <v-card min-width="250">
-                <v-list >
-                    <v-list-item >
-                    <v-slider v-model="mediaVolume" :step="0.1" :max="1" :min="0" class="mx-4"
-                        @update:modelValue="$emit('update:changeMediaVolume', $event)" hide-details>
-                    </v-slider>
-                </v-list-item>
+                <v-list>
+                    <v-list-item>
+                        <v-slider v-model="mediaVolume" :step="0.1" :max="1" :min="0" class="mx-4"
+                            @update:modelValue="$emit('update:changeMediaVolume', $event)" hide-details>
+                        </v-slider>
+                    </v-list-item>
                 </v-list>
             </v-card>
         </v-menu>

@@ -1,16 +1,19 @@
 import { defineStore } from "pinia";
 import { ref, onMounted, computed } from "vue";
-// stores
-import { useChapterStore } from "@/stores";
+// utils
+import { getChapterNameByChapterId } from "@/utils/chapter";
 //axios
 import { instance, makeGetAudioRecitersUrl } from "@/axios";
 import { makeGetRecitationsUrl } from "@/axios";
 // types
 import type { AudioFile, Recitations } from "@/types/audio";
-import type { mapRecitions, VerseTimingsProps, PlayAudioEmitEvent } from "@/types/audio";
+import type {
+  mapRecitions,
+  VerseTimingsProps,
+  PlayAudioEmitEvent,
+} from "@/types/audio";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
-  const chapterStore = useChapterStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
@@ -55,11 +58,9 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   });
 
   const chapterName = computed(() => {
-    if (audioFiles.value) {
-      const found = chapterStore.chaptersList?.find(
-        (s) => s.id === chapterId.value
-      );
-      if (found) return found.nameSimple;
+    const chapter = getChapterNameByChapterId(chapterId.value);
+    if (chapter) {
+      return chapter.nameSimple;
     }
   });
 
