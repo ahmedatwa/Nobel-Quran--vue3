@@ -206,7 +206,8 @@ watchEffect(() => {
           <v-col class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1"
             :cols="$vuetify.display.smAndDown ? '12' : '1'">
             <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)" size="small"
-              :is-audio-player="isAudioPlaying" :verse="verse" @update:bookmarked="setBookmarked">
+              :is-audio-player="isAudioPlaying" :verse="verse" :audio-src="`chapter-translations-${chapterAudioId}`"
+               @update:bookmarked="setBookmarked">
             </buttons-action-list-component>
           </v-col>
 

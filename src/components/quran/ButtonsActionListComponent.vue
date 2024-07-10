@@ -16,6 +16,7 @@ const props = defineProps<{
     verse: Verse
     isAudioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
     size?: string
+    audioSrc: string;
 }>()
 
 const emit = defineEmits<{
@@ -53,7 +54,7 @@ const iaPlaying = computed(() => {
         </v-list-item>
         <v-list-item :class="$vuetify.display.smAndDown ? 'float-right' : ''">
             <v-btn :icon="iaPlaying ? 'mdi-pause' : 'mdi-play'" :size="size" variant="text" :key="verse.verse_key"
-                @click="playAudio({ audioID: verse.chapter_id, verseKey: verse.verse_key })" v-tooltip="'Play'"
+                @click="playAudio({ audioID: verse.chapter_id, verseKey: verse.verse_key, audioSrc })" v-tooltip="'Play'"
                 :color="iaPlaying ? 'primary' : ''">
             </v-btn>
         </v-list-item>

@@ -229,7 +229,8 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                     <v-col cols="1" class="action-list" :order="$tr.rtl.value ? 2 : 1">
                         <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)"
                             size="small" :is-audio-player="isAudioPlaying" :verse="verse"
-                            @update:bookmarked="setBookmarked">
+                            @update:bookmarked="setBookmarked"
+                            :audio-src="`page-translations-${pageStore.selectedPage?.pageNumber}`">
                         </buttons-action-list-component>
                     </v-col>
                     <v-col cols="11" class="text-right pt-3" :order="$tr.rtl.value ? 1 : 2">
