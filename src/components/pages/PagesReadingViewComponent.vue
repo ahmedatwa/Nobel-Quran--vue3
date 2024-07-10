@@ -201,7 +201,7 @@ const getStartOfPage = () => {
                                             <div v-if="word.char_type_name === 'end'">
                                                 ({{ word.text_uthmani }})
                                             </div>
-                                            <div v-else>{{ word.text_uthmani }}</div>
+                                            <div :style="[defaultStyles, cssVars]" v-else>{{ word.text_uthmani }}</div>
                                         </div>
                                     </h3>
                                 </div>
