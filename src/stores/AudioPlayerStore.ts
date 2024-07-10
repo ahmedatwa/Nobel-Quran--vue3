@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 // utils
 import { getChapterNameByChapterId } from "@/utils/chapter";
 //axios
@@ -129,19 +129,6 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
       }, {});
     }
   });
-
-  // watch(audioPayLoadSrc, (newSrc) => {
-  //   if (newSrc) {
-  //     if (newSrc.match("chapter")) {
-  //       const split = newSrc.split("-")[1]
-
-  //     } else if (newSrc.match("juz")) {
-  //       console.log(newSrc);
-  //     } else {
-  //       console.log(newSrc);
-  //     }
-  //   }
-  // });
 
   return {
     audioFiles,
