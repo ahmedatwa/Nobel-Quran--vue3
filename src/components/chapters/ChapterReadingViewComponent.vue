@@ -18,7 +18,7 @@ const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
   fontSize: "var(--quran-font-size-3)",
-  fontFamily: "var(--quran-font-family-amiri)"
+  fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 
 const verses = computed(() => {

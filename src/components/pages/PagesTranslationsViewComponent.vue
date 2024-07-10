@@ -18,7 +18,7 @@ const translationsDrawer = inject("translationDrawer")
 const headerData = ref<PageHeaderData | null>(null);
 const defaultStyles = reactive({
     fontSize: "var(--quran-font-size-3)",
-    fontFamily: "var(--quran-font-family-amiri)"
+    fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 /**
  * group verses by chapter id
