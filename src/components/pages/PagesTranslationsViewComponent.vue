@@ -189,8 +189,6 @@ const getStartOfPage = () => {
  * inital header data
  */
 watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
-    console.log(newHeaderData);
-
     if (newHeaderData) {
         headerData.value = newHeaderData
         emit('update:headerData', headerData.value)

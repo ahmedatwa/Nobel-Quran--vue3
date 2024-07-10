@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, inject, nextTick, reactive } from "vue";
+import { ref, computed, inject } from "vue";
+import { nextTick, reactive, watch } from "vue";
 // stores
 import { usePageStore } from "@/stores";
 // components
@@ -157,6 +158,16 @@ const getStartOfPage = () => {
         scrollToElement(`#row${getFirstVerseRow.value}`)
     }
 }
+
+/**
+ * inital header data
+ */
+watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
+    if (newHeaderData) {
+        headerData.value = newHeaderData
+        emit('update:headerData', headerData.value)
+    }
+}, { once: true })
 </script>
 
 <template>
