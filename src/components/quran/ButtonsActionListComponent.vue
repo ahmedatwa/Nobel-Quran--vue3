@@ -4,13 +4,13 @@ import { computed, ref } from "vue"
 import { TafsirDialogComponent } from '@/components/tafsir';
 // types
 import type { Verse } from "@/types"
-import type { PlayAudioEmitEvent } from "@/types/audio";
+import type { PlayAudioEmit } from "@/types/audio";
 // utils
 import { localizeNumber } from "@/utils/number";
 
 const isCopied = ref(false)
 const tafsirDialog = ref(false)
-const activeAudioData = ref<PlayAudioEmitEvent>()
+const activeAudioData = ref<PlayAudioEmit>()
 
 const props = defineProps<{
     verse: Verse
@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    "update:playAudio": [value: PlayAudioEmitEvent]
+    "update:playAudio": [value: PlayAudioEmit]
     "update:bookmarked": [value: number]
 }>()
 
@@ -28,7 +28,7 @@ const copyText = (text: string) => {
     isCopied.value = true
 }
 
-const playAudio = (event: PlayAudioEmitEvent) => {
+const playAudio = (event: PlayAudioEmit) => {
     activeAudioData.value = event
     emit("update:playAudio", event)
 }
