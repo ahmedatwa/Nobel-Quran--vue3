@@ -6,7 +6,6 @@ import type { Recitations } from '@/types/audio';
 // Store
 import { useSettingStore } from '@/stores';
 
-
 const { audioPlayerSetting } = useSettingStore()
 
 const emit = defineEmits<{

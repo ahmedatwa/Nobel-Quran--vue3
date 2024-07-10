@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 // utils
 import { getChapterNameByChapterId } from "@/utils/chapter";
 //axios
@@ -10,7 +10,7 @@ import type { AudioFile, Recitations } from "@/types/audio";
 import type {
   mapRecitions,
   VerseTimingsProps,
-  PlayAudioEmitEvent,
+  PlayAudioEmit,
 } from "@/types/audio";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
@@ -18,6 +18,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
   const chapterId = ref<number>(0);
+  const audioPayLoadSrc = ref<string | undefined>("");
   const selectedVerseKey = ref<string | undefined>("");
   const selectedReciter = ref<Recitations>({
     id: 7,
@@ -55,6 +56,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     verseNumber: 0,
     inRange: false,
     wordLocation: "",
+    audioSrc: "",
   });
 
   const chapterName = computed(() => {
@@ -64,12 +66,12 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     }
   });
 
-  const getAudio = async (payload: PlayAudioEmitEvent) => {
+  const getAudio = async (payload: PlayAudioEmit) => {
     //https://api.qurancdn.com/api/qdc/audio/reciters/9/audio_files?chapter=1&segments=true
     // if (payload.audioID === chapterId.value) return;
     chapterId.value = payload.audioID;
     selectedVerseKey.value = payload.verseKey;
-
+    audioPayLoadSrc.value = payload.audioSrc;
     isLoading.value = true;
     await instance
       .get(makeGetAudioRecitersUrl(selectedReciter.value.id, payload.audioID))
@@ -128,6 +130,19 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     }
   });
 
+  // watch(audioPayLoadSrc, (newSrc) => {
+  //   if (newSrc) {
+  //     if (newSrc.match("chapter")) {
+  //       const split = newSrc.split("-")[1]
+
+  //     } else if (newSrc.match("juz")) {
+  //       console.log(newSrc);
+  //     } else {
+  //       console.log(newSrc);
+  //     }
+  //   }
+  // });
+
   return {
     audioFiles,
     isLoading,
@@ -140,6 +155,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     selectedVerseKey,
     mapRecitions,
     verseTiming,
+    audioPayLoadSrc,
     getRecitations,
     getAudio,
     getRecition,

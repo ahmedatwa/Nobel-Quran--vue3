@@ -5,7 +5,7 @@ import { TitleButtonsComponent } from "@/components/quran"
 // types
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz"
 import type { MapVersesByPage } from "@/types/verse";
-import type { VerseTimingsProps } from "@/types/audio";
+import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
 import { getChapterNameByJuzId } from "@/utils/juz"
@@ -21,19 +21,19 @@ const verses = computed(() => {
 })
 
 const defaultStyles = reactive({
-  fontSize: "var(--quran-font-size-3)",
-  fontFamily: "var(--quran-font-family-amiri)"
+    fontSize: "var(--quran-font-size-3)",
+    fontFamily: "var(--quran-font-family-amiri)"
 })
 
 const emit = defineEmits<{
-    "update:playAudio": [value: { audioID: number, verseKey?: string }]
+    "update:playAudio": [value: PlayAudioEmit]
     "update:headerData": [value: JuzHeaderData | null]
     "update:manualIntersecting": [value: JuzVersesIntersecting]
 }>()
 
 const props = defineProps<{
     audioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
-    verseTiming: VerseTimingsProps
+    verseTiming?: VerseTimingsProps
     cssVars?: Record<"fontSize" | "fontFamily", string>
     selectedJuzTab: string
 }>()
@@ -113,9 +113,9 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                         <v-row v-for="(verses, page, index) in mapVersesByPage" :key="page" :data-page-id="page"
                             class="verse-row" no-gutters justify="center" :align="'start'">
                             <v-col cols="12">
-
                                 <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="1"
-                                    @update:play-audio="$emit('update:playAudio', $event)" isInfoDialog>
+                                    @update:play-audio="$emit('update:playAudio', $event)"
+                                    :audio-src="`juz-reading-${juzStore.selectedJuz?.id}`" isInfoDialog>
                                     <template #title>
                                         <h2>{{ $tr.rtl
                                             ? getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.nameArabic
@@ -178,5 +178,4 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
 :deep(.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line) {
     padding-inline: 0px
 }
-
 </style>

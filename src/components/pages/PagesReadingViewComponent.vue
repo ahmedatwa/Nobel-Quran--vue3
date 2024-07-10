@@ -6,7 +6,7 @@ import { usePageStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran"
 // types
 import type { PageHeaderData } from "@/types/page"
-import { VerseTimingsProps } from "@/types/audio";
+import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
 import { getChapterNameByChapterId } from "@/utils/chapter"
@@ -43,7 +43,7 @@ const defaultStyles = reactive({
 //     return 0
 // })
 const emit = defineEmits<{
-    "update:playAudio": [value: { audioID: number, verseKey?: string }]
+    "update:playAudio": [value: PlayAudioEmit]
     "update:headerData": [value: PageHeaderData]
     "update:intersectingPageVerseNumber": [value: number]
     "update:activePageNumber": [value: number]
@@ -52,7 +52,7 @@ const emit = defineEmits<{
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
     groupedTranslationsAuthors?: string;
-    verseTiming: VerseTimingsProps;
+    verseTiming?: VerseTimingsProps;
     audioExperience: { autoScroll: boolean, tooltip: boolean }
     cssVars?: Record<"fontSize" | "fontFamily", string>
 }>()
@@ -169,7 +169,8 @@ const getStartOfPage = () => {
                             :data-chapter-id="chapterId" class="verse-row" no-gutters justify="center" :align="'start'">
                             <v-col cols="12">
                                 <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors"
-                                    :chapter-id="1" :is-audio-player="isAudioPlaying"
+                                    :chapter-id="chapterId" :is-audio-player="isAudioPlaying"
+                                    :audio-src="`page-reading-${pageStore.selectedPage?.pageNumber}`"
                                     @update:translations-drawer="translationsDrawer = $event"
                                     @update:play-audio="$emit('update:playAudio', $event)">
                                     <template #title>

@@ -13,7 +13,7 @@ import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 
 // types
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
-import type { VerseTimingsProps } from "@/types/audio";
+import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 import { _range } from "@/utils/number";
 
 const juzStore = useJuzStore()
@@ -33,14 +33,14 @@ const defaultStyles = reactive({
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
     groupedTranslationsAuthors?: string;
-    verseTiming: VerseTimingsProps
+    verseTiming?: VerseTimingsProps
     audioExperience: { autoScroll: boolean, tooltip: boolean }
     cssVars?: Record<"fontSize" | "fontFamily", string>
     selectedJuzTab: string
 }>()
 
 const emit = defineEmits<{
-    "update:playAudio": [value: { audioID: number, verseKey?: string }]
+    "update:playAudio": [value: PlayAudioEmit]
     "update:headerData": [value: JuzHeaderData | null]
     "update:manualIntersecting": [value: JuzVersesIntersecting]
     "update:activeJuzNumber": [value: number]
@@ -57,7 +57,7 @@ const getCurrentJuzNumber = computed((): number => {
 const onIntersect = (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     let newHeaderData: JuzHeaderData | null = null
-    if (intersecting && props.selectedJuzTab === "translationsTab" && entries[0].intersectionRatio === 1) {
+    if (intersecting && props.selectedJuzTab === "juzTranslationsTab" && entries[0].intersectionRatio === 1) {
         // Verse Id is used here as key won't be efficient for scroll
         intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseId)
         const chapterId: number = entries[0].target.dataset.chapterId
@@ -98,38 +98,39 @@ const setBookmarked = (verseNumber: number) => {
 
 // Highlight Active Words
 const isWordHighlighted = (location: string, verseKey: string) => {
-    if (props.verseTiming && props.selectedJuzTab === "translationsTab")
+    if (props.verseTiming && props.selectedJuzTab === "juzTranslationsTab")
         return props.verseTiming.wordLocation === location && verseKey === props.verseTiming.verseKey
 }
 
 // watchers
 // auto mode with verse timing and feed header data
 watchEffect(() => {
-    if (props.verseTiming.verseKey) {
-        if (props.audioExperience.autoScroll) {
-            const el = document.querySelector(`#verse-word${props.verseTiming.verseKey}`) as HTMLDivElement
-            if (!isInViewport(el)) {
-                let newHeaderData: JuzHeaderData | null = null
-                const chapterId = el.getAttribute("data-chapter-id") || null
-                newHeaderData = {
-                    left: getChapterNameByJuzId(getCurrentJuzNumber.value, chapterId ? Number(chapterId) : 0),
-                    right: {
-                        pageNumber: el.getAttribute("data-page-number") || '',
-                        hizbNumber: el.getAttribute("data-hizb-number") || '',
-                        juzNumber: getCurrentJuzNumber.value,
+    if (props.verseTiming) {
+        if (props.selectedJuzTab === "juzTranslationsTab") {
+            if (props.audioExperience.autoScroll) {
+                const el = document.querySelector(`#verse-word${props.verseTiming.verseKey}`) as HTMLDivElement
+                if (!isInViewport(el)) {
+                    let newHeaderData: JuzHeaderData | null = null
+                    const chapterId = el.getAttribute("data-chapter-id") || null
+                    newHeaderData = {
+                        left: getChapterNameByJuzId(getCurrentJuzNumber.value, chapterId ? Number(chapterId) : 0),
+                        right: {
+                            pageNumber: el.getAttribute("data-page-number") || '',
+                            hizbNumber: el.getAttribute("data-hizb-number") || '',
+                            juzNumber: getCurrentJuzNumber.value,
+                        }
                     }
-                }
 
-                // emit header Data
-                if (newHeaderData !== headerData.value) {
-                    headerData.value = newHeaderData
-                    emit('update:headerData', headerData.value)
-                }
+                    // emit header Data
+                    if (newHeaderData !== headerData.value) {
+                        headerData.value = newHeaderData
+                        emit('update:headerData', headerData.value)
+                    }
 
-                // Scroll into View
-                if (props.isAudioPlaying?.isPlaying) {
-                    scrollToElement(`#verse-word${props.verseTiming.verseKey}`)
-                    el?.scrollIntoView({ behavior: "smooth", block: "center" })
+                    // Scroll into View
+                    if (props.isAudioPlaying?.isPlaying) {
+                        scrollToElement(`#verse-word${props.verseTiming.verseKey}`)
+                    }
                 }
             }
         }
@@ -156,8 +157,7 @@ const getNextJuz = async () => {
         // scroll to first verese row 
         const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
         nextTick(() => {
-            const el = document.querySelector(`#row${rowID}`)
-            if (el) el.scrollIntoView({ behavior: "auto", block: "center" })
+            scrollToElement(`#row${rowID}`)
         })
     }
 }
@@ -181,8 +181,7 @@ const getPrevJuz = async () => {
         // scroll to first verese row 
         const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
         nextTick(() => {
-            const el = document.querySelector(`#row${rowID}`)
-            if (el) el.scrollIntoView({ behavior: "auto", block: "center" })
+            scrollToElement(`#row${rowID}`)
         })
     }
 }
@@ -191,8 +190,7 @@ const getStartOfJuz = () => {
     if (juzStore.selectedJuz) {
         const rowID = getFirstVerseNumberInJuz(juzStore.selectedJuz.verse_mapping)
         if (rowID) {
-            const el = document.querySelector(`#row${rowID}`)
-            if (el) el.scrollIntoView({ behavior: "auto", block: "center" })
+            scrollToElement(`#row${rowID}`)
         }
     }
 }
@@ -227,20 +225,21 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
 
 <template>
     <v-container fluid class="smooth-scroll-behaviour" id="juz-translations-container">
-        <v-row :align="'center'" justify="center" dense v-for="(verses, key) in juzStore.juzVersesByChapterMap"
-            :key="key" :id="`verse-row${key}`">
+        <v-row :align="'center'" justify="center" dense v-for="(verses, chapterId) in juzStore.juzVersesByChapterMap"
+            :key="chapterId" :id="`verse-row${chapterId}`">
             <v-col cols="12">
-                <title-buttons-component :chapter-id="Number(key)"
+                <title-buttons-component :chapter-id="Number(chapterId)"
                     :grouped-translations-authors="groupedTranslationsAuthors" :is-audio-player="isAudioPlaying"
                     @update:translations-drawer="translationsDrawer = $event"
+                    :audio-src="`juz-Translations-${juzStore.selectedJuz?.id}`"
                     @update:play-audio="$emit('update:playAudio', $event)">
                     <template #title>
-                        <h2>{{ getChapterName(key)?.ar }}</h2>
-                        <h3>{{ getChapterName(key)?.bismillah ? $tr.line("quranReader.textBismillah") : '' }}</h3>
+                        <h2>{{ getChapterName(chapterId)?.ar }}</h2>
+                        <h3>{{ getChapterName(chapterId)?.bismillah ? $tr.line("quranReader.textBismillah") : '' }}</h3>
                     </template>
                 </title-buttons-component>
             </v-col>
-            <v-col cols="12" :id="`verse-col-${key}`">
+            <v-col cols="12" :id="`verse-col-${chapterId}`">
                 <v-row v-for="(verse, __index) in verses" :key="verse.verse_number"
                     :data-hizb-number="verse.hizb_number" :data-verse-number="verse.verse_number"
                     :id="`row${verse.verse_number}`" :data-verse-id="verse.id" :data-page-number="verse.page_number"

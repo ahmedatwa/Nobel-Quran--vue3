@@ -8,7 +8,7 @@ import { TitleButtonsComponent } from "@/components/quran";
 import { ButtonsActionListComponent } from "@/components/quran";
 // types
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
-import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmitEvent } from "@/types/audio"
+import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 import { setStorage } from "@/utils/storage";
@@ -45,14 +45,14 @@ const props = defineProps<{
   isTranslationsView: boolean;
   isAudioPlaying: IsAudioPlayingProps
   groupedTranslationsAuthors?: string;
-  verseTiming: VerseTimingsProps
+  verseTiming?: VerseTimingsProps
   audioExperience: { autoScroll: boolean; tooltip: boolean };
   cssVars?: Record<"fontSize" | "fontFamily", string>
   selectedVerseNumber?: number;
 }>();
 
 const emit = defineEmits<{
-  "update:playAudio": [value: PlayAudioEmitEvent];
+  "update:playAudio": [value: PlayAudioEmit];
   "update:headerData": [value: ChapterHeaderData];
   "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
@@ -115,7 +115,7 @@ const isWordHighlighted = (location: string, verseKey: string) => {
 // watchers
 // auto mode with verse timing and feed header data
 watchEffect(() => {
-  if (props.verseTiming.verseNumber) {
+  if (props.verseTiming) {
     if (props.audioExperience.autoScroll) {
       const el = document.querySelector(`#verse-row-${props.verseTiming.verseNumber}`) as HTMLDivElement
       let newHeaderData: ChapterHeaderData | null = null
@@ -190,7 +190,7 @@ watchEffect(() => {
       <v-col cols="12">
         <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors" :chapter-id="chapterAudioId"
           :is-audio-player="isAudioPlaying" @update:translations-drawer="translationsDrawer = $event"
-          @update:play-audio="$emit('update:playAudio', $event)">
+          :audio-src="`chapter-translations-${chapterAudioId}`" @update:play-audio="$emit('update:playAudio', $event)">
         </title-buttons-component>
       </v-col>
       <v-col cols="12" class="mb-2" v-for="verse in verses" :key="verse.verse_key" :data-hizb-number="verse.hizb_number"

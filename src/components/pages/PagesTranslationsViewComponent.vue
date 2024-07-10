@@ -7,7 +7,7 @@ import { usePageStore } from "@/stores";
 import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/quran"
 // types
 import type { PageHeaderData, GroupVersesByChapterID } from "@/types/page";
-import { VerseTimingsProps } from "@/types/audio";
+import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 import { getChapterNameByChapterId } from "@/utils/chapter"
@@ -42,13 +42,13 @@ const groupVersesByChapter = computed(() => {
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
     groupedTranslationsAuthors?: string;
-    verseTiming: VerseTimingsProps;
+    verseTiming?: VerseTimingsProps;
     audioExperience: { autoScroll: boolean, tooltip: boolean }
     cssVars?: Record<"fontSize" | "fontFamily", string>
 }>()
 
 const emit = defineEmits<{
-    "update:playAudio": [value: { audioID: number, verseKey?: string }]
+    "update:playAudio": [value: PlayAudioEmit]
     "update:headerData": [value: PageHeaderData]
     "update:intersectingPageVerseNumber": [value: number]
     "update:activePageNumber": [value: number]
@@ -103,7 +103,7 @@ const getFirstVerseRow = computed(() => {
 // watchers
 // auto mode with verse timing and feed header data
 watchEffect(async () => {
-    if (props.verseTiming.verseKey) {
+    if (props.verseTiming) {
         if (props.audioExperience.autoScroll) {
             const el = document.querySelector(`#verse-word${props.verseTiming.verseKey}`) as HTMLDivElement
             if (!isInViewport(el)) {
@@ -203,9 +203,11 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
         <v-row :align="'center'" justify="center" dense v-for="(verses, chapterId) in groupVersesByChapter"
             :key="chapterId">
             <v-col cols="12">
-                <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors" :chapter-id="1"
-                    :is-audio-player="isAudioPlaying" @update:translations-drawer="translationsDrawer = $event"
-                    @update:play-audio="$emit('update:playAudio', $event)">
+                <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors"
+                    :chapter-id="chapterId" :is-audio-player="isAudioPlaying"
+                    @update:translations-drawer="translationsDrawer = $event"
+                    @update:play-audio="$emit('update:playAudio', $event)"
+                    :audio-src="`page-translations-${pageStore.selectedPage?.pageNumber}`">
                     <template #title>
                         <h2>{{ getChapterNameByChapterId(chapterId)?.nameArabic }}</h2>
                         <h3>{{ getChapterNameByChapterId(chapterId)?.bismillahPre ?

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect, computed } from 'vue';
 // stores
 import { useAudioPlayerStore, usePageStore, useTranslationsStore, useSettingStore } from "@/stores";
 // components
 import { PagesTranslationsViewComponent, PagesReadingViewComponent } from '@/components/pages';
 // types
 import type { PageHeaderData } from '@/types/page';
+import { PlayAudioEmit } from "@/types/audio";
 
 // Stores
 const pageStore = usePageStore()
@@ -25,7 +26,7 @@ const props = defineProps<{
 const emit = defineEmits<{
     "update:headerData": [value: PageHeaderData]
     "update:activePageNumber": [value: number]
-    "update:playAudio": [value: { audioID: number, verseKey?: string }]
+    "update:playAudio": [value: PlayAudioEmit]
     "update:intersectingPageVerseNumber": [value: number]
 }>()
 
@@ -36,7 +37,22 @@ watchEffect(() => {
     }
 })
 
+const pageTranslationsVerseTiming = computed(() => {
+    if (audioPlayerStore.verseTiming) {
+        if (audioPlayerStore.verseTiming.audioSrc === `page-translations-${pageStore.selectedPage?.pageNumber}`) {
+            return audioPlayerStore.verseTiming
+        }
+    }
+})
 
+const pageReadingVerseTiming = computed(() => {
+    if (audioPlayerStore.verseTiming) {
+        if (audioPlayerStore.verseTiming.audioSrc === `page-reading-${pageStore.selectedPage?.pageNumber}`) {
+            return audioPlayerStore.verseTiming
+        }
+    }
+
+})
 
 </script>
 <template>
@@ -54,7 +70,7 @@ watchEffect(() => {
                 <pages-translations-view-component :is-audio-playing="audioPlayer"
                     :audio-experience="audioPlayerSetting" :css-vars="cssVars"
                     :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
-                    :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
+                    :verse-timing="pageTranslationsVerseTiming" @update:header-data="emit('update:headerData', $event)"
                     @update:intersecting-page-verse-number="emit('update:intersectingPageVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)"
                     @update:active-page-number="$emit('update:activePageNumber', $event)">
@@ -62,7 +78,7 @@ watchEffect(() => {
             </v-tabs-window-item>
             <v-tabs-window-item value="readingTab">
                 <pages-reading-view-component :is-audio-playing="audioPlayer" :css-vars="cssVars"
-                    :audio-experience="audioPlayerSetting" :verse-timing="audioPlayerStore.verseTiming"
+                    :audio-experience="audioPlayerSetting" :verse-timing="pageReadingVerseTiming"
                     @update:header-data="emit('update:headerData', $event)"
                     @update:intersecting-page-verse-number="emit('update:intersectingPageVerseNumber', $event)"
                     @update:play-audio="emit('update:playAudio', $event)">

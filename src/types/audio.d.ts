@@ -26,6 +26,7 @@ type VerseTimingsProps = {
   verseNumber: number;
   inRange: boolean;
   wordLocation: string;
+  audioSrc?: string;
 };
 
 interface Recitations {
@@ -57,7 +58,7 @@ type IsAudioPlayingProps = {
   format?: string;
 } | null;
 
-type PlayAudioEmitEvent = { audioID: number; verseKey?: string };
+type PlayAudioEmit = { audioID: number; audioSrc?: string; verseKey?: string };
 
 export {
   VerseTimings,
@@ -66,5 +67,5 @@ export {
   mapRecitions,
   VerseTimingsProps,
   IsAudioPlayingProps,
-  PlayAudioEmitEvent,
+  PlayAudioEmit,
 };

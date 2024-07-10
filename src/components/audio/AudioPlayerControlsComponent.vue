@@ -41,6 +41,10 @@ const isPreviousAyahDisabled = computed(() => {
         return audioPlayerStore.chapterId <= 1 ? true : false
 })
 
+const playAudio = () => {
+    play.value = !play.value
+    emit('update:playAudio', play.value)
+}
 
 watch(mediaVolume, (newVol) => {
     if (newVol === 0) {
@@ -81,8 +85,8 @@ watch(mediaVolume, (newVol) => {
                 v-tooltip:top="$tr.line('audio.prevAyah')" :disabled="isPreviousAyahDisabled"
                 @click="audioPlayerStore.playPrevious"></v-btn>
             <!-- Play -->
-            <v-btn :loading="audioPlayerStore.isLoading" :icon="isPlaying ? 'mdi-pause' : 'mdi-play'"
-                @click="$emit('update:playAudio', play = !play)" density="compact" class="me-2" variant="text"></v-btn>
+            <v-btn :loading="audioPlayerStore.isLoading" :icon="isPlaying ? 'mdi-pause' : 'mdi-play'" @click="playAudio"
+                density="compact" class="me-2" variant="text"></v-btn>
             <!-- Next Ayah -->
             <v-btn icon="mdi-fast-forward" density="compact" class="me-2" variant="text"
                 v-tooltip:top="$tr.line('audio.nextAyah')" :disabled="isNextAyahDisabled"
@@ -96,8 +100,7 @@ watch(mediaVolume, (newVol) => {
         <!-- Volume -->
         <v-menu>
             <template v-slot:activator="{ props }">
-                <v-btn :icon="volumeIcon" v-bind="props" density="compact"
-                    variant="text">
+                <v-btn :icon="volumeIcon" v-bind="props" density="compact" variant="text">
                 </v-btn>
             </template>
             <v-card min-width="250">

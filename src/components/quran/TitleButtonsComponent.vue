@@ -4,27 +4,29 @@ import { computed, ref } from 'vue';
 import { ChapterInfoComponent } from '@/components/quran';
 // types
 import type { ChapterInfo } from '@/types';
+import { PlayAudioEmit } from "@/types/audio"
 
 const infoDialog = ref(false)
-const activeAudioData = ref<{ audioID: number, verseKey?: string } | null>(null)
+const activeAudioData = ref<{ audioID: number, audioSrc: string, verseKey?: string } | null>(null)
 
 const props = defineProps<{
     groupedTranslationsAuthors?: string,
     isAudioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
     chapterId: number
+    audioSrc: string;
     chapterInfo?: ChapterInfo
     isInfoDialog?: boolean
 }>()
 
 const emit = defineEmits<{
-    "update:playAudio": [value: { audioID: number, verseKey?: string }]
+    "update:playAudio": [value: PlayAudioEmit]
     "update:translationsDrawer": [value: boolean]
     "update:chapterInfoDialog": [value: boolean]
 }>()
 
-const playAudio = (audioID: number, verseKey?: string) => {
-    activeAudioData.value = { audioID, verseKey }
-    emit('update:playAudio', { audioID, verseKey })
+const playAudio = (audioID: number, audioSrc: string, verseKey?: string) => {
+    activeAudioData.value = { audioID, audioSrc, verseKey }
+    emit('update:playAudio', { audioID, audioSrc, verseKey })
 }
 
 const isPlaying = computed(() => {
@@ -60,10 +62,10 @@ const isPlaying = computed(() => {
                     </v-btn>
                 </v-sheet>
             </v-col>
-            <v-col >
+            <v-col>
                 <v-slide-x-reverse-transition>
                     <v-sheet :class="$tr.rtl.value ? 'text-left' : 'text-right'">
-                        <v-btn variant="outlined" @click="playAudio(chapterId)" color="primary">
+                        <v-btn variant="outlined" @click="playAudio(chapterId, audioSrc)" color="primary">
                             <v-icon :icon="isPlaying ? 'mdi-pause' : 'mdi-play'"></v-icon>{{
                                 $tr.line("quranReader.buttonPlay") }}
                         </v-btn>

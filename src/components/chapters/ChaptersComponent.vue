@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { computed, ref, watchEffect } from "vue";
 // stores
 import { useAudioPlayerStore, useChapterStore, useTranslationsStore, useSettingStore } from "@/stores";
 // components
 import { ChapterReadingViewComponent, ChapterTranslationsViewComponent } from "@/components/chapters";
 // types
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
-import type { PlayAudioEmitEvent } from "@/types/audio";
+import type { PlayAudioEmit } from "@/types/audio";
 
 // Stores
 const chapterStore = useChapterStore();
 const translationsStore = useTranslationsStore();
 const audioPlayerStore = useAudioPlayerStore();
 const { audioPlayerSetting } = useSettingStore()
-const tab = ref("translationTab");
+const tab = ref("chaptersTranslationTab");
 
 const props = defineProps<{
   audioPlayer: { audioID: number; isPlaying?: boolean; format?: string } | null;
@@ -24,9 +24,25 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "update:headerData": [value: ChapterHeaderData];
-  "update:playAudio": [value: PlayAudioEmitEvent];
+  "update:playAudio": [value: PlayAudioEmit];
   "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
+
+const chapterTranslationsVerseTiming = computed(() => {
+  if (audioPlayerStore.verseTiming) {
+    if (audioPlayerStore.verseTiming.audioSrc === `chapter-translations-${chapterStore.selectedChapter?.id}`) {
+      return audioPlayerStore.verseTiming
+    }
+  }
+})
+
+const chapterReadingVerseTiming = computed(() => {
+  if (audioPlayerStore.verseTiming) {
+    if (audioPlayerStore.verseTiming.audioSrc === `chapter-reading-${chapterStore.selectedChapter?.id}`) {
+      return audioPlayerStore.verseTiming
+    }
+  }
+})
 
 
 /**
@@ -54,25 +70,25 @@ watchEffect(async () => {
   <v-card v-show="selected" class="ma-3" :elevation="1"
     :id="`quran-reader-content-surah${chapterStore.selectedChapter?.id}`" :key="chapterStore.selectedChapter?.id">
     <v-tabs v-model="tab" align-tabs="center" color="primary" grow>
-      <v-tab value="translationTab" prepend-icon="mdi-book-open">
+      <v-tab value="chaptersTranslationTab" prepend-icon="mdi-book-open">
         {{ $tr.line("quranReader.textTranslation") }}</v-tab>
-      <v-tab value="readingTab" prepend-icon="mdi-translate-variant">
+      <v-tab value="chaptersReadingTab" prepend-icon="mdi-translate-variant">
         {{ $tr.line("quranReader.textReading") }}</v-tab>
     </v-tabs>
     <v-tabs-window v-model="tab">
-      <v-tabs-window-item value="translationTab" class="mx-5">
+      <v-tabs-window-item value="chaptersTranslationTab" class="mx-5">
         <chapter-translations-view-component :is-audio-playing="audioPlayer"
-          :is-translations-view="tab === 'translationTab'" :audio-experience="audioPlayerSetting"
+          :is-translations-view="tab === 'chaptersTranslationTab'" :audio-experience="audioPlayerSetting"
           :selected-verse-Number="selectedVerseNumber" :css-vars="cssVars"
           :grouped-translations-authors="translationsStore.groupedTranslationsAuthors"
-          :verse-timing="audioPlayerStore.verseTiming" @update:header-data="emit('update:headerData', $event)"
+          :verse-timing="chapterTranslationsVerseTiming" @update:header-data="emit('update:headerData', $event)"
           @update:manual-intersecting-mode=" emit('update:manualIntersectingMode', $event)"
           @update:play-audio="emit('update:playAudio', $event)">
         </chapter-translations-view-component>
       </v-tabs-window-item>
-      <v-tabs-window-item value="readingTab">
+      <v-tabs-window-item value="chaptersReadingTab">
         <chapter-reading-view-component :is-audio-playing="audioPlayer" :css-vars="cssVars"
-          :verse-timing="audioPlayerStore.verseTiming" :is-reading-view="tab === 'readingTab'"
+          :verse-timing="chapterReadingVerseTiming" :is-reading-view="tab === 'chaptersReadingTab'"
           :audio-experience="audioPlayerSetting" @update:header-data="emit('update:headerData', $event)"
           @update:manual-intersecting-mode="emit('update:manualIntersectingMode', $event)"
           :selected-verse-Number="selectedVerseNumber" @update:play-audio="emit('update:playAudio', $event)">
@@ -88,9 +104,3 @@ watchEffect(async () => {
     </v-card-actions>
   </v-card>
 </template>
-<style lang="scss">
-@use '../../assets/settings';
-
-// .loading {
-//   height: settings.$skeleton-loader-text-height;
-// }</style>

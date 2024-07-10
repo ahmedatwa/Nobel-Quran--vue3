@@ -7,7 +7,7 @@ import { TitleButtonsComponent } from "@/components/quran";
 // types
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
 import type { MapVersesByPage } from "@/types/verse";
-import type { VerseTimingsProps, IsAudioPlayingProps } from "@/types/audio"
+import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 
@@ -37,7 +37,7 @@ const chapterAudioId = computed(() => {
 });
 
 const emit = defineEmits<{
-  "update:playAudio": [value: { audioID: number; verseKey?: string }];
+  "update:playAudio": [value: PlayAudioEmit];
   "update:headerData": [value: ChapterHeaderData];
   "update:manualIntersectingMode": [value: ManualIntersectingMode];
 }>();
@@ -46,7 +46,7 @@ const props = defineProps<{
   isReadingView: boolean;
   isAudioPlaying: IsAudioPlayingProps
   audioExperience: { autoScroll: boolean; tooltip: boolean };
-  verseTiming: VerseTimingsProps
+  verseTiming?: VerseTimingsProps
   cssVars?: Record<"fontSize" | "fontFamily", string>
   selectedVerseNumber?: number;
 }>();
@@ -129,7 +129,7 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
 
 // auto mode with verse timing and feed header data
 watchEffect(async () => {
-  if (props.verseTiming.verseNumber) {
+  if (props.verseTiming) {
     if (props.audioExperience.autoScroll) {
       const el = document.querySelector(`#line-${props.verseTiming.verseNumber}`) as HTMLDivElement
       let newHeaderData: ChapterHeaderData | null = null
@@ -179,7 +179,8 @@ watchEffect(() => {
     <v-row justify="center" :align="'center'" no-gutters>
       <v-col cols="12">
         <title-buttons-component :is-audio-player="isAudioPlaying" :chapter-id="chapterAudioId"
-          @update:play-audio="$emit('update:playAudio', $event)" isInfoDialog>
+          @update:play-audio="$emit('update:playAudio', $event)" :audio-src="`chapter-reading-${chapterAudioId}`"
+          isInfoDialog>
         </title-buttons-component>
       </v-col>
       <v-card width="auto" flat class="quran-reader-container">
