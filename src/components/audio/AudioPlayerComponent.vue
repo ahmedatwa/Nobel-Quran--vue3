@@ -45,7 +45,8 @@ const loopAudio = ref("none")
 const currentTimestamp = ref(0)
 
 
-const verseTiming = computed((): VerseTimings[] | undefined => {
+// get verse timing
+const getVerseTiming = computed((): VerseTimings[] | undefined => {
     if (audioPlayerStore.audioFiles) {
         return audioPlayerStore.audioFiles.verse_timings.map((vt) => {
             return {
@@ -102,22 +103,22 @@ watchEffect(() => {
     // emit verse timing data
     const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
 
-    if (verseTiming.value) {
-        const currentVerse = verseTiming.value.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
+    if (getVerseTiming.value) {
+        const currentVerse = getVerseTiming.value.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
 
         if (currentVerse) {
             const isVerseInRange = isCurrentTimeInRange(currentTime, currentVerse?.timestamp_from, currentVerse?.timestamp_to)
             let wordLocation = ""
             //let verseNumber = 0
             if (!isVerseInRange) {
-                const f = verseTiming.value.find((vt) => vt.verse_key === currentVerse.verse_key)
+                const f = getVerseTiming.value.find((vt) => vt.verse_key === currentVerse.verse_key)
                 if (f) {
                     f.inRange = false
                     f.wordLocation
                 }
             } else {
-                if (verseTiming.value) {
-                    verseTiming.value.forEach((vt) => {
+                if (getVerseTiming.value) {
+                    getVerseTiming.value.forEach((vt) => {
                         vt.inRange = isVerseInRange
                         currentVerse.segments.forEach((s: any) => {
                             const isSegmentInRange = isCurrentTimeInRange(currentTime, s[1], s[2])
@@ -446,6 +447,12 @@ const changeMediaVolume = (volume: number) => {
     }
 }
 
+const imageUrlBroken = ref(false)
+
+
+
+
+
 </script>
 
 
@@ -458,22 +465,28 @@ const changeMediaVolume = (volume: number) => {
                 buffer-color="orange" :buffer-value="audioBuffer"
                 :max="audioPlayerStore.audioFiles?.duration"></v-progress-linear>
             <div class="d-flex my-4" :class="$vuetify.display.smAndDown ? 'flex-wrap' : 'justify-space-between'">
-                <div class="ms-3" :class="$vuetify.display.smAndDown ? 'flex-grow-1 flex-shrink-0' : 'order-1'">
-                    <div class="text-body-1 text-truncate">
-                        <div class="text-caption "> {{ audioPlayerStore.chapterName }}</div>
-                        <v-avatar size="x-small"
-                            :image="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`"></v-avatar>
-                        {{ audioPlayerStore.selectedReciter.name }}
+                <div class="ms-3 flex-grow-0 flex-shrink-0 order-1">
+                    <div class="text-body-1">
+                        <div class="text-caption my-auto"> {{ audioPlayerStore.chapterName }}</div>
+                        <div class="text-center" :class="$vuetify.display.smAndDown ? 'd-none' : 'd-inline-block'">
+                            <v-avatar size="x-small">
+                                <v-img :src="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`">
+                                    <template #error>
+                                        <v-img :src="audioPlayerStore.avatarPlaceholder"></v-img>
+                                    </template>
+                                </v-img>
+                            </v-avatar>
+                            {{ audioPlayerStore.selectedReciter.name }}
+                        </div>
                     </div>
 
                 </div>
-                <div :class="$vuetify.display.smAndDown ? 'order-1 flex-grow-1 flex-shrink-0' : 'order-2'">
-                    <audio-player-controls-component :playback-rate="playbackRate" :loop-audio="loopAudio"
-                        :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
-                        @update:is-audio="emit('update:isAudio', $event)"
-                        @update:change-media-volume="changeMediaVolume" @update:mute-audio="muteAudio"
-                        @update:close-player="closePlayer" @update:play-audio="playAudio"
-                        @update:playback-rate="setAudioPlayBackRate">
+                <div class="order-2 flex-grow-1 flex-shrink-0">
+                    <audio-player-controls-component :playback-rate=" playbackRate" :loop-audio="loopAudio"
+                    :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
+                    @update:is-audio="emit('update:isAudio', $event)" @update:change-media-volume="changeMediaVolume"
+                    @update:mute-audio="muteAudio" @update:close-player="closePlayer" @update:play-audio="playAudio"
+                    @update:playback-rate="setAudioPlayBackRate">
                     </audio-player-controls-component>
                     <div autoplay v-if="audioPlayerStore.audioFiles">
                         <audio controls ref="audioPlayerRef" class="d-none" :src="audioPlayerStore.audioFiles.audio_url"
@@ -483,9 +496,10 @@ const changeMediaVolume = (volume: number) => {
                         </audio>
                     </div>
                 </div>
-                <div class="me-3 flex-grow-0 flex-shrink-0 order-3">
+                <div class="me-3 my-auto flex-grow-0 flex-shrink-0 order-3 text-caption">
                     <v-slide-x-reverse-transition>
-                        <v-sheet v-if="elapsedTime" class="pa-2 text-right text-caption">{{ elapsedTime }}</v-sheet>
+                        <v-sheet v-if="elapsedTime" class="pa-2 text-right text-caption">{{ elapsedTime
+                            }}</v-sheet>
                     </v-slide-x-reverse-transition>
                 </div>
             </div>

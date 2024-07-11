@@ -1,10 +1,7 @@
 import axios from "axios";
 
-export const QURAN_API_URL = "https://api.quran.com/api/v4/";
-export const QURAN_QDC_URL = "https://api.qurancdn.com/api/qdc/";
-
 export const instance = axios.create({
-  baseURL: QURAN_API_URL,
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     Accept: "application/json",
   },
@@ -35,7 +32,7 @@ instance.interceptors.response.use(
 
 // Urls
 // Audio
-const audioUrl = QURAN_QDC_URL + "/audio/reciters/";
+const audioUrl = import.meta.env.VITE_API_QDC_URL + "/audio/reciters/";
 export const makeGetAudioRecitersUrl = (
   reciterID: number,
   audioID: number

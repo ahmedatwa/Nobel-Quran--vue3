@@ -145,8 +145,6 @@ const getPrevPage = async () => {
         emit("update:activePageNumber", pageStore.selectedPage.pageNumber)
         // scroll to first verese row 
         if (getFirstVerseRow.value) {
-            console.log(getFirstVerseRow.value);
-
             nextTick(() => {
                 scrollToElement(`#verse-row${getFirstVerseRow.value}`)
             })
@@ -171,7 +169,6 @@ const getNextPage = async () => {
         emit("update:activePageNumber", pageStore.selectedPage.pageNumber)
         // scroll to first verese row 
         if (getFirstVerseRow.value) {
-            console.log(getFirstVerseRow.value);
             nextTick(() => {
                 scrollToElement(`#verse-row${getFirstVerseRow.value}`)
             })

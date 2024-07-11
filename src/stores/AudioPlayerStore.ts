@@ -76,6 +76,8 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     await instance
       .get(makeGetAudioRecitersUrl(selectedReciter.value.id, payload.audioID))
       .then((response) => {
+        // this triggers verseTiming computed func in audioPlayer Component
+        audioFiles.value = null;
         audioFiles.value = response.data.audio_files[0];
       })
       .catch((e) => {
@@ -94,13 +96,13 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
         recitations.value = response.data.reciters;
       })
       .catch((e) => {
-        console.log(e);
+        throw e;
       });
   };
 
-  const getRecition = (reciter: Recitations) => {
+  const getRecition = async (reciter: Recitations) => {
     selectedReciter.value = reciter;
-    getAudio({ audioID: reciter.id });
+    await getAudio({ audioID: chapterId.value });
   };
 
   const playNext = async () => {
@@ -116,8 +118,8 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     }
   };
 
-  onMounted(() => {
-    getRecitations();
+  onMounted(async () => {
+    await getRecitations();
   });
 
   const mapRecitions = computed((): mapRecitions[] | undefined => {
@@ -128,6 +130,20 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
         return o;
       }, {});
     }
+  });
+
+  // in case reciter avatar didn't load
+  const getReciterNameInitials = computed(() => {
+    if (selectedReciter.value) {
+      const split = selectedReciter.value.name.split(" ");
+      return split[0].charAt(0) + split[1].charAt(0);
+    }
+  });
+
+  const avatarPlaceholder = computed(() => {
+    return `${import.meta.env.VITE_AVATAR_PLACEHOLDER_API}?name="${
+      selectedReciter.value.name
+    }`;
   });
 
   return {
@@ -143,6 +159,8 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     mapRecitions,
     verseTiming,
     audioPayLoadSrc,
+    getReciterNameInitials,
+    avatarPlaceholder,
     getRecitations,
     getAudio,
     getRecition,
