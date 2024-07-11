@@ -326,8 +326,6 @@ const loadMetaData = () => {
         { property: "og:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
     ])
 
-    console.log(import.meta.env.MODE);
-
     if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: audioPlayerStore.chapterName,
