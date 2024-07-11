@@ -317,7 +317,7 @@ const loadMetaData = () => {
         { property: "og:audio:title", content: audioPlayerStore.chapterName || "" },
         { property: "og:audio:artist", content: audioPlayerStore.selectedReciter.name || "" },
         { property: "og:audio:type", content: audioPlayerStore.audioFiles?.format || "" },
-        { property: "music:duration", content: audioPlayerStore.audioFiles?.duration || "" },
+        { property: "music:duration", content: audioPlayerStore.audioFiles?.duration.toString() || "" },
         { name: "twitter:title", content: audioPlayerStore.chapterName || "" },
         { name: "twitter:card", content: "summery" },
         { name: "twitter:site", content: "@quran" },
