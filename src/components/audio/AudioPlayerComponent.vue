@@ -447,11 +447,6 @@ const changeMediaVolume = (volume: number) => {
     }
 }
 
-const imageUrlBroken = ref(false)
-
-
-
-
 
 </script>
 
