@@ -460,9 +460,9 @@ const changeMediaVolume = (volume: number) => {
                 buffer-color="orange" :buffer-value="audioBuffer"
                 :max="audioPlayerStore.audioFiles?.duration"></v-progress-linear>
             <div class="d-flex my-4" :class="$vuetify.display.smAndDown ? 'flex-wrap' : 'justify-space-between'">
-                <div class="ms-3 flex-grow-0 flex-shrink-0 order-1">
+                <div class="ms-3 flex-grow-0 flex-shrink-0 order-1 my-auto">
                     <div class="text-body-1">
-                        <div class="text-caption my-auto"> {{ audioPlayerStore.chapterName }}</div>
+                        <div class="text-caption"> {{ audioPlayerStore.chapterName }}</div>
                         <div class="text-center" :class="$vuetify.display.smAndDown ? 'd-none' : 'd-inline-block'">
                             <v-avatar size="x-small">
                                 <v-img :src="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`">
@@ -476,7 +476,7 @@ const changeMediaVolume = (volume: number) => {
                     </div>
 
                 </div>
-                <div class="order-2 flex-grow-1 flex-shrink-0">
+                <div class="order-2 flex-grow-1 flex-shrink-0 my-auto">
                     <audio-player-controls-component :playback-rate=" playbackRate" :loop-audio="loopAudio"
                     :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
                     @update:is-audio="emit('update:isAudio', $event)" @update:change-media-volume="changeMediaVolume"
