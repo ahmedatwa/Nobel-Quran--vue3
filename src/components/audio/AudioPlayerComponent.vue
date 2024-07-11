@@ -309,7 +309,7 @@ const playbackSeek = () => {
 };
 
 const loadMetaData = () => {
-    metaStore.setPageTitle(audioPlayerStore.chapterName || "")
+    metaStore.setPageTitle("Nobel Quran - " + audioPlayerStore.chapterName || "")
     metaStore.setMetaData([
         { name: "og:title", content: audioPlayerStore.chapterName || "" },
         { property: "og:audio", content: audioPlayerStore.audioFiles?.audio_url || "" },
@@ -326,6 +326,8 @@ const loadMetaData = () => {
         { property: "og:image", content: "http://localhost:8100/reciters/6.jpg" },
     ])
 
+    console.log(import.meta.env.MODE);
+    
     if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: audioPlayerStore.chapterName,
@@ -333,7 +335,7 @@ const loadMetaData = () => {
             album: "Quran",
             artwork: [
                 {
-                    src: "http://localhost:8100/reciters/6.jpg",
+                    src: `http://localhost:8100/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`,
                     sizes: "96x96",
                     type: "image/jpg",
                 },
