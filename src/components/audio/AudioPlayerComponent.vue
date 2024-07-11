@@ -322,12 +322,12 @@ const loadMetaData = () => {
         { name: "twitter:card", content: "summery" },
         { name: "twitter:site", content: "@quran" },
         { name: "og:type", content: "music.song" },
-        { name: "twitter:image", content: "http://localhost:8100/reciters/6.jpg" },
-        { property: "og:image", content: "http://localhost:8100/reciters/6.jpg" },
+        { name: "twitter:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
+        { property: "og:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
     ])
 
     console.log(import.meta.env.MODE);
-    
+
     if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: audioPlayerStore.chapterName,
@@ -335,7 +335,7 @@ const loadMetaData = () => {
             album: "Quran",
             artwork: [
                 {
-                    src: `http://localhost:8100/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`,
+                    src: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`,
                     sizes: "96x96",
                     type: "image/jpg",
                 },
