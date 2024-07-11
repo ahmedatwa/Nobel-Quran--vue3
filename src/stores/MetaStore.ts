@@ -10,6 +10,7 @@ export const useMetaStore = defineStore("metadata-store", () => {
   const _metaData = ref<
     { name?: string; property?: string; content: string }[]
   >([]);
+  
   const pageTitle = readonly(_title);
   const metaData = readonly(_metaData);
 

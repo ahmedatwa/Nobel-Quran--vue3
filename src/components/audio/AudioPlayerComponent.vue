@@ -309,19 +309,26 @@ const playbackSeek = () => {
 };
 
 const loadMetaData = () => {
-    metaStore.setPageTitle("Nobel Quran - " + audioPlayerStore.chapterName || "")
+    if (audioPlayerStore.chapterName) {
+        metaStore.setPageTitle(audioPlayerStore.chapterName)
+        metaStore.setMetaData([
+            { property: "og:audio:title", content: audioPlayerStore.chapterName },
+            { name: "twitter:title", content: audioPlayerStore.chapterName },
+            { name: "og:title", content: audioPlayerStore.chapterName },
+        ])
+    }
+
+    if (audioPlayerStore.audioFiles) {
+        metaStore.setMetaData([
+            { property: "og:audio", content: audioPlayerStore.audioFiles?.audio_url },
+            { property: "music:duration", content: audioPlayerStore.audioFiles?.duration.toString() },
+        ])
+    }
+
     metaStore.setMetaData([
-        { name: "og:title", content: audioPlayerStore.chapterName || "" },
-        { property: "og:audio", content: audioPlayerStore.audioFiles?.audio_url || "" },
-        { property: "music:musician", content: audioPlayerStore.selectedReciter.name || "" },
-        { property: "og:audio:title", content: audioPlayerStore.chapterName || "" },
-        { property: "og:audio:artist", content: audioPlayerStore.selectedReciter.name || "" },
+        { property: "music:musician", content: audioPlayerStore.selectedReciter.name },
+        { property: "og:audio:artist", content: audioPlayerStore.selectedReciter.name },
         { property: "og:audio:type", content: audioPlayerStore.audioFiles?.format || "" },
-        { property: "music:duration", content: audioPlayerStore.audioFiles?.duration.toString() || "" },
-        { name: "twitter:title", content: audioPlayerStore.chapterName || "" },
-        { name: "twitter:card", content: "summery" },
-        { name: "twitter:site", content: "@quran" },
-        { name: "og:type", content: "music.song" },
         { name: "twitter:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
         { property: "og:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
     ])
