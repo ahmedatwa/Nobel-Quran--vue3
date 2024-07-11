@@ -1,7 +1,10 @@
 import axios from "axios";
 
+const VITE_API_URL = "https://api.quran.com/api/v4";
+const VITE_API_QDC_URL = "https://api.qurancdn.com/api/qdc/";
+
 export const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: VITE_API_URL,
   headers: {
     Accept: "application/json",
   },
@@ -32,7 +35,7 @@ instance.interceptors.response.use(
 
 // Urls
 // Audio
-const audioUrl = import.meta.env.VITE_API_QDC_URL + "/audio/reciters/";
+const audioUrl = VITE_API_QDC_URL + "/audio/reciters/";
 export const makeGetAudioRecitersUrl = (
   reciterID: number,
   audioID: number

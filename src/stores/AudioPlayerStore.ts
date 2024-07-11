@@ -14,6 +14,7 @@ import type {
 } from "@/types/audio";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
+  const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
@@ -141,9 +142,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   });
 
   const avatarPlaceholder = computed(() => {
-    return `${import.meta.env.VITE_AVATAR_PLACEHOLDER_API}?name="${
-      selectedReciter.value.name
-    }`;
+    return `${AVATAR_PLACEHOLDER_API}?name="${selectedReciter.value.name}`;
   });
 
   return {
