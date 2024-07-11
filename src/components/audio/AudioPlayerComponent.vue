@@ -322,13 +322,13 @@ const loadMetaData = () => {
         metaStore.setMetaData([
             { property: "og:audio", content: audioPlayerStore.audioFiles?.audio_url },
             { property: "music:duration", content: audioPlayerStore.audioFiles?.duration.toString() },
+            { property: "og:audio:type", content: audioPlayerStore.audioFiles?.format as string },
         ])
     }
 
     metaStore.setMetaData([
         { property: "music:musician", content: audioPlayerStore.selectedReciter.name },
         { property: "og:audio:artist", content: audioPlayerStore.selectedReciter.name },
-        { property: "og:audio:type", content: audioPlayerStore.audioFiles?.format || "" },
         { name: "twitter:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
         { property: "og:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
     ])
