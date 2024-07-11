@@ -325,6 +325,22 @@ const loadMetaData = () => {
         { name: "twitter:image", content: "http://localhost:8100/reciters/6.jpg" },
         { property: "og:image", content: "http://localhost:8100/reciters/6.jpg" },
     ])
+
+    if ("mediaSession" in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: audioPlayerStore.chapterName,
+            artist: audioPlayerStore.selectedReciter.name,
+            album: "Quran",
+            artwork: [
+                {
+                    src: "http://localhost:8100/reciters/6.jpg",
+                    sizes: "96x96",
+                    type: "image/jpg",
+                },
+            ],
+        });
+
+    }
 }
 const loadedData = () => {
     audioPlayerStore.isLoading = true
