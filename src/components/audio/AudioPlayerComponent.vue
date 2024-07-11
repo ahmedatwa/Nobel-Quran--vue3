@@ -349,6 +349,7 @@ const loadMetaData = () => {
 
     }
 }
+
 const loadedData = () => {
     audioPlayerStore.isLoading = true
     if (audioPlayerRef.value) {
