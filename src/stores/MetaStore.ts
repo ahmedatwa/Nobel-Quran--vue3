@@ -11,7 +11,7 @@ export const useMetaStore = defineStore("metadata-store", () => {
   const _mainTitle = ref("");
   const _title = computed(() => {
     if (_mainTitle.value) {
-      return import.meta.env.VITE_APP_TITLE + " - " + _mainTitle;
+      return import.meta.env.VITE_APP_TITLE + " - " + _mainTitle.value;
     }
     return import.meta.env.VITE_APP_TITLE;
   });
