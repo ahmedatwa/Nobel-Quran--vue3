@@ -1,6 +1,12 @@
 import { defineStore } from "pinia";
 import { ref, readonly, computed } from "vue";
 
+type MetaData = {
+  name?: string;
+  property?: string;
+  content: string;
+};
+
 export const useMetaStore = defineStore("metadata-store", () => {
   const _mainTitle = ref("");
   const _title = computed(() => {
@@ -10,17 +16,13 @@ export const useMetaStore = defineStore("metadata-store", () => {
     return import.meta.env.VITE_APP_TITLE;
   });
 
-  const _metaData = ref<
-    { name?: string; property?: string; content: string }[]
-  >([]);
+  const _metaData = ref<MetaData[]>([]);
 
   const pageTitle = readonly(_title);
   const metaData = readonly(_metaData);
 
   const setPageTitle = (v: string) => (_mainTitle.value = v);
-  const setMetaData = (
-    v: { name?: string; property?: string; content: string }[]
-  ) => (_metaData.value = v);
+  const setMetaData = (v: MetaData[]) => (_metaData.value = v);
 
   return {
     setPageTitle,
