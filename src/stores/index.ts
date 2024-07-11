@@ -5,6 +5,7 @@ import { useJuzStore } from "./JuzStore";
 import { useSettingStore } from "./SettingStore";
 import { usePageStore } from "./PageStore";
 import { useTafsirStore } from "./TafsirStore";
+import { useMetaStore } from "./MetaStore";
 
 export {
   useAudioPlayerStore,
@@ -14,4 +15,5 @@ export {
   useSettingStore,
   usePageStore,
   useTafsirStore,
+  useMetaStore,
 };

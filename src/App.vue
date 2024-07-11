@@ -13,9 +13,12 @@ import type { PageHeaderData } from "@/types/page";
 // utils
 import { getStorage, clearStorage, setStorage } from "@/utils/storage";
 import { useTheme } from "vuetify";
+// Store 
+import { useMetaStore } from "@/stores"
 
 // Stores
 const _theme = useTheme();
+const metadataStore = useMetaStore()
 const selectedLanguage = ref("");
 const settingsDrawer = ref(false);
 const headerData = ref<{ key: string, value: ChapterHeaderData | JuzHeaderData | PageHeaderData } | null>(null);
@@ -60,6 +63,12 @@ watch(tab, (newVal) => {
 </script>
 
 <template>
+  <teleport to="head title">{{ metadataStore.pageTitle }}</teleport>
+  <teleport to="head">
+
+    <meta v-for="(metaItem, i) in metadataStore.metaData" :key="i" :name="metaItem.name" :property="metaItem.property"
+      :content="metaItem.content">
+  </teleport>
   <v-app>
     <v-overlay :model-value="isLoading" class="align-center justify-center">
       <v-progress-circular color="primary" size="64" indeterminate></v-progress-circular>

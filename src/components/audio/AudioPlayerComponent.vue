@@ -4,7 +4,7 @@ import { computed, watchEffect, onMounted } from "vue";
 // components
 import { AudioPlayerControlsComponent } from "@/components/audio"
 // stores
-import { useAudioPlayerStore, useSettingStore } from "@/stores";
+import { useAudioPlayerStore, useSettingStore, useMetaStore } from "@/stores";
 // symbols
 import { langKey } from "@/types/symbols";
 // utils
@@ -16,6 +16,7 @@ import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "
 import type { VerseTimings } from "@/types"
 
 const audioPlayerStore = useAudioPlayerStore()
+const metaStore = useMetaStore()
 const { audioPlayerSetting } = useSettingStore()
 const $tr = inject(langKey)
 
@@ -307,7 +308,25 @@ const playbackSeek = () => {
     }
 };
 
-const loadeddata = () => {
+const loadMetaData = () => {
+    metaStore.setPageTitle(audioPlayerStore.chapterName || "")
+    metaStore.setMetaData([
+        { name: "og:title", content: audioPlayerStore.chapterName || "" },
+        { property: "og:audio", content: audioPlayerStore.audioFiles?.audio_url || "" },
+        { property: "music:musician", content: audioPlayerStore.selectedReciter.name || "" },
+        { property: "og:audio:title", content: audioPlayerStore.chapterName || "" },
+        { property: "og:audio:artist", content: audioPlayerStore.selectedReciter.name || "" },
+        { property: "og:audio:type", content: audioPlayerStore.audioFiles?.format || "" },
+        { property: "music:duration", content: audioPlayerStore.audioFiles?.duration || "" },
+        { name: "twitter:title", content: audioPlayerStore.chapterName || "" },
+        { name: "twitter:card", content: "summery" },
+        { name: "twitter:site", content: "@quran" },
+        { name: "og:type", content: "music.song" },
+        { name: "twitter:image", content: "http://localhost:8100/reciters/6.jpg" },
+        { property: "og:image", content: "http://localhost:8100/reciters/6.jpg" },
+    ])
+}
+const loadedData = () => {
     audioPlayerStore.isLoading = true
     if (audioPlayerRef.value) {
         if (audioPlayerRef.value.readyState > 2) {
@@ -477,17 +496,20 @@ const changeMediaVolume = (volume: number) => {
 
                 </div>
                 <div class="order-2 flex-grow-1 flex-shrink-0 my-auto">
-                    <audio-player-controls-component :playback-rate=" playbackRate" :loop-audio="loopAudio"
-                    :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
-                    @update:is-audio="emit('update:isAudio', $event)" @update:change-media-volume="changeMediaVolume"
-                    @update:mute-audio="muteAudio" @update:close-player="closePlayer" @update:play-audio="playAudio"
-                    @update:playback-rate="setAudioPlayBackRate">
+                    <audio-player-controls-component :playback-rate="playbackRate" :loop-audio="loopAudio"
+                        :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
+                        @update:is-audio="emit('update:isAudio', $event)"
+                        @update:change-media-volume="changeMediaVolume" @update:mute-audio="muteAudio"
+                        @update:close-player="closePlayer" @update:play-audio="playAudio"
+                        @update:playback-rate="setAudioPlayBackRate">
                     </audio-player-controls-component>
-                    <div autoplay v-if="audioPlayerStore.audioFiles">
-                        <audio controls ref="audioPlayerRef" class="d-none" :src="audioPlayerStore.audioFiles.audio_url"
+                    <div v-if="audioPlayerStore.audioFiles">
+                        <audio :autoplay="audioPlayerSetting.autoPlay" controls ref="audioPlayerRef" class="d-none"
+                            :src="audioPlayerStore.audioFiles.audio_url"
                             :type="`audio/${audioPlayerStore.audioFiles.format}`" @pause="playbackPaused"
                             @playing="playbackPlaying" @ended="playbackEnded" @canplaythrough="canPlayThrough"
-                            @timeupdate="playbackListener" @seek="playbackSeek" @loadeddata="loadeddata">
+                            @timeupdate="playbackListener" @seek="playbackSeek" @loadeddata="loadedData"
+                            @loadedmetadata="loadMetaData">
                         </audio>
                     </div>
                 </div>
