@@ -347,6 +347,9 @@ const loadMetaData = () => {
             ],
         });
 
+        navigator.mediaSession.setActionHandler("play", () => {
+            emit('update:modelValue', true)
+        });
     }
 }
 
@@ -505,7 +508,7 @@ const changeMediaVolume = (volume: number) => {
             <div class="d-flex my-4" :class="$vuetify.display.smAndDown ? 'flex-wrap' : 'justify-space-between'">
                 <div class="ms-3 flex-grow-0 flex-shrink-0 order-1 my-auto">
                     <div class="text-body-1">
-                       
+
                         <div class="text-center" :class="$vuetify.display.smAndDown ? 'd-none' : 'd-inline-block'">
                             <v-avatar size="x-small">
                                 <v-img :src="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`">
@@ -516,7 +519,8 @@ const changeMediaVolume = (volume: number) => {
                             </v-avatar>
                             {{ audioPlayerStore.selectedReciter.name }}
                         </div>
-                        <div class="text-caption" :class="$vuetify.display.mdAndUp ? 'ms-7' : ''"> {{ audioPlayerStore.chapterName }}</div>
+                        <div class="text-caption" :class="$vuetify.display.mdAndUp ? 'ms-7' : ''"> {{
+                            audioPlayerStore.chapterName }}</div>
                     </div>
 
                 </div>
