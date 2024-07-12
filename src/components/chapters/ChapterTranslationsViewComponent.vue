@@ -15,7 +15,7 @@ import { scrollToElement, isInViewport, SMOOTH_SCROLL_TO_CENTER } from "@/utils/
 import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
-const $vuetifyDisplay = useDisplay()
+const {mobile} = useDisplay()
 const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
@@ -141,7 +141,7 @@ watchEffect(() => {
         ;
         // Scroll into View
         if (props.isAudioPlaying?.isPlaying) {
-          if ($vuetifyDisplay.smAndDown) {
+          if (mobile) {
             scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`, 100, SMOOTH_SCROLL_TO_CENTER, 100)
           } else {
             scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
