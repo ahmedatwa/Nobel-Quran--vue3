@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, inject, watchEffect } from "vue";
 import { computed, watch, reactive } from "vue";
+import { useDisplay } from "vuetify";
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -10,10 +11,11 @@ import { ButtonsActionListComponent } from "@/components/quran";
 import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 // utils
-import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement, isInViewport, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
 import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
+const $vuetifyDisplay = useDisplay()
 const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
@@ -139,7 +141,12 @@ watchEffect(() => {
         ;
         // Scroll into View
         if (props.isAudioPlaying?.isPlaying) {
-          scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
+          if ($vuetifyDisplay.smAndDown) {
+            scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`, 100, SMOOTH_SCROLL_TO_CENTER, 100)
+          } else {
+            scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
+          }
+
         }
         // toggle active state
         const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
@@ -207,7 +214,7 @@ watchEffect(() => {
             :cols="$vuetify.display.smAndDown ? '12' : '1'">
             <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)" size="small"
               :is-audio-player="isAudioPlaying" :verse="verse" :audio-src="`chapter-translations-${chapterAudioId}`"
-               @update:bookmarked="setBookmarked">
+              @update:bookmarked="setBookmarked">
             </buttons-action-list-component>
           </v-col>
 
