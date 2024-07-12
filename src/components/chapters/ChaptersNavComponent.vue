@@ -5,6 +5,7 @@ import { useChapterStore } from "@/stores";
 // utils
 import { _range, localizeNumber } from "@/utils/number";
 import { isVerseKeyWithinRanges } from "@/utils/verse";
+import { TOTAL_CHAPTERS } from "@/utils/chapter"
 // types
 import type { Chapter, ManualIntersectingMode } from "@/types/chapter";
 import { scrollToElement } from "@/utils/useScrollToElement";
@@ -168,7 +169,7 @@ const getVerseByKey = async (verseKey: string) => {
           </v-card-title>
           <v-divider></v-divider>
           <v-sheet height="650" class="overflow-y-auto">
-            <v-skeleton-loader type="list-item" v-for="n in 114" :key="n"
+            <v-skeleton-loader type="list-item" v-for="n in TOTAL_CHAPTERS" :key="n"
               v-if="chapterStore.isLoading.chapters"></v-skeleton-loader>
             <v-list lines="two" class="mb-5">
               <v-list-item v-for="chapter in chapterStore.chapters" :key="chapter.id" :value="chapter.nameSimple"
