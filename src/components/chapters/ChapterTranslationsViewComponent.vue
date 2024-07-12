@@ -140,9 +140,7 @@ watchEffect(() => {
         }
         ;
         // Scroll into View
-        if (props.isAudioPlaying?.isPlaying) {
-          console.log(mobile.value);
-          
+        if (props.isAudioPlaying?.isPlaying) {          
           if (mobile.value) {
             scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`, 50, SMOOTH_SCROLL_TO_CENTER, 200)
           } else {

@@ -350,15 +350,20 @@ const loadMetaData = () => {
         navigator.mediaSession.setActionHandler("play", () => {
             emit('update:modelValue', true)
         });
-        navigator.mediaSession.setActionHandler("seekforward", ()=> {
-            playbackSeek()
+        navigator.mediaSession.setActionHandler("seekto", ({ seekTime }) => {
+            if (seekTime) {
+                progressTimer.value = secondsToMilliSeconds(seekTime)
+                playbackSeek()
+            }
         })
+        
         navigator.mediaSession.setActionHandler("nexttrack", () => {
             audioPlayerStore.playNext()
         })
         navigator.mediaSession.setActionHandler("previoustrack", () => {
             audioPlayerStore.playPrevious()
         })
+
     }
 }
 
