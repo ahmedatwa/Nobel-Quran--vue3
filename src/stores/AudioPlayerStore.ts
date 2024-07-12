@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, onMounted, computed } from "vue";
 // utils
-import { getChapterNameByChapterId } from "@/utils/chapter";
+import { getChapterNameByChapterId, TOTAL_CHAPTERS } from "@/utils/chapter";
 //axios
 import { instance, makeGetAudioRecitersUrl } from "@/axios";
 import { makeGetRecitationsUrl } from "@/axios";
@@ -108,7 +108,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
 
   const playNext = async () => {
     if (chapterId.value) {
-      chapterId.value = chapterId.value >= 114 ? 1 : chapterId.value + 1;
+      chapterId.value = chapterId.value >= TOTAL_CHAPTERS ? 1 : chapterId.value + 1;
       await getAudio({ audioID: chapterId.value });
     }
   };

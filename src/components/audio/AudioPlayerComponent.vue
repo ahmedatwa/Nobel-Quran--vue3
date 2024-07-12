@@ -353,6 +353,12 @@ const loadMetaData = () => {
         navigator.mediaSession.setActionHandler("seekforward", ()=> {
             playbackSeek()
         })
+        navigator.mediaSession.setActionHandler("nexttrack", () => {
+            audioPlayerStore.playNext()
+        })
+        navigator.mediaSession.setActionHandler("previoustrack", () => {
+            audioPlayerStore.playPrevious()
+        })
     }
 }
 

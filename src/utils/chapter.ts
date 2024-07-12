@@ -1,6 +1,7 @@
 import { formatStringNumber, _range } from "@/utils/number";
 import jsonChaptersData from "@/json/chapters.json";
 
+export const TOTAL_CHAPTERS = 114
 /**
  * Given a pageId, get chapter ids from a json file
  *
