@@ -350,6 +350,9 @@ const loadMetaData = () => {
         navigator.mediaSession.setActionHandler("play", () => {
             emit('update:modelValue', true)
         });
+        navigator.mediaSession.setActionHandler("seekforward", ()=> {
+            playbackSeek()
+        })
     }
 }
 

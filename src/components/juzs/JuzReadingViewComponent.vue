@@ -106,12 +106,12 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
 
 <template>
     <v-container class="smooth-scroll-behaviour">
-        <v-row justify="center" :align="'center'" no-gutters>
+        <v-row justify="center" :align="'center'">
             <v-card class="quran-reader-container" width="auto" flat>
                 <v-card-text>
                     <v-container>
                         <v-row v-for="(verses, page, index) in mapVersesByPage" :key="page" :data-page-id="page"
-                            class="verse-row" no-gutters justify="center" :align="'start'">
+                            class="verse-row" justify="center" :align="'end'">
                             <v-col cols="12">
                                 <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="1"
                                     @update:play-audio="$emit('update:playAudio', $event)"
@@ -134,7 +134,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                             </v-col>
                             <v-col class="verse-col d-flex flex-wrap justify-center align-self-end" :id="`page-${page}`"
                                 cols="11">
-                                <div class="d-inline-flex" v-for="verse in verses" :key="verse.id"
+                                <div class="d-inline-flex mx-4" v-for="verse in verses" :key="verse.id"
                                     :id="`page-${page}-line-${verse.verse_number}`"
                                     :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
                                     :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"

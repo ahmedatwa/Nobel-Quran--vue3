@@ -250,7 +250,8 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                             threshold: [0, 0.5, 1.0]
                         }
                     }">
-                    <v-col cols="1" class="action-list" :order="$tr.rtl.value ? 2 : 1">
+                     <v-row :id="`verse-row-${verse.verse_number}`"> 
+                    <v-col :cols="$vuetify.display.smAndDown ? '12' : '1'" class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1">
                         <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)"
                             size="small" :is-audio-player="isAudioPlaying" :verse="verse"
                             @update:bookmarked="setBookmarked"
@@ -290,6 +291,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                             </v-list-item>
                         </v-list>
                     </v-col>
+                    </v-row>
                     <v-divider class="mb-3"></v-divider>
                 </v-row>
             </v-col>

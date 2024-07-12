@@ -10,6 +10,7 @@ import type { ChapterHeaderData } from "@/types/chapter";
 import type { JuzHeaderData } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 import { langKey } from "@/types/symbols";
+import { localizeNumber } from "@/utils/number";
 
 const _theme = useTheme();
 const $lang = inject(langKey);
@@ -46,21 +47,33 @@ watchEffect(() => {
         const chapterData = props.headerData.value as ChapterHeaderData
         headerDataValue.value = {
           left: $lang?.locale.value === "ar" ? chapterData.left[1] : chapterData.left[0],
-          right: chapterData.right
+          right: {
+            pageNumber: localizeNumber(chapterData.right.pageNumber, $lang?.locale.value),
+            juzNumber: localizeNumber(chapterData.right.juzNumber, $lang?.locale.value),
+            hizbNumber: localizeNumber(chapterData.right.hizbNumber, $lang?.locale.value),
+          }
         }
         break;
       case "juz":
         const juzData = props.headerData.value as JuzHeaderData
         headerDataValue.value = {
           left: $lang?.locale.value === "ar" ? juzData.left?.nameArabic : juzData.left?.nameSimple,
-          right: juzData.right
+          right: {
+            pageNumber: localizeNumber(juzData.right.pageNumber, $lang?.locale.value),
+            juzNumber: localizeNumber(juzData.right.juzNumber, $lang?.locale.value),
+            hizbNumber: localizeNumber(juzData.right.hizbNumber, $lang?.locale.value),
+          }
         }
         break;
       case "page":
         const pageData = props.headerData.value as PageHeaderData
         headerDataValue.value = {
           left: $lang?.locale.value === "ar" ? pageData.left?.nameArabic : pageData.left?.nameSimple,
-          right: pageData.right
+          right: {
+            pageNumber: localizeNumber(pageData.right.pageNumber, $lang?.locale.value),
+            juzNumber: localizeNumber(pageData.right.juzNumber, $lang?.locale.value),
+            hizbNumber: localizeNumber(pageData.right.hizbNumber, $lang?.locale.value),
+          }
         }
         break;
 

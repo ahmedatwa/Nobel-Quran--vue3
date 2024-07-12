@@ -27,8 +27,8 @@ const app = createApp(App);
 
 registerPlugins(app);
 
-app.use(pinia);
-app.use(i18nPlugin, {
+app.use(pinia)
+   .use(i18nPlugin, {
   en,
   ar,
 });

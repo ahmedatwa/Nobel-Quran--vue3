@@ -249,7 +249,7 @@ const prevJuzPage = () => {
                         @update:model-value="$emit('update:modelValue', $event as string)" grow>
                         <v-tab value="chapters" prepend-icon="mdi-book-alphabet" @click="chaptersCurrentSort = 'id'">{{
                             $tr.line('home.textChapters')
-                        }}</v-tab>
+                            }}</v-tab>
                         <v-tab value="juzs" prepend-icon="mdi-bookshelf">{{ $tr.line('home.textJuzs') }}</v-tab>
                         <v-tab value="pages" prepend-icon="mdi-page-layout-sidebar-left">{{ $tr.line('home.textPages')
                             }}</v-tab>
@@ -308,9 +308,9 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                        <v-pagination rounded v-model="chaptersCurrentPage"
-                                            :length="chaptersPaginationLength" @next="nextChapterPage"
-                                            @prev="prevChapterPage"></v-pagination>
+                                            <v-pagination rounded v-model="chaptersCurrentPage"
+                                                :length="chaptersPaginationLength" @next="nextChapterPage"
+                                                @prev="prevChapterPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
