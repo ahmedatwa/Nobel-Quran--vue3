@@ -1,6 +1,6 @@
 export const scrollToElement = async (
   elID: string,
-  timeout: number = 100,
+  timeout: number = 50,
   options: ScrollIntoViewOptions = SMOOTH_SCROLL_TO_CENTER,
   overLayHeight?: number
 ) => {
