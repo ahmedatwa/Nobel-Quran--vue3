@@ -9,9 +9,8 @@ export const scrollToElement = async (
     await delay(timeout);
     if (overLayHeight) {
       el.setAttribute("style", `scroll-margin-height:${overLayHeight}px`);
-    } else {
-      el.scrollIntoView(options);
-    }
+    } 
+    el.scrollIntoView(options);
   }
 };
 
