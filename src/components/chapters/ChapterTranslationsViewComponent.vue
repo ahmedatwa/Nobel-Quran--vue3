@@ -144,7 +144,7 @@ watchEffect(() => {
           console.log(mobile.value);
           
           if (mobile.value) {
-            scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`, 20, SMOOTH_SCROLL_TO_CENTER, 150)
+            scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`, 50, SMOOTH_SCROLL_TO_CENTER, 200)
           } else {
             scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
           }
