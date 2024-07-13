@@ -37,6 +37,9 @@ const getStorage = (key: string, storageType?: Storage) => {
   storageType = storageType ? storageType : localStorage;
 
   const $_ = storageType.getItem(key);
+
+  if ($_ === null) return null;
+  
   if ($_) {
     if ($_.charAt(0) === "{") {
       return JSON.parse($_);
