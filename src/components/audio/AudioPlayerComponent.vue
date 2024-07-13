@@ -355,7 +355,7 @@ const loadMetaData = () => {
             emit('update:modelValue', isPlaying.value)
         });
         navigator.mediaSession.setActionHandler("pause", () => {
-            playbackPaused()
+            playAudio()
         })
 
         navigator.mediaSession.setActionHandler("seekto", ({ seekTime }) => {
