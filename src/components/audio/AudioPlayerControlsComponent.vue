@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
+import { ref, computed } from "vue"
 // stores
 import { useAudioPlayerStore } from "@/stores";
 // components
@@ -59,17 +59,6 @@ const changeMediaVolume = (newVol: number) => {
     emit('update:changeMediaVolume', newVol)
 
 }
-
-
-// watch(() => peops.mediaVolume, (newVol) => {
-//     if (newVol === 0) {
-//         volumeIcon.value = "mdi-volume-off"
-//     } else if (newVol <= 0.6 && newVol > 0) {
-//         volumeIcon.value = "mdi-volume-medium"
-//     } else if (newVol > 0.6) {
-//         volumeIcon.value = "mdi-volume-high"
-//     }
-// })
 
 </script>
 <template>
