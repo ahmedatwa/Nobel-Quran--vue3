@@ -351,8 +351,13 @@ const loadMetaData = () => {
         });
 
         navigator.mediaSession.setActionHandler("play", () => {
-            emit('update:modelValue', true)
+            playAudio()
+            emit('update:modelValue', isPlaying.value)
         });
+        navigator.mediaSession.setActionHandler("pause", () => {
+            playbackPaused()
+        })
+
         navigator.mediaSession.setActionHandler("seekto", ({ seekTime }) => {
             if (seekTime) {
                 progressTimer.value = secondsToMilliSeconds(seekTime)
