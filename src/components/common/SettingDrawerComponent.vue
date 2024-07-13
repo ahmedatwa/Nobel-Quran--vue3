@@ -45,7 +45,7 @@ const emit = defineEmits<{
                         <v-menu activator="parent">
                             <v-list>
                                 <v-list-item v-for="reciter in audioPlayerStore.recitations" :key="reciter.reciter_id"
-                                    @click="audioPlayerStore.selectedReciter = reciter" :title="reciter.name"
+                                    @click="audioPlayerStore.getRecition(reciter)" :title="reciter.name"
                                     :subtitle="reciter.style.name">
                                 </v-list-item>
                             </v-list>
