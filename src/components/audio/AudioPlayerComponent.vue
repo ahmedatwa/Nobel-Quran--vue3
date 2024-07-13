@@ -522,7 +522,6 @@ const changeMediaVolume = (volume: number) => {
             <div class="d-flex my-4" :class="$vuetify.display.smAndDown ? 'flex-wrap' : 'justify-space-between'">
                 <div class="ms-3 flex-grow-0 flex-shrink-0 order-1 my-auto">
                     <div class="text-body-1">
-
                         <div class="text-center" :class="$vuetify.display.smAndDown ? 'd-none' : 'd-inline-block'">
                             <v-avatar size="x-small">
                                 <v-img :src="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`">
@@ -536,7 +535,6 @@ const changeMediaVolume = (volume: number) => {
                         <div class="text-caption" :class="$vuetify.display.mdAndUp ? 'ms-7' : ''"> {{
                             audioPlayerStore.chapterName }}</div>
                     </div>
-
                 </div>
                 <div class="order-2 flex-grow-1 flex-shrink-0 my-auto">
                     <audio-player-controls-component :playback-rate="playbackRate" :loop-audio="loopAudio"
