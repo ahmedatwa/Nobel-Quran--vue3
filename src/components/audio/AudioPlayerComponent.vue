@@ -39,7 +39,7 @@ const elapsedTime = ref("00:00");
 const audioDuration = ref("");
 const duration = ref(0)
 const audioBuffer = ref(0)
-const mediaVolume = ref(1);
+const mediaVolume = ref(0.8);
 const isPlaying = ref(false);
 const isMuted = ref(false);
 const loopAudio = ref("none")
@@ -235,7 +235,7 @@ onMounted(() => {
             setAudioPlayBackRate(state.playbackRate)
         }
         // Media Volume
-        if (state.mediaVolume) {
+        if (state.mediaVolume) {            
             mediaVolume.value = state.mediaVolume
             if (audioPlayerRef.value) audioPlayerRef.value.volume = state.mediaVolume
         }
@@ -265,7 +265,7 @@ const canPlayThrough = () => {
     if (audioPlayerStore.audioFiles)
         audioDuration.value = secondsFormatter(Math.round(audioPlayerStore.audioFiles.duration));
     if (audioPlayerRef.value) {
-        mediaVolume.value = audioPlayerRef.value.volume
+        audioPlayerRef.value.volume = mediaVolume.value
     }
     audioPlayerRef.value?.addEventListener("buffer", buffer,)
     audioPlayerRef.value?.addEventListener("seeked", () => {
