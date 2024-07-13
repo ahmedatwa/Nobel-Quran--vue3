@@ -240,9 +240,9 @@ onMounted(() => {
             if (audioPlayerRef.value) audioPlayerRef.value.volume = state.mediaVolume
         }
         // AutoScroll | tooltip
-        // if (state.experience) {
-        //     audioPlayerStore.audioExperience = state.experience
-        // }
+        if (state.experience) {
+           // settingS.audioExperience = state.experience
+        }
     }
 })
 

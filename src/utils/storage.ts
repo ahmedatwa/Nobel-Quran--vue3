@@ -12,7 +12,7 @@ interface ItemObj {
  */
 
 const setStorage = (key: string, data: any, storageType?: Storage) => {
-  storageType = storageType ? storageType : sessionStorage;
+  storageType = storageType ? storageType : localStorage;
   const found = getStorage(key);
   if (found) {
     removeStorageItem(key);
@@ -34,7 +34,7 @@ const setStorage = (key: string, data: any, storageType?: Storage) => {
  * @returns {} | null
  */
 const getStorage = (key: string, storageType?: Storage) => {
-  storageType = storageType ? storageType : sessionStorage;
+  storageType = storageType ? storageType : localStorage;
 
   const $_ = storageType.getItem(key);
   if ($_) {
@@ -57,7 +57,7 @@ const getStorageItemValue = (
   key?: string,
   storageType?: Storage
 ) => {
-  storageType = storageType ? storageType : sessionStorage;
+  storageType = storageType ? storageType : localStorage;
   if (!key) return getStorage(item);
 
   const state = getStorage(item);
@@ -76,7 +76,7 @@ const getStorageItemValue = (
  * @returns void
  */
 const removeStorageItem = (item: string, storageType?: Storage) => {
-  storageType = storageType ? storageType : sessionStorage;
+  storageType = storageType ? storageType : localStorage;
   storageType.removeItem(item);
 };
 
@@ -118,7 +118,7 @@ const updateStorageItem = (item: string, itemObj: ItemObj) => {
  * @returns void
  */
 const clearStorage = (reload: boolean, storageType?: Storage) => {
-  storageType = storageType ? storageType : sessionStorage;
+  storageType = storageType ? storageType : localStorage;
   storageType.clear();
   if (reload) location.reload();
 };

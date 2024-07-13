@@ -31,6 +31,10 @@ const emit = defineEmits<{
 const chapterTranslationsVerseTiming = computed(() => {
   if (audioPlayerStore.verseTiming) {
     if (audioPlayerStore.verseTiming.audioSrc === `chapter-translations-${chapterStore.selectedChapter?.id}`) {
+      const chapter = chapterStore.chaptersList.find((c) => c.id === chapterStore.selectedChapter?.id)
+      if (chapter) {
+        chapter.audioFile = audioPlayerStore.audioFiles
+      }
       return audioPlayerStore.verseTiming
     }
   }
@@ -39,6 +43,10 @@ const chapterTranslationsVerseTiming = computed(() => {
 const chapterReadingVerseTiming = computed(() => {
   if (audioPlayerStore.verseTiming) {
     if (audioPlayerStore.verseTiming.audioSrc === `chapter-reading-${chapterStore.selectedChapter?.id}`) {
+      const chapter = chapterStore.chaptersList.find((c) => c.id === chapterStore.selectedChapter?.id)
+      if (chapter) {
+        chapter.audioFile = audioPlayerStore.audioFiles
+      }
       return audioPlayerStore.verseTiming
     }
   }
