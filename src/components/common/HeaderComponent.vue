@@ -5,21 +5,19 @@ import { SettingDrawerComponent } from "@/components/common";
 import { useTheme } from "vuetify";
 // utils
 import { setStorage } from "@/utils/storage";
+import { localizeNumber } from "@/utils/number";
+import { LANGUAGES } from "@/utils/locale"
 // types
 import type { ChapterHeaderData } from "@/types/chapter";
 import type { JuzHeaderData } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 import { langKey } from "@/types/symbols";
-import { localizeNumber } from "@/utils/number";
 
 const _theme = useTheme();
 const $lang = inject(langKey);
 const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
-const languages = ref([
-  { key: "en", value: "English", rtl: false },
-  { key: "ar", value: "Arabic", rtl: true },
-]);
+
 
 const headerDataValue = ref<ChapterHeaderData | JuzHeaderData | PageHeaderData>()
 
@@ -66,7 +64,7 @@ watchEffect(() => {
         }
         break;
       case "page":
-        const pageData = props.headerData.value as PageHeaderData
+        const pageData = props.headerData.value as PageHeaderData        
         headerDataValue.value = {
           left: $lang?.locale.value === "ar" ? pageData.left?.nameArabic : pageData.left?.nameSimple,
           right: {
@@ -100,7 +98,7 @@ watchEffect(() => {
       <v-btn variant="text" append-icon="mdi-web">
         <v-menu activator="parent">
           <v-list>
-            <v-list-item v-for="i in languages" :key="i.key" :value="i.key" :active="$tr.locale.value === i.key">
+            <v-list-item v-for="i in LANGUAGES" :key="i.key" :value="i.key" :active="$tr.locale.value === i.key">
               <v-list-item-title @click="$tr.setLocale(i.key, i.rtl)">
                 {{ i.value }}</v-list-item-title>
             </v-list-item>

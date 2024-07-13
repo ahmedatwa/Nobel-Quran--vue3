@@ -183,7 +183,7 @@ watchEffect(() => {
           isInfoDialog>
         </title-buttons-component>
       </v-col>
-      <v-card width="auto" flat class="quran-reader-container">
+      <v-card flat class="quran-reader-container">
         <template #title>
           <h2>{{ $tr.rtl
             ? chapterStore.selectedChapter?.nameArabic
@@ -199,8 +199,8 @@ watchEffect(() => {
         <v-container>
           <v-row class="verse-row" no-gutters justify="center" :align="'start'"
             v-for="(verses, page) in mapVersesByPage" :key="page" :id="`row-page-${page}`">
-            <v-col class="verse-col" :id="`page-${page}`">
-              <div class="d-inline-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
+            <v-col class="verse-col" :id="`page-${page}`" cols="10">
+              <div class="" v-for="verse in verses" :key="verse.id"
                 :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
                 :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number" :data-page-number="page"
                 :data-verse-number="verse.verse_number" v-intersect.quite="{
@@ -209,7 +209,7 @@ watchEffect(() => {
                     threshold: [0, 0.5, 1.0],
                   },
                 }">
-                <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position" class=""
+                <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position" class="d-flex flex-wrap d-inline-flex"
                   :data-hizb-number="verse.hizb_number" :data-juz-number="verse.juz_number"
                   :data-chapter-id="verse.chapter_id" :data-page-number="page">
                   <div :class="isWordHighlighted(word.location, word.verse_key)

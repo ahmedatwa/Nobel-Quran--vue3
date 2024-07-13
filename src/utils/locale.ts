@@ -19,6 +19,10 @@ export const LANG_LOCALE_MAP = {
   ms: "ms-MY",
 };
 
+export const LANGUAGES = [
+  { key: "en", value: "English", rtl: false },
+  { key: "ar", value: "Arabic", rtl: true },
+];
 
 /**
  * Get the full locale name with lang + country e.g. ar-SA or en-US.
@@ -30,4 +34,3 @@ export const getLangFullLocale = (locale?: string): string => {
   locale = locale ? locale : "en-US";
   return LANG_LOCALE_MAP[locale as keyof typeof LANG_LOCALE_MAP];
 };
-

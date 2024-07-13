@@ -3,7 +3,7 @@ import jsonChaptersData from "@/json/chapters.json";
 import { localizeNumber } from "@/utils/number";
 import type { Page } from "@/types/page";
 
-const DEFAULT_NUMBER_OF_PAGES = 604;
+export const DEFAULT_NUMBER_OF_PAGES = 604;
 
 /**
  * get getAllPageMappings for all Pages

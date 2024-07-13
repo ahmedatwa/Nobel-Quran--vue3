@@ -12,6 +12,7 @@ import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 // utils
 import { getChapterNameByChapterId } from "@/utils/chapter"
 import { scrollToElement } from "@/utils/useScrollToElement"
+import { DEFAULT_NUMBER_OF_PAGES } from "@/utils/pages"
 
 
 const pageStore = usePageStore()
@@ -73,7 +74,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
         newHeaderData = {
             left: getChapterNameByChapterId(chapterId) || null,
             right: {
-                pageNumber: entries[0].target.dataset.pageNumber,
+                pageNumber: pageStore.selectedPage?.pageNumber || 0,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
                 juzNumber: entries[0].target.dataset.juzNumber,
             },
@@ -122,7 +123,7 @@ const getPrevPage = async () => {
             console.log(getFirstVerseRow.value);
 
             nextTick(() => {
-                scrollToElement(`#row${getFirstVerseRow.value}`)
+                scrollToElement(`#line-${getFirstVerseRow.value}`)
             })
         }
     }
@@ -147,15 +148,15 @@ const getNextPage = async () => {
         if (getFirstVerseRow.value) {
             console.log(getFirstVerseRow.value);
             nextTick(() => {
-                scrollToElement(`#row${getFirstVerseRow.value}`)
+                scrollToElement(`#line-${getFirstVerseRow.value}`)
             })
         }
     }
 }
 
 const getStartOfPage = () => {
-    if (getFirstVerseRow.value) {
-        scrollToElement(`#row${getFirstVerseRow.value}`)
+    if (getFirstVerseRow.value) {        
+        scrollToElement(`#line-${getFirstVerseRow.value}`)
     }
 }
 
@@ -191,9 +192,8 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                                     </template>
                                 </title-buttons-component>
                             </v-col>
-                            <v-col class="verse-col d-flex flex-wrap justify-center align-self-end"
-                                :id="`chapter-${chapterId}`" cols="11">
-                                <div class="d-inline-flex" v-for="verse in verses" :key="verse.id"
+                            <v-col class="verse-col" :id="`row-${chapterId}`" cols="10">
+                                <div class="d-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
                                     :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
                                     :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
                                     :data-verse-number="verse.verse_number" v-intersect.quite="{
@@ -203,8 +203,9 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                                         },
                                     }">
                                     <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position"
-                                        class="" :data-hizb-number="verse.hizb_number" :style="[defaultStyles, cssVars]"
-                                        :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id">
+                                        class="" :data-hizb-number="verse.hizb_number"
+                                        :style="[defaultStyles, cssVars]" :data-juz-number="verse.juz_number"
+                                        :data-chapter-id="verse.chapter_id">
                                         <div :class="isWordHighlighted(word.position, word.verse_key)
                                             ? 'text-blue'
                                             : ''
@@ -231,7 +232,7 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                                     @click="getStartOfPage">{{
                                         $tr.line('quranReader.startPage') }}</v-btn>
                                 <!-- Next -->
-                                <v-btn v-if="pageStore.selectedPage?.pageNumber <= 604"
+                                <v-btn v-if="pageStore.selectedPage?.pageNumber <= DEFAULT_NUMBER_OF_PAGES"
                                     prepend-icon="mdi-arrow-right-bottom" class="me-2" variant="outlined"
                                     @click="getNextPage">{{
                                         $tr.line('quranReader.nextPage') }}</v-btn>

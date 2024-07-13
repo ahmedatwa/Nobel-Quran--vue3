@@ -132,9 +132,9 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                                     </template>
                                 </title-buttons-component>
                             </v-col>
-                            <v-col class="verse-col d-flex flex-wrap justify-center align-self-end" :id="`page-${page}`"
-                                cols="11">
-                                <div class="d-inline-flex mx-4" v-for="verse in verses" :key="verse.id"
+                            <v-col class="verse-col" :id="`page-${page}`"
+                                cols="10">
+                                <div class="d-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
                                     :id="`page-${page}-line-${verse.verse_number}`"
                                     :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
                                     :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"

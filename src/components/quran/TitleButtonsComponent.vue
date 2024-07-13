@@ -12,7 +12,7 @@ const activeAudioData = ref<{ audioID: number, audioSrc: string, verseKey?: stri
 const props = defineProps<{
     groupedTranslationsAuthors?: string,
     isAudioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
-    chapterId: number
+    chapterId: number | string
     audioSrc: string;
     chapterInfo?: ChapterInfo
     isInfoDialog?: boolean
@@ -24,8 +24,9 @@ const emit = defineEmits<{
     "update:chapterInfoDialog": [value: boolean]
 }>()
 
-const playAudio = (audioID: number, audioSrc: string, verseKey?: string) => {
-    activeAudioData.value = { audioID, audioSrc, verseKey }
+const playAudio = (audioID: number | string, audioSrc: string, verseKey?: string) => {
+    audioID = typeof audioID === "string" ? Number(audioID) : audioID
+    activeAudioData.value = {audioID, audioSrc, verseKey }
     emit('update:playAudio', { audioID, audioSrc, verseKey })
 }
 
