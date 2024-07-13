@@ -314,12 +314,15 @@ const loadMetaData = () => {
         metaStore.setMetaData([
             { property: "og:audio:title", content: audioPlayerStore.chapterName },
             { name: "twitter:title", content: audioPlayerStore.chapterName },
-            { name: "og:title", content: audioPlayerStore.chapterName },
+            { property: "og:title", content: audioPlayerStore.chapterName },
         ])
     }
 
     if (audioPlayerStore.audioFiles) {
         metaStore.setMetaData([
+            { property: "music:song:track", content: String(audioPlayerStore.audioFiles?.id) },
+            { property: "og:url", content: audioPlayerStore.audioFiles?.audio_url as string },
+            { property: "og:type", content: audioPlayerStore.audioFiles?.format as string },
             { property: "og:audio", content: audioPlayerStore.audioFiles?.audio_url },
             { property: "music:duration", content: audioPlayerStore.audioFiles?.duration.toString() },
             { property: "og:audio:type", content: audioPlayerStore.audioFiles?.format as string },
@@ -327,9 +330,9 @@ const loadMetaData = () => {
     }
 
     metaStore.setMetaData([
+        { name: "twitter:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
         { property: "music:musician", content: audioPlayerStore.selectedReciter.name },
         { property: "og:audio:artist", content: audioPlayerStore.selectedReciter.name },
-        { name: "twitter:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
         { property: "og:image", content: `${import.meta.env.VITE_BASE_URL}/reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg` },
     ])
 
@@ -356,7 +359,7 @@ const loadMetaData = () => {
                 playbackSeek()
             }
         })
-        
+
         navigator.mediaSession.setActionHandler("nexttrack", () => {
             audioPlayerStore.playNext()
         })
