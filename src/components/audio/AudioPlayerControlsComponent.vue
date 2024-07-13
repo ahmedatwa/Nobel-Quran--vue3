@@ -98,7 +98,7 @@ watch(mediaVolume, (newVol) => {
 
 
         <!-- Volume -->
-        <v-menu :class="!$vuetify.display.smAndDown ? 'd-none': ''">
+        <v-menu :class="$vuetify.display.smAndDown ? 'd-none': ''">
             <template v-slot:activator="{ props }">
                 <v-btn :icon="volumeIcon" v-bind="props" density="compact" variant="text">
                 </v-btn>
