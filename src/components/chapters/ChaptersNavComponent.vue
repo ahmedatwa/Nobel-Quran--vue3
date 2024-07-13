@@ -12,8 +12,7 @@ import { scrollToElement } from "@/utils/useScrollToElement";
 
 // Stores
 const chapterStore = useChapterStore();
-const selectedVerseID = ref();
-const selectedChapterId = ref();
+const selectedVerseID = ref(1);
 const searchValue = ref("");
 
 const selectedChapterVersesCount = computed(() => {
@@ -37,20 +36,16 @@ const props = defineProps<{
 onMounted(async () => {
   if (!chapterStore.selectedChapter) {
     chapterStore.selectedChapter = chapterStore.chaptersList[0]
-    selectedChapterId.value = 1
     selectedVerseID.value = 1
-    if (!chapterStore.selectedChapter.verses?.length) [
-      await chapterStore.getVerses(selectedChapterId.value, true)
-    ]
-  } else {
-    selectedChapterId.value = chapterStore.selectedChapter.id
-    selectedVerseID.value = 1
+    if (!chapterStore.selectedChapter.verses?.length) {
+      await chapterStore.getVerses(chapterStore.selectedChapterId, true)
+    }
   }
 });
 
 watchEffect(() => {
-  if (selectedChapterId.value) {
-    scrollToElement(`#chapter${selectedChapterId.value}`, 700);
+  if (chapterStore.selectedChapterId) {
+    scrollToElement(`#chapter${chapterStore.selectedChapterId}`, 700);
   }
 });
 
@@ -65,16 +60,13 @@ const versesCount = computed(() => {
 
 const getSelectedChapter = async (chapter: Chapter) => {
   chapterStore.selectedChapter = chapter;
-  selectedChapterId.value = chapter.id;
-  selectedVerseID.value = 1;
 };
 
 const getSelectedVerse = async (id: number) => {
   selectedVerseID.value = id;
-  const verseKey = selectedChapterId.value + ":" + id
+  const verseKey = chapterStore.selectedChapterId + ":" + id
   await getVerseByKey(verseKey)
   emit("update:selectedVerseNumber", id);
-
 };
 
 /**
@@ -103,9 +95,9 @@ watchEffect(async () => {
       intersectingData.currentVerseNumber ===
       intersectingData.lastVerseNumber - 5
     ) {
-      // await getVerseByKey(`${selectedChapterId.value}:${intersectingData.lastVerseNumber + 1}`);
+
       if (getVersePagination.value?.next_page) {
-        await chapterStore.getVerses(selectedChapterId.value, true, getVersePagination.value?.next_page)
+        await chapterStore.getVerses(chapterStore.selectedChapterId, true, getVersePagination.value?.next_page)
       }
     }
   }
@@ -128,7 +120,7 @@ const mouseEnter = async (k: string, value: Chapter | number) => {
     // default per page value as api will be called 
     // twice for the same verse if chapter selected
     if (verseNumber >= chapterStore.perPage) {
-      const verseKey = `${selectedChapterId.value}:${verseNumber}`;
+      const verseKey = `${chapterStore.selectedChapterId}:${verseNumber}`;
       const verseInRange = isVerseKeyWithinRanges(
         verseKey,
         chapterStore.versesKeyMap
@@ -142,14 +134,13 @@ const mouseEnter = async (k: string, value: Chapter | number) => {
 };
 
 const getVerseByKey = async (verseKey: string) => {
-
   if (chapterStore.selectedChapter) {
     const verseFound = chapterStore.selectedChapter.verses?.find(
       (cv) => cv.verse_key === verseKey
     );
 
     if (!verseFound) {
-      await chapterStore.getVerseByKey(selectedChapterId.value, verseKey);
+      await chapterStore.getVerseByKey(chapterStore.selectedChapterId, verseKey);
     } else {
       return
     }
@@ -173,7 +164,7 @@ const getVerseByKey = async (verseKey: string) => {
               v-if="chapterStore.isLoading.chapters"></v-skeleton-loader>
             <v-list lines="two" class="mb-5">
               <v-list-item v-for="chapter in chapterStore.chapters" :key="chapter.id" :value="chapter.nameSimple"
-                :active="selectedChapterId === chapter.id" @click="getSelectedChapter(chapter)"
+                :active="chapterStore.selectedChapterId === chapter.id" @click="getSelectedChapter(chapter)"
                 :id="`chapter${chapter.id}`" @mouseenter="mouseEnter('chapter', chapter)">
                 <template #title>
                   <span v-if="$tr.rtl.value">{{ localizeNumber(chapter.id, $tr.locale.value) }}-

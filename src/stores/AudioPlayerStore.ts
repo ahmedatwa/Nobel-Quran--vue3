@@ -12,9 +12,11 @@ import type {
   VerseTimingsProps,
   PlayAudioEmit,
 } from "@/types/audio";
+import { useChapterStore } from "@/stores/ChapterStore";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
+  const chapterStore = useChapterStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
@@ -108,7 +110,17 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
 
   const playNext = async () => {
     if (chapterId.value) {
-      chapterId.value = chapterId.value >= TOTAL_CHAPTERS ? 1 : chapterId.value + 1;
+      chapterId.value =
+        chapterId.value >= TOTAL_CHAPTERS ? 1 : chapterId.value + 1;
+      const chapter = chapterStore.chaptersList.find(
+        (c) => c.id === chapterId.value
+      );
+      if (chapter) {
+        if (!chapter.verses?.length) {
+          await chapterStore.getVerses(chapter.id, true);
+        }
+        chapterStore.selectedChapter = chapter;
+      }
       await getAudio({ audioID: chapterId.value });
     }
   };
