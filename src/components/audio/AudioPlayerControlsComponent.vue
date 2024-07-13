@@ -4,10 +4,11 @@ import { ref, computed, watch } from "vue"
 import { useAudioPlayerStore } from "@/stores";
 // components
 import { AudioPlayerMenuComponent } from "@/components/audio"
+// utils
+import { TOTAL_CHAPTERS } from "@/utils/chapter";
 
 const audioPlayerStore = useAudioPlayerStore()
 
-const mediaVolume = ref(1)
 const dialog = ref(false)
 const play = ref(false)
 const volumeIcon = ref("mdi-volume-high")
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 
 defineProps<{
     isMuted: boolean
+    mediaVolume: number;
     loopAudio: string
     isPlaying: boolean
     playbackRate: string | number
@@ -32,7 +34,7 @@ defineProps<{
 const isNextAyahDisabled = computed(() => {
     // since chapters length will never change 114
     if (audioPlayerStore.chapterId)
-        return audioPlayerStore.chapterId >= 114 ? true : false
+        return audioPlayerStore.chapterId >= TOTAL_CHAPTERS ? true : false
 })
 
 const isPreviousAyahDisabled = computed(() => {
@@ -46,7 +48,7 @@ const playAudio = () => {
     emit('update:playAudio', play.value)
 }
 
-watch(mediaVolume, (newVol) => {
+const changeMediaVolume = (newVol: number) => {
     if (newVol === 0) {
         volumeIcon.value = "mdi-volume-off"
     } else if (newVol <= 0.6 && newVol > 0) {
@@ -54,7 +56,20 @@ watch(mediaVolume, (newVol) => {
     } else if (newVol > 0.6) {
         volumeIcon.value = "mdi-volume-high"
     }
-})
+    emit('update:changeMediaVolume', newVol)
+
+}
+
+
+// watch(() => peops.mediaVolume, (newVol) => {
+//     if (newVol === 0) {
+//         volumeIcon.value = "mdi-volume-off"
+//     } else if (newVol <= 0.6 && newVol > 0) {
+//         volumeIcon.value = "mdi-volume-medium"
+//     } else if (newVol > 0.6) {
+//         volumeIcon.value = "mdi-volume-high"
+//     }
+// })
 
 </script>
 <template>
@@ -106,8 +121,8 @@ watch(mediaVolume, (newVol) => {
             <v-card min-width="250">
                 <v-list>
                     <v-list-item>
-                        <v-slider v-model="mediaVolume" :step="0.1" :max="1" :min="0" class="mx-4"
-                            @update:modelValue="$emit('update:changeMediaVolume', $event)" hide-details>
+                        <v-slider :model-value="mediaVolume" :step="0.1" :max="1" :min="0" class="mx-4"
+                            @update:model-value="changeMediaVolume($event)" hide-details>
                         </v-slider>
                     </v-list-item>
                 </v-list>

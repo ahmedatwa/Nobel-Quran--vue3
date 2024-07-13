@@ -39,7 +39,7 @@ const elapsedTime = ref("00:00");
 const audioDuration = ref("");
 const duration = ref(0)
 const audioBuffer = ref(0)
-const mediaVolume = ref(0.8);
+const mediaVolume = ref(1);
 const isPlaying = ref(false);
 const isMuted = ref(false);
 const loopAudio = ref("none")
@@ -548,7 +548,7 @@ const changeMediaVolume = (volume: number) => {
                 <div class="order-2 flex-grow-1 flex-shrink-0 my-auto">
                     <audio-player-controls-component :playback-rate="playbackRate" :loop-audio="loopAudio"
                         :is-muted="isMuted" :is-playing="isPlaying" @update:loop-audio="loopAudio = $event"
-                        @update:is-audio="emit('update:isAudio', $event)"
+                        @update:is-audio="emit('update:isAudio', $event)" v-model:media-volume="mediaVolume"
                         @update:change-media-volume="changeMediaVolume" @update:mute-audio="muteAudio"
                         @update:close-player="closePlayer" @update:play-audio="playAudio"
                         @update:playback-rate="setAudioPlayBackRate">
