@@ -2,12 +2,12 @@
 
 Quran Mac/IOS App is a Sadaqah Jariyah. I hope to make it easy for everyone to read, study, and learn The Noble Quran. The Noble Quran has many names including Al-Quran Al-Kareem, Al-Ketab, Al-Furqan, Al-Maw'itha, Al-Thikr, and Al-Noor.
 
--**The App has been built using quran.com API**
+-**The App has been built using Quran Foundation API**
 
 ## ❗️ Important Links
 
 - 📄 [Electron App Mac](https://github.com/ahmedatwa/Quran-electron--vue3)
-- [API](https://api-docs.quran.com/docs/category/quran.com-api)
+- [Quran Foundation API Docs](https://api-docs.quran.com/docs/category/quran.com-api)
 
 
 ## 💿 Install
@@ -20,6 +20,11 @@ Set up your project using your preferred package manager. Use the corresponding 
 
 
 ## ✨ Features
+
+- chapters Translations/Reading View 
+- Juzs Translations/Reading View 
+- Pages Translations/Reading View 
+- loop Audio for chapters 
 
 
 ### Building for Production
