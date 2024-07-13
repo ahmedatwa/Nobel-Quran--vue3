@@ -20,6 +20,12 @@ export const useChapterStore = defineStore("chapter-store", () => {
   const currentSort = ref("id");
   const searchValue = ref("");
   const selectedChapter = ref<Chapter | null>(null);
+  const selectedChapterId = computed(() => {
+    if (selectedChapter.value) {
+      return selectedChapter.value.id;
+    }
+    return 1
+  });
   const chapterInfo = ref<ChapterInfo | null>(null);
   const perPage = ref(10);
   // url fields
@@ -121,7 +127,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
         }
       })
       .catch((e) => {
-        console.log(e);
+        throw e;
       })
       .finally(() => {
         isLoading.value.verses = false;
@@ -250,6 +256,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     chapters,
     searchValue,
     selectedChapter,
+    selectedChapterId,
     isLoading,
     perPage,
     currentSort,

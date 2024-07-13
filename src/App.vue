@@ -14,17 +14,18 @@ import type { PageHeaderData } from "@/types/page";
 import { getStorage, clearStorage, setStorage } from "@/utils/storage";
 import { useTheme } from "vuetify";
 // Store 
-import { useMetaStore } from "@/stores"
+import { useMetaStore, useSettingStore } from "@/stores"
 
 // Stores
 const _theme = useTheme();
 const metadataStore = useMetaStore()
+const settingStore = useSettingStore()
 const selectedLanguage = ref("en");
 const settingsDrawer = ref(false);
 const headerData = ref<{ key: string, value: ChapterHeaderData | JuzHeaderData | PageHeaderData } | null>(null);
 const selected = ref<Chapter | Juz | Page | null>(null);
 const tab = ref("chapters");
-const isLoading = ref(false);
+//const isLoading = ref(false);
 
 const navigationModelValue = ref(true);
 provide("navigationModelValue", navigationModelValue);
@@ -51,14 +52,6 @@ onBeforeMount(() => {
   }
 });
 
-watch(isLoading, (loading) => {
-  if (loading) {
-    setTimeout(() => {
-      isLoading.value = false;
-    }, 500);
-  }
-});
-
 const destroy = () => {
   clearStorage(true);
 };
@@ -80,8 +73,10 @@ watch(selectedLanguage, (newLang) => {
       :content="metaItem.content">
   </teleport>
   <v-app>
-    <v-overlay :model-value="isLoading" class="align-center justify-center">
-      <v-progress-circular color="primary" size="64" indeterminate></v-progress-circular>
+    <v-overlay :model-value="settingStore.isAppLoading" class="align-center justify-center">
+      <v-progress-circular color="primary" size="64" indeterminate>
+        <template v-slot:default> {{ settingStore.appIntervalValue }} % </template>
+      </v-progress-circular>
     </v-overlay>
     <v-locale-provider :rtl="$tr.rtl.value">
       <header-component :header-data="headerData" @update:settings-drawer="settingsDrawer = $event"
@@ -92,7 +87,7 @@ watch(selectedLanguage, (newLang) => {
           @update:navigation-model-value="navigationModelValue = $event"></quran-component>
 
         <quran-home-component v-model:model-value="tab" @update-selected="selected = $event"
-          @update:is-loading="isLoading = $event" v-else></quran-home-component>
+          v-else></quran-home-component>
         <footer-component></footer-component>
       </v-main>
     </v-locale-provider>
