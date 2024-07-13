@@ -13,11 +13,10 @@ import type {
   VerseTimingsProps,
   PlayAudioEmit,
 } from "@/types/audio";
-import { useChapterStore, useSettingStore } from "@/stores";
+import { useSettingStore } from "@/stores";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
-  const chapterStore = useChapterStore();
   const settingStore = useSettingStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);

@@ -85,7 +85,6 @@ watchEffect(async () => {
     if (props.manualIntersecting) {
         const intersectingData = props.manualIntersecting
         selectedVerseID.value = intersectingData.currentVerseNumber
-        console.log(intersectingData);
 
         // return if end of verses count
         if (selectedJuzVersesCount.value === intersectingData.lastVerseNumber) {

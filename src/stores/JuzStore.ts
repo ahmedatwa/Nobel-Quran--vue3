@@ -210,9 +210,7 @@ export const useJuzStore = defineStore("juz-store", () => {
 
   const getLastVerseOfJuz = computed(() => {
     if (selectedJuz.value) {
-      const verse = selectedJuz.value.verses?.slice(-1)[0];
-      console.log(verse);
-      
+      const verse = selectedJuz.value.verses?.slice(-1)[0];      
       if (verse) {
         return verse.id;
       }

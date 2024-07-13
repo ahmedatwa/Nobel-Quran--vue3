@@ -80,8 +80,8 @@ const AUDIO_DURATION_TOLERANCE = 1; // 1s ,
  * @param {number} timestampTo
  * @returns {boolean} isWithinRange
  */
-const isCurrentTimeInRange = (currentTime: number, timestampFrom: number, timestampTo: number) =>
-    currentTime >= timestampFrom && currentTime < timestampTo;
+const isCurrentTimeInRange = (currentTimeValue: number, timestampFrom: number, timestampTo: number) =>
+currentTimeValue >= timestampFrom && currentTimeValue < timestampTo;
 
 
 const playbackListener = () => {
@@ -91,7 +91,6 @@ const playbackListener = () => {
             listenerActive.value = true;
             currentTimestamp.value = Math.ceil(audioPlayerRef.value.currentTime - AUDIO_DURATION_TOLERANCE)
             duration.value = milliSecondsToSeconds(audioPlayerStore.audioFiles.duration)
-
             elapsedTime.value = secondsFormatter((duration.value - currentTimestamp.value), getLangFullLocale($tr?.locale.value))
             progressTimer.value = secondsToMilliSeconds(currentTimestamp.value)
 
@@ -236,8 +235,7 @@ onBeforeMount(() => {
         }
         // Media Volume
         if (state.mediaVolume) {            
-            mediaVolume.value = state.mediaVolume
-            if (audioPlayerRef.value) audioPlayerRef.value.volume = state.mediaVolume
+            mediaVolume.value = state.mediaVolume            
         }
         // AutoScroll | tooltip
         if (state.experience) {
