@@ -33,20 +33,17 @@ const setStorage = (key: string, data: any, storageType?: Storage) => {
  * @param key
  * @returns {} | null
  */
-const getStorage = (key: string, storageType?: Storage) => {
+const getStorage = (key: string, storageType?: Storage): any | undefined => {
   storageType = storageType ? storageType : localStorage;
 
   const $_ = storageType.getItem(key);
 
-  if ($_ === null) return null;
-  
-  if ($_) {
-    if ($_.charAt(0) === "{") {
-      return JSON.parse($_);
-    } else {
-      return $_;
-    }
+  if (!$_) return undefined;
+
+  if ($_.charAt(0) === "{") {
+    return JSON.parse($_);
   }
+  return $_;
 };
 
 /**
