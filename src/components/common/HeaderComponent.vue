@@ -17,8 +17,6 @@ const _theme = useTheme();
 const $lang = inject(langKey);
 const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
-
-
 const headerDataValue = ref<ChapterHeaderData | JuzHeaderData | PageHeaderData>()
 
 const props = defineProps<{

@@ -19,7 +19,7 @@ import { useMetaStore } from "@/stores"
 // Stores
 const _theme = useTheme();
 const metadataStore = useMetaStore()
-const selectedLanguage = ref("");
+const selectedLanguage = ref("en");
 const settingsDrawer = ref(false);
 const headerData = ref<{ key: string, value: ChapterHeaderData | JuzHeaderData | PageHeaderData } | null>(null);
 const selected = ref<Chapter | Juz | Page | null>(null);
@@ -36,6 +36,13 @@ onBeforeMount(() => {
     tab.value = selectedtab;
   } else {
     setStorage("tab", tab.value)
+  }
+
+  const language = getStorage("language");
+  if (language) {
+    selectedLanguage.value = language;
+  } else {
+    setStorage("language", selectedLanguage.value)
   }
 
   // theme
@@ -60,12 +67,15 @@ watch(tab, (newVal) => {
   if (newVal) setStorage("tab", tab.value)
 })
 
+watch(selectedLanguage, (newLang) => {
+  if (newLang) setStorage("language", newLang)
+})
+
 </script>
 
 <template>
   <teleport to="head title">{{ metadataStore.pageTitle }}</teleport>
   <teleport to="head">
-
     <meta v-for="(metaItem, i) in metadataStore.metaData" :key="i" :name="metaItem.name" :property="metaItem.property"
       :content="metaItem.content">
   </teleport>
