@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, onMounted, computed } from "vue";
 // utils
 import { getChapterNameByChapterId, TOTAL_CHAPTERS } from "@/utils/chapter";
+import { setLoadingIInterval, clearLoadingInterval } from "@/utils/interval";
 //axios
 import { instance, makeGetAudioRecitersUrl } from "@/axios";
 import { makeGetRecitationsUrl } from "@/axios";
@@ -12,11 +13,12 @@ import type {
   VerseTimingsProps,
   PlayAudioEmit,
 } from "@/types/audio";
-import { useChapterStore } from "@/stores/ChapterStore";
+import { useChapterStore, useSettingStore } from "@/stores";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
   const chapterStore = useChapterStore();
+  const settingStore = useSettingStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
@@ -69,12 +71,12 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     }
   });
 
-  const getAudio = async (payload: PlayAudioEmit) => {
+  const getAudio = async (payload: PlayAudioEmit, audioSrc?: string) => {
     //https://api.qurancdn.com/api/qdc/audio/reciters/9/audio_files?chapter=1&segments=true
     // if (payload.audioID === chapterId.value) return;
     chapterId.value = payload.audioID;
     selectedVerseKey.value = payload.verseKey;
-    audioPayLoadSrc.value = payload.audioSrc;
+    audioPayLoadSrc.value = payload.audioSrc ? payload.audioSrc : audioSrc;
     isLoading.value = true;
     await instance
       .get(makeGetAudioRecitersUrl(selectedReciter.value.id, payload.audioID))
@@ -108,22 +110,41 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     await getAudio({ audioID: chapterId.value });
   };
 
-  const playNext = async () => {
+  /**
+   * play next chapter and loaddata when needed
+   * @param audioSrc 
+   * @return void
+   */
+  const playNext = async (audioSrc?: string) => {
     if (chapterId.value) {
+      settingStore.isAppLoading = true;
+      setLoadingIInterval();
       chapterId.value =
         chapterId.value >= TOTAL_CHAPTERS ? 1 : chapterId.value + 1;
-      const chapter = chapterStore.chaptersList.find(
-        (c) => c.id === chapterId.value
-      );
-      if (chapter) {
-        if (!chapter.verses?.length) {
-          await chapterStore.getVerses(chapter.id, true);
-        }
-        chapterStore.selectedChapter = chapter;
+      // get the audio files
+      await getAudio(
+        { audioID: chapterId.value }, audioSrc);
+      // TODO: Auto switch translations view with audio loop on
+      // check chapter verses
+      // const chapter = chapterStore.chaptersList.find(
+      //   (c) => c.id === chapterId.value
+      // );
+      // fetch the chapter verses if not found
+      // if (chapter) {
+      //   if (!chapter.verses?.length) {
+      //     await chapterStore.getVerses(chapter.id, true);
+      //   }
+      //   chapterStore.selectedChapter = chapter;
+      // }
+
+      // Clear Loading interval when data is ready
+      if (audioFiles.value) {
+        settingStore.isAppLoading = false;
+        clearLoadingInterval();
       }
-      await getAudio({ audioID: chapterId.value });
     }
   };
+
   const playPrevious = async () => {
     if (chapterId.value) {
       chapterId.value = chapterId.value - 1;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onUnmounted, inject } from "vue";
-import { computed, watchEffect, onMounted } from "vue";
+import { computed, watchEffect, onBeforeMount } from "vue";
 // components
 import { AudioPlayerControlsComponent } from "@/components/audio"
 // stores
@@ -222,8 +222,8 @@ const cleanupListeners = () => {
     }
 }
 
-onMounted(() => {
-    const state = getStorage('audio-player')
+onBeforeMount(() => {
+    const state = getStorage('audio-player')    
     if (state) {
         // Muted
         if (state.isMuted) {

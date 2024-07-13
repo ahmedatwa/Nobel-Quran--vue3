@@ -193,6 +193,7 @@ watchEffect(() => {
 
 <template>
   <v-container fluid class="smooth-scroll-behaviour" id="chapters-translations-container">
+    <v-card :loading="chapterStore.isLoading.verses">
     <v-row :align="'center'" justify="center" dense>
       <v-col cols="12">
         <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors" :chapter-id="chapterAudioId"
@@ -260,6 +261,7 @@ watchEffect(() => {
         </v-col>
       </v-col>
     </v-row>
+  </v-card>
   </v-container>
 </template>
 <style scoped>

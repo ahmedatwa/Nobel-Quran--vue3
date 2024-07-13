@@ -1,10 +1,14 @@
 import { defineStore } from "pinia";
-import { onMounted, ref, watchEffect } from "vue";
+import { computed, onMounted, ref, watchEffect } from "vue";
 import { CssVars } from "@/types";
 import { getStorage, setStorage } from "@/utils/storage";
+import { loadingIntervalValue } from "@/utils/interval";
+
 
 export const useSettingStore = defineStore("setting-store", () => {
   const versesPages = ref([10, 20, 30, 40, 50]);
+  const isAppLoading = ref(false)
+  const appIntervalValue = computed(() => loadingIntervalValue.value)
   const VersesPerPage = ref(10);
   const audioPlayerSetting = ref({
     fullwidth: false,
@@ -55,6 +59,8 @@ export const useSettingStore = defineStore("setting-store", () => {
     VersesPerPage,
     audioPlayerSetting,
     cssVars,
+    isAppLoading,
+    appIntervalValue,
     fontFamilyGroup,
   };
 });

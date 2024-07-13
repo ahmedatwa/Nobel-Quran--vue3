@@ -8,7 +8,7 @@ import type { MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
-import { getChapterNameByJuzId } from "@/utils/juz"
+import { getChapterNameByJuzId, getFirstVerseOfJuzByPage } from "@/utils/juz"
 
 const juzStore = useJuzStore()
 const isIntersecting = ref(false)
@@ -40,7 +40,7 @@ const props = defineProps<{
 
 // Highlight Active Words
 const isWordHighlighted = (location: string, verseKey: string) => {
-    if (props.verseTiming && props.selectedJuzTab === "readingTab")
+    if (props.verseTiming)
         return props.verseTiming.wordLocation === location && verseKey === props.verseTiming.verseKey
 }
 
@@ -58,7 +58,7 @@ const mapVersesByPage = computed((): MapVersesByPage | undefined => {
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     // const chapterId = entries[0].target.dataset.chapterId
-    if (intersecting && props.selectedJuzTab === "readingTab" && entries[0].intersectionRatio >= 0.8) {
+    if (intersecting && entries[0].intersectionRatio >= 0.8) {
         intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
         let newHeaderData: JuzHeaderData | null = null
         // emit header data
@@ -67,7 +67,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             right: {
                 pageNumber: entries[0].target.dataset.pageNumber,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: juzStore.selectedJuz ? juzStore.selectedJuz?.juz_number : 0,
+                juzNumber: entries[0].target.dataset.juzNumber,
             }
         }
         if (newHeaderData !== headerData.value) {
@@ -102,6 +102,8 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
     }
 
 }, { once: true })
+
+
 </script>
 
 <template>
@@ -113,8 +115,8 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                         <v-row v-for="(verses, page, index) in mapVersesByPage" :key="page" :data-page-id="page"
                             class="verse-row" justify="center" :align="'end'">
                             <v-col cols="12">
-                                <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="1"
-                                    @update:play-audio="$emit('update:playAudio', $event)"
+                                <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="index"
+                                    @update:play-audio="$emit('update:playAudio', $event)" :verse-key="getFirstVerseOfJuzByPage(verses)"
                                     :audio-src="`juz-reading-${juzStore.selectedJuz?.id}`" isInfoDialog>
                                     <template #title>
                                         <h2>{{ $tr.rtl
@@ -135,7 +137,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                             <v-col class="verse-col" :id="`page-${page}`"
                                 cols="10">
                                 <div class="d-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
-                                    :id="`page-${page}-line-${verse.verse_number}`"
+                                    :id="`page-${page}-line-${verse.verse_number}`" :data-page-number="verse.page_number"
                                     :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
                                     :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"
                                     v-intersect.quite="{

@@ -8,7 +8,6 @@ import { AudioPlayerMenuComponent } from "@/components/audio"
 import { TOTAL_CHAPTERS } from "@/utils/chapter";
 
 const audioPlayerStore = useAudioPlayerStore()
-
 const dialog = ref(false)
 const play = ref(false)
 const volumeIcon = ref("mdi-volume-high")

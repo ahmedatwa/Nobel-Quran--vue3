@@ -7,7 +7,7 @@ import type { ChapterInfo } from '@/types';
 import { PlayAudioEmit } from "@/types/audio"
 
 const infoDialog = ref(false)
-const activeAudioData = ref<{ audioID: number, audioSrc: string, verseKey?: string } | null>(null)
+const activeAudioData = ref<PlayAudioEmit | null>(null)
 
 const props = defineProps<{
     groupedTranslationsAuthors?: string,
@@ -16,6 +16,7 @@ const props = defineProps<{
     audioSrc: string;
     chapterInfo?: ChapterInfo
     isInfoDialog?: boolean
+    verseKey?: string
 }>()
 
 const emit = defineEmits<{
@@ -24,10 +25,9 @@ const emit = defineEmits<{
     "update:chapterInfoDialog": [value: boolean]
 }>()
 
-const playAudio = (audioID: number | string, audioSrc: string, verseKey?: string) => {
-    audioID = typeof audioID === "string" ? Number(audioID) : audioID
-    activeAudioData.value = {audioID, audioSrc, verseKey }
-    emit('update:playAudio', { audioID, audioSrc, verseKey })
+const playAudio = (payload: PlayAudioEmit) => {
+    activeAudioData.value = payload
+    emit('update:playAudio', payload)
 }
 
 const isPlaying = computed(() => {
@@ -47,7 +47,7 @@ const isPlaying = computed(() => {
                 <slot name="title"> </slot>
                 <slot name="subtitle"> </slot>
             </v-col>
-            <v-col :class="$tr.rtl.value ? 'ms-auto' : 'me-auto'">
+            <v-col :class="$tr.rtl.value ? 'ms-auto text-right' : 'text-left me-auto'">
                 <v-btn v-if="isInfoDialog" @click.stop="infoDialog = !infoDialog"
                     prepend-icon="mdi-information-outline">
                     {{ $tr.line("quranReader.textSurahInfo") }}
@@ -66,7 +66,8 @@ const isPlaying = computed(() => {
             <v-col>
                 <v-slide-x-reverse-transition>
                     <v-sheet :class="$tr.rtl.value ? 'text-left' : 'text-right'">
-                        <v-btn variant="outlined" @click="playAudio(chapterId, audioSrc)" color="primary">
+                        <v-btn variant="outlined" @click="playAudio({ audioID: Number(chapterId), audioSrc, verseKey })"
+                            color="primary">
                             <v-icon :icon="isPlaying ? 'mdi-pause' : 'mdi-play'"></v-icon>{{
                                 $tr.line("quranReader.buttonPlay") }}
                         </v-btn>

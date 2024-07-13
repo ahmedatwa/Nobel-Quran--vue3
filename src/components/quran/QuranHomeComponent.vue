@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 // stores
-import { useChapterStore, useJuzStore, usePageStore } from "@/stores";
+import { useChapterStore, useJuzStore, usePageStore, useSettingStore } from "@/stores";
 // types
 import type { Chapter } from "@/types/chapter"
 import type { Juz, JuzVerseMapping } from "@/types/juz"
 import type { Page } from "@/types/page"
 // utils
 import { localizeNumber } from "@/utils/number"
+import { setLoadingIInterval, clearLoadingInterval } from "@/utils/interval";
 
 // Stores
 const chapterStore = useChapterStore()
+const settingStore = useSettingStore()
 const juzStore = useJuzStore()
 const pageStore = usePageStore()
 // chapters
@@ -50,7 +52,6 @@ defineProps<{
 
 const emit = defineEmits<{
     "update:modelValue": [value: string]
-    "update:isLoading": [value: boolean]
     "updateSelected": [value: Chapter | Juz | Page]
 }>()
 
@@ -100,17 +101,26 @@ const chaptersSort = (s: string) => {
 
 
 const getSelected = (key: string, value: Page | Chapter | Juz) => {
-    emit("update:isLoading", true)
-    if (key === "chapter") {
-        chapterStore.selectedChapter = value as Chapter
-        emit("updateSelected", value as Chapter)
-    } else if (key === "juz") {
-        juzStore.selectedJuz = value as Juz
-        emit("updateSelected", value as Juz)
-    } else {
-        // Page
-        pageStore.selectedPage = value as Page
-        emit("updateSelected", value as Page)
+    if (key) {
+        settingStore.isAppLoading = true
+        setLoadingIInterval(1000, 50)
+        setTimeout(() => {
+            settingStore.isAppLoading = false
+            clearLoadingInterval()
+        }, 1500);
+
+        if (key === "chapter") {
+            chapterStore.selectedChapter = value as Chapter
+            emit("updateSelected", value as Chapter)
+        } else if (key === "juz") {
+            juzStore.selectedJuz = value as Juz
+            emit("updateSelected", value as Juz)
+        } else {
+            // Page
+            pageStore.selectedPage = value as Page
+            emit("updateSelected", value as Page)
+        }
+
     }
 }
 
@@ -308,9 +318,9 @@ const prevJuzPage = () => {
                                 </v-row>
                                 <v-row justify="center">
                                     <v-col cols="8">
-                                            <v-pagination rounded v-model="chaptersCurrentPage"
-                                                :length="chaptersPaginationLength" @next="nextChapterPage"
-                                                @prev="prevChapterPage"></v-pagination>
+                                        <v-pagination rounded v-model="chaptersCurrentPage"
+                                            :length="chaptersPaginationLength" @next="nextChapterPage"
+                                            @prev="prevChapterPage"></v-pagination>
                                     </v-col>
                                 </v-row>
                             </v-container>
