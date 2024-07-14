@@ -62,7 +62,7 @@ watchEffect(() => {
         }
         break;
       case "page":
-        const pageData = props.headerData.value as PageHeaderData        
+        const pageData = props.headerData.value as PageHeaderData
         headerDataValue.value = {
           left: $lang?.locale.value === "ar" ? pageData.left?.nameArabic : pageData.left?.nameSimple,
           right: {
@@ -82,10 +82,14 @@ watchEffect(() => {
 <template>
   <v-app-bar :elevation="2" density="comfortable" :extension-height="40">
     <template #prepend>
-      <v-avatar image="/logo.png"></v-avatar>
-      <v-app-bar-title class="ms-2" @click="$emit('updateHome', true)">
+      <v-app-bar-title class="ms-2">
         <template #text>
-          <p class="quran-header-title">{{ $tr.line('common.headingTitle') }}</p>
+          <v-btn class="quran-header-title" @click="$emit('updateHome', true)" variant="flat"
+            :text="$tr.line('common.headingTitle')">
+            <template #prepend>
+              <v-avatar image="/logo.png"></v-avatar>
+            </template>
+          </v-btn>
         </template>
       </v-app-bar-title>
     </template>
