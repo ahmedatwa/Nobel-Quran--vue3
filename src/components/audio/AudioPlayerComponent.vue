@@ -11,6 +11,7 @@ import { langKey } from "@/types/symbols";
 import { getStorage, setStorage } from "@/utils/storage";
 import { getLangFullLocale } from "@/utils/locale"
 import { makeWordLocation, getVerseNumberFromKey } from "@/utils/verse"
+import { createReciterAvatar } from "@/utils/reciter";
 import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "@/utils/datetime"
 // types
 import type { VerseTimings } from "@/types"
@@ -81,7 +82,7 @@ const AUDIO_DURATION_TOLERANCE = 1; // 1s ,
  * @returns {boolean} isWithinRange
  */
 const isCurrentTimeInRange = (currentTimeValue: number, timestampFrom: number, timestampTo: number) =>
-currentTimeValue >= timestampFrom && currentTimeValue < timestampTo;
+    currentTimeValue >= timestampFrom && currentTimeValue < timestampTo;
 
 
 const playbackListener = () => {
@@ -222,7 +223,7 @@ const cleanupListeners = () => {
 }
 
 onBeforeMount(() => {
-    const state = getStorage('audio-player')    
+    const state = getStorage('audio-player')
     if (state) {
         // Muted
         if (state.isMuted) {
@@ -234,13 +235,13 @@ onBeforeMount(() => {
             setAudioPlayBackRate(state.playbackRate)
         }
         // Media Volume
-        if (state.mediaVolume) {            
-            mediaVolume.value = state.mediaVolume            
+        if (state.mediaVolume) {
+            mediaVolume.value = state.mediaVolume
         }
         // AutoScroll | tooltip
         if (state.experience) {
             //audioPlayerSetting.
-           // settingS.audioExperience = state.experience
+            // settingS.audioExperience = state.experience
         }
     }
 })
@@ -533,7 +534,8 @@ const changeMediaVolume = (volume: number) => {
                             <v-avatar size="x-small">
                                 <v-img :src="`reciters/${audioPlayerStore.selectedReciter.reciter_id}.jpg`">
                                     <template #error>
-                                        <v-img :src="audioPlayerStore.avatarPlaceholder"></v-img>
+                                        <v-img
+                                            :src="createReciterAvatar(audioPlayerStore.selectedReciterName)"></v-img>
                                     </template>
                                 </v-img>
                             </v-avatar>

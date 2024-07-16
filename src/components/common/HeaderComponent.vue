@@ -84,7 +84,7 @@ watchEffect(() => {
     <template #prepend>
       <v-app-bar-title class="ms-2">
         <template #text>
-          <v-btn class="quran-header-title" @click="$emit('updateHome', true)" variant="flat"
+          <v-btn class="quran-header-title" to="/" variant="flat"
             :text="$tr.line('common.headingTitle')">
             <template #prepend>
               <v-avatar image="/logo.png"></v-avatar>

@@ -3,20 +3,16 @@ import { ref, onMounted, computed } from "vue";
 // utils
 import { getChapterNameByChapterId, TOTAL_CHAPTERS } from "@/utils/chapter";
 import { setLoadingIInterval, clearLoadingInterval } from "@/utils/interval";
+import { getAllReciters } from "@/utils/reciter";
 //axios
 import { instance, makeGetAudioRecitersUrl } from "@/axios";
-import { makeGetRecitationsUrl } from "@/axios";
+
 // types
 import type { AudioFile, Recitations } from "@/types/audio";
-import type {
-  mapRecitions,
-  VerseTimingsProps,
-  PlayAudioEmit,
-} from "@/types/audio";
+import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 import { useSettingStore } from "@/stores";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
-  const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
   const settingStore = useSettingStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
@@ -63,6 +59,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     audioSrc: "",
   });
 
+  const selectedReciterName = computed(() => selectedReciter.value.name);
   const chapterName = computed(() => {
     const chapter = getChapterNameByChapterId(chapterId.value);
     if (chapter) {
@@ -93,15 +90,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   };
 
   const getRecitations = async () => {
-    // https://api.qurancdn.com/api/qdc/audio/reciters?locale=en
-    await instance
-      .get(makeGetRecitationsUrl())
-      .then((response) => {
-        recitations.value = response.data.reciters;
-      })
-      .catch((e) => {
-        throw e;
-      });
+    await getAllReciters().then((response) => (recitations.value = response));
   };
 
   const getRecition = async (reciter: Recitations) => {
@@ -111,7 +100,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
 
   /**
    * play next chapter and loaddata when needed
-   * @param audioSrc 
+   * @param audioSrc
    * @return void
    */
   const playNext = async (audioSrc?: string) => {
@@ -121,8 +110,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
       chapterId.value =
         chapterId.value >= TOTAL_CHAPTERS ? 1 : chapterId.value + 1;
       // get the audio files
-      await getAudio(
-        { audioID: chapterId.value }, audioSrc);
+      await getAudio({ audioID: chapterId.value }, audioSrc);
       // TODO: Auto switch translations view with audio loop on
       // check chapter verses
       // const chapter = chapterStore.chaptersList.find(
@@ -155,28 +143,6 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     await getRecitations();
   });
 
-  const mapRecitions = computed((): mapRecitions[] | undefined => {
-    if (recitations.value) {
-      return recitations.value.reduce((o: any, i) => {
-        (o[i.style.name as keyof typeof o] =
-          o[i.style.name as keyof typeof o] || []).push(i);
-        return o;
-      }, {});
-    }
-  });
-
-  // in case reciter avatar didn't load
-  const getReciterNameInitials = computed(() => {
-    if (selectedReciter.value) {
-      const split = selectedReciter.value.name.split(" ");
-      return split[0].charAt(0) + split[1].charAt(0);
-    }
-  });
-
-  const avatarPlaceholder = computed(() => {
-    return `${AVATAR_PLACEHOLDER_API}?name="${selectedReciter.value.name}`;
-  });
-
   return {
     audioFiles,
     isLoading,
@@ -187,11 +153,9 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     chapterId,
     autoStartPlayer,
     selectedVerseKey,
-    mapRecitions,
     verseTiming,
+    selectedReciterName,
     audioPayLoadSrc,
-    getReciterNameInitials,
-    avatarPlaceholder,
     getRecitations,
     getAudio,
     getRecition,

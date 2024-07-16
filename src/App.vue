@@ -73,6 +73,7 @@ watch(selectedLanguage, (newLang) => {
       :content="metaItem.content">
   </teleport>
   <v-app>
+    
     <v-overlay :model-value="settingStore.isAppLoading" class="align-center justify-center">
       <v-progress-circular color="primary" size="64" indeterminate>
         <template v-slot:default> {{ settingStore.appIntervalValue }} % </template>
@@ -83,11 +84,12 @@ watch(selectedLanguage, (newLang) => {
         @update:selected-language="selectedLanguage = $event" @update-home="destroy">
       </header-component>
       <v-main style="overflow-x: hidden">
-        <quran-component :selected="tab" v-if="selected" @update:header-data="headerData = $event"
+        <router-view></router-view>
+        <!-- <quran-component :selected="tab" v-if="selected" @update:header-data="headerData = $event"
           @update:navigation-model-value="navigationModelValue = $event"></quran-component>
 
         <quran-home-component v-model:model-value="tab" @update-selected="selected = $event"
-          v-else></quran-home-component>
+          v-else></quran-home-component> -->
         <footer-component></footer-component>
       </v-main>
     </v-locale-provider>
