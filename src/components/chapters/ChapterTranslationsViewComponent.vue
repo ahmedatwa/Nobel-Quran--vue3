@@ -61,41 +61,40 @@ const emit = defineEmits<{
 }>();
 
 // Manual Mode Scroll
-const onIntersect = (intersecting: boolean, entries: any) => {
+const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]) => {
   isIntersecting.value = intersecting;
   let newHeaderData: ChapterHeaderData | null = null
-  if (intersecting && entries[0].intersectionRatio === 1) {
-    intersectingVerseNumber.value = Number(
-      entries[0].target.dataset.verseNumber
-    );
-    // emit header data
-    // Avoid watchers by comparing 2 objects
-    newHeaderData = {
-      left: chapterStore.selectedChapterName,
-      right: {
-        pageNumber: entries[0].target.dataset.pageNumber,
-        hizbNumber: entries[0].target.dataset.hizbNumber,
-        juzNumber: entries[0].target.dataset.juzNumber,
-      },
-    };
 
-    if (newHeaderData !== headerData.value) {
-      headerData.value = newHeaderData
-      emit("update:headerData", headerData.value);
+  if (intersecting && entries[0].intersectionRatio >= 0.8) {
+    const target = entries[0].target as HTMLDivElement
+    if (target) {
+      intersectingVerseNumber.value = Number(target.dataset.verseNumber);
+      // emit header data
+      // Avoid watchers by comparing 2 objects
+      newHeaderData = {
+        left: chapterStore.selectedChapterName,
+        right: {
+          pageNumber: Number(target.dataset.pageNumber),
+          hizbNumber: Number(target.dataset.hizbNumber),
+          juzNumber: Number(target.dataset.juzNumber),
+        },
+      };
+      if (newHeaderData !== headerData.value) {
+        headerData.value = newHeaderData
+        emit("update:headerData", headerData.value);
+      }
+      // emit verse id for scroll in verses list
+      // help to fetch new verses
+      // sending current/last verse Numbers to the chapters Nav
+      emit("update:manualIntersectingMode", {
+        lastVerseNumber: chapterStore.getLastVerseNumberOfChapter,
+        currentVerseNumber: intersectingVerseNumber.value
+      });
     }
-    // emit verse id for scroll in verses list
-    // help to fetch new verses
-    // sending current/last verse Numbers to the chapters Nav
-    emit("update:manualIntersectingMode", {
-      lastVerseNumber: chapterStore.getLastVerseNumberOfChapter,
-      currentVerseNumber: intersectingVerseNumber.value
-    });
-
   }
 };
 
 const setBookmarked = (verseNumber: number) => {
-
   chapterStore.selectedChapter?.verses?.forEach((v) => {
     if (v.verse_number === verseNumber) {
       v.bookmarked = true

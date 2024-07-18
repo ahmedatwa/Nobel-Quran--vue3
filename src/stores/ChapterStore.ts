@@ -11,6 +11,7 @@ import type { Verse } from "@/types/verse";
 // utils
 import { verseWordFields, verseFields } from "@/utils/verse";
 import { verseTranslationFields } from "@/utils/verse";
+import { getAllChapters } from "@/utils/chapter";
 
 export const useChapterStore = defineStore("chapter-store", () => {
   const translationsStore = useTranslationsStore();
@@ -24,7 +25,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     if (selectedChapter.value) {
       return selectedChapter.value.id;
     }
-    return 1
+    return 1;
   });
   const chapterInfo = ref<ChapterInfo | null>(null);
   const perPage = ref(10);
@@ -56,38 +57,16 @@ export const useChapterStore = defineStore("chapter-store", () => {
   });
 
   const getChapters = async () => {
-    isLoading.value.chapters = true;
-    await instance
-      .get("/chapters")
-      .then((response) => {
-        response.data.chapters.forEach((chapter: ChapterSchema) => {
-          chaptersList.value?.push({
-            id: chapter.id,
-            revelationPlace: chapter.revelation_place,
-            revelationOrder: chapter.revelation_order,
-            bismillahPre: chapter.bismillah_pre,
-            nameSimple: chapter.name_simple,
-            nameComplex: chapter.name_complex,
-            nameArabic: chapter.name_arabic,
-            versesCount: chapter.verses_count,
-            pages: chapter.pages,
-            translatedName: {
-              name: chapter.translated_name.name,
-              languageName: chapter.translated_name.language_name,
-            },
-            verses: [],
-            pagination: null,
-            chapterInfo: null,
-            audioFile: null,
-          });
-        });
-      })
-      .catch((error: any) => {
-        throw error;
-      })
-      .finally(() => {
-        isLoading.value.chapters = false;
+    const chapters: Chapter[] = await getAllChapters();
+    chapters.forEach((chapter: Chapter) => {
+      chaptersList.value?.push({
+        ...chapter,
+        verses: [],
+        pagination: null,
+        chapterInfo: null,
+        audioFile: null,
       });
+    });
   };
 
   const getVerses = async (

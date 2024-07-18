@@ -128,7 +128,7 @@ watchEffect(() => {
         </v-card-title>
         <v-sheet height="600" style="overflow: scroll; ">
             <v-list class="text-center">
-                <v-list-item v-for="juz in juzStore.juzs" :key="juz.id" @click="getSelected(juz)"
+                <v-list-item v-for="juz in juzStore.juzList" :key="juz.id" @click="getSelected(juz)"
                     :active="selectedId === juz.juz_number" :id="`juz${juz.juz_number}`"
                     @mouseenter="mouseEnter(juz.juz_number)">
                     {{ $tr.line('PageNav.textJuz') }} {{ juz.juz_number }}

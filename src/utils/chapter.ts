@@ -1,7 +1,23 @@
 import { formatStringNumber, _range } from "@/utils/number";
-import jsonChaptersData from "@/json/chapters.json";
+import { Chapter } from "@/types/chapter";
 
-export const TOTAL_CHAPTERS = 114
+export const TOTAL_CHAPTERS = 114;
+
+export const getAllChapters = (): Promise<Chapter[]> => {
+  return new Promise((resolve, reject) => {
+    try {
+      import("@/json/chapters.json").then((response) => {
+        resolve(response.chapters);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+export const getChapter = (chapterData: Chapter[], chapterId: number) => {
+  return chapterData.find((chapter) => chapter.id === chapterId);
+};
 /**
  * Given a pageId, get chapter ids from a json file
  *
@@ -31,14 +47,13 @@ export const getChapterIdsForPage = (
  * @returns {string[]}
  */
 export const generateChapterVersesKeys = (
+  chapterData: Chapter[],
   chapterId: string
 ): string[] | undefined => {
   const chapterNumberString = formatStringNumber(chapterId);
-  const chapter = jsonChaptersData.chapters.find(
-    (ch) => ch.id === Number(chapterId)
-  );
+  const chapter = chapterData.find((ch) => ch.id === Number(chapterId));
   if (chapter) {
-    return _range(chapter.verses_count, 0).map(
+    return _range(chapter.versesCount, 0).map(
       (verseId) => `${chapterNumberString}:${verseId + 1}`
     );
   }
@@ -49,21 +64,17 @@ type ReturnObject = {
   nameSimple: string;
   bismillahPre: boolean;
 };
-export const getChapterNameByChapterId = (chapterId: number): ReturnObject => {
-  const chapter = jsonChaptersData.chapters.find(
-    (c) => c.id === Number(chapterId)
-  );
-  let object = {
-    nameArabic: "",
-    nameSimple: "",
-    bismillahPre: false,
-  };
+
+export const getChapterNameByChapterId = (
+  chapterData: Chapter[],
+  chapterId: number
+): ReturnObject | undefined => {
+  const chapter = getChapter(chapterData, chapterId);
   if (chapter) {
-    object = {
-      nameSimple: chapter.name_simple,
-      nameArabic: chapter.name_arabic,
-      bismillahPre: chapter.bismillah_pre,
+    return {
+      nameSimple: chapter.nameSimple,
+      nameArabic: chapter.nameArabic,
+      bismillahPre: chapter.bismillahPre,
     };
   }
-  return object;
 };
