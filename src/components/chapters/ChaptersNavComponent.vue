@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect, onMounted } from "vue";
+import { ref, computed, watchEffect, onMounted, watch } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // utils
@@ -42,11 +42,11 @@ onMounted(async () => {
   }
 });
 
-watchEffect(() => {
-  if (chapterStore.selectedChapterId) {
+watch(() => chapterStore.selectedChapterId, (newId) => {
+  if (newId) {
     scrollToElement(`#chapter${chapterStore.selectedChapterId}`, 700);
   }
-});
+}, { once: true });
 
 /**
  * creates range from verse count
