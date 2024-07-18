@@ -2,7 +2,7 @@
 import { ref, inject, watchEffect } from "vue"
 import { computed, nextTick, watch, reactive } from "vue"
 // stores
-import { usePageStore } from "@/stores";
+import { useChapterStore, usePageStore } from "@/stores";
 // components
 import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/quran"
 // types
@@ -10,9 +10,9 @@ import type { PageHeaderData, GroupVersesByChapterID } from "@/types/page";
 import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 // utils
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
-import { getChapterNameByChapterId } from "@/utils/chapter"
 
 const pageStore = usePageStore()
+const { getChapterNameByChapterId } = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<PageHeaderData | null>(null);
@@ -59,16 +59,17 @@ const emit = defineEmits<{
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     let newHeaderData: PageHeaderData | null = null
-    if (intersecting && entries[0].intersectionRatio === 1) {
-        const chapterId: number = entries[0].target.dataset.chapterId
+    if (intersecting && entries[0].intersectionRatio >= 0.8) {
+        const target = entries[0].target
+        const chapterId: number = target.dataset.chapterId
         // emit header data
         // Avoid watchers by comparing 2 objects
         newHeaderData = {
-            left: getChapterNameByChapterId(chapterId) || null,
+            left: getChapterNameByChapterId(chapterId),
             right: {
-                pageNumber: entries[0].target.dataset.pageNumber,
-                hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: entries[0].target.dataset.juzNumber,
+                pageNumber: target.dataset.pageNumber,
+                hizbNumber: target.dataset.hizbNumber,
+                juzNumber: target.dataset.juzNumber,
             },
         };
 
@@ -185,9 +186,9 @@ const getStartOfPage = () => {
 /**
  * inital header data
  */
-watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
-    if (newHeaderData) {
-        headerData.value = newHeaderData
+watch(() => pageStore.getInitialHeaderData, (initHeaderData) => {
+    if (initHeaderData) {
+        headerData.value = initHeaderData
         emit('update:headerData', headerData.value)
     }
 }, { once: true })

@@ -2,7 +2,7 @@
 import { ref, computed, inject } from "vue";
 import { nextTick, reactive, watch } from "vue";
 // stores
-import { usePageStore } from "@/stores";
+import { useChapterStore, usePageStore } from "@/stores";
 // components
 import { TitleButtonsComponent } from "@/components/quran"
 // types
@@ -10,12 +10,12 @@ import type { PageHeaderData } from "@/types/page"
 import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
-import { getChapterNameByChapterId } from "@/utils/chapter"
 import { scrollToElement } from "@/utils/useScrollToElement"
 import { DEFAULT_NUMBER_OF_PAGES } from "@/utils/pages"
 
 
 const pageStore = usePageStore()
+const { getChapterNameByChapterId } = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<PageHeaderData | null>(null);
@@ -72,7 +72,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
         const chapterId: number = entries[0].target.dataset.chapterId
         // emit header data
         newHeaderData = {
-            left: getChapterNameByChapterId(chapterId) || null,
+            left: getChapterNameByChapterId(chapterId),
             right: {
                 pageNumber: pageStore.selectedPage?.pageNumber || 0,
                 hizbNumber: entries[0].target.dataset.hizbNumber,
@@ -155,7 +155,7 @@ const getNextPage = async () => {
 }
 
 const getStartOfPage = () => {
-    if (getFirstVerseRow.value) {        
+    if (getFirstVerseRow.value) {
         scrollToElement(`#line-${getFirstVerseRow.value}`)
     }
 }
@@ -203,9 +203,8 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                                         },
                                     }">
                                     <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position"
-                                        class="" :data-hizb-number="verse.hizb_number"
-                                        :style="[defaultStyles, cssVars]" :data-juz-number="verse.juz_number"
-                                        :data-chapter-id="verse.chapter_id">
+                                        class="" :data-hizb-number="verse.hizb_number" :style="[defaultStyles, cssVars]"
+                                        :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id">
                                         <div :class="isWordHighlighted(word.position, word.verse_key)
                                             ? 'text-blue'
                                             : ''

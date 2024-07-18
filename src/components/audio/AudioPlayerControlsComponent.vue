@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 // stores
-import { useAudioPlayerStore } from "@/stores";
+import { useAudioPlayerStore, useChapterStore } from "@/stores";
 // components
 import { AudioPlayerMenuComponent } from "@/components/audio"
-// utils
-import { TOTAL_CHAPTERS } from "@/utils/chapter";
 
 const audioPlayerStore = useAudioPlayerStore()
+const { TOTAL_CHAPTERS } = useChapterStore()
 const dialog = ref(false)
 const play = ref(false)
 const volumeIcon = ref("mdi-volume-high")

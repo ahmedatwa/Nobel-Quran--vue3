@@ -38,9 +38,9 @@ export const getChapterNameByJuzId = (
   jsonChaptersData.chapters.forEach((chapter) => {
     if (chapter.id === Number(chapterId)) {
       object = {
-        nameSimple: chapter.name_simple,
-        nameArabic: chapter.name_arabic,
-        bismillahPre: chapter.bismillah_pre,
+        nameSimple: chapter.nameSimple,
+        nameArabic: chapter.nameArabic,
+        bismillahPre: chapter.bismillahPre,
       };
     }
   });

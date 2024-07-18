@@ -7,7 +7,6 @@ import { useJuzStore, useChapterStore } from "@/stores";
 import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/quran"
 // utils
 import { getFirstVerseNumberInJuz } from "@/utils/verse"
-import { getChapterNameByChapterId } from "@/utils/chapter"
 import { getChapterNameByJuzId } from "@/utils/juz"
 import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
 
@@ -17,7 +16,7 @@ import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 import { _range } from "@/utils/number";
 
 const juzStore = useJuzStore()
-const { getChapterName } = useChapterStore()
+const { getChapterNameByChapterId } = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<JuzHeaderData | null>(null);
@@ -57,19 +56,20 @@ const getCurrentJuzNumber = computed((): number => {
 const onIntersect = (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     let newHeaderData: JuzHeaderData | null = null
-    if (intersecting && props.selectedJuzTab === "juzTranslationsTab" && entries[0].intersectionRatio === 1) {
+    if (intersecting && entries[0].intersectionRatio >= 0.7) {
+        const target = entries[0].target
         // Verse Id is used here as key won't be efficient for scroll
-        intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseId)
-        const chapterId: number = entries[0].target.dataset.chapterId
+        intersectingJuzVerseNumber.value = Number(target.dataset.verseId)
+        const chapterId: number = target.dataset.chapterId
         intersectingChapterId.value = chapterId
 
         if (intersectingChapterId.value) {
             // emit header data
             newHeaderData = {
-                left: getChapterNameByChapterId(chapterId) || null,
+                left: getChapterNameByChapterId(chapterId),
                 right: {
-                    pageNumber: entries[0].target.dataset.pageNumber,
-                    hizbNumber: entries[0].target.dataset.hizbNumber,
+                    pageNumber: target.dataset.pageNumber,
+                    hizbNumber: target.dataset.hizbNumber,
                     juzNumber: getCurrentJuzNumber.value,
                 }
             }
@@ -207,7 +207,7 @@ const isNextJuzDisabled = computed(() => {
 watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
     if (newVal) {
         headerData.value = {
-            left: getChapterNameByChapterId(newVal.chapter_id) || null,
+            left: getChapterNameByChapterId(newVal.chapter_id),
             right: {
                 pageNumber: newVal.page_number,
                 hizbNumber: newVal.hizb_number,
@@ -234,8 +234,8 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                     :audio-src="`juz-Translations-${juzStore.selectedJuz?.id}`"
                     @update:play-audio="$emit('update:playAudio', $event)">
                     <template #title>
-                        <h2>{{ getChapterName(chapterId)?.ar }}</h2>
-                        <h3>{{ getChapterName(chapterId)?.bismillah ? $tr.line("quranReader.textBismillah") : '' }}</h3>
+                        <h2>{{ getChapterNameByChapterId(chapterId)?.nameArabic }}</h2>
+                        <h3>{{ getChapterNameByChapterId(chapterId)?.bismillahPre ? $tr.line("quranReader.textBismillah") : '' }}</h3>
                     </template>
                 </title-buttons-component>
             </v-col>
