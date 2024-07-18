@@ -92,11 +92,12 @@ watchEffect(async () => {
     if (
       intersectingData.currentVerseNumber ===
       intersectingData.lastVerseNumber ||
-      intersectingData.currentVerseNumber ===
+      intersectingData.currentVerseNumber >=
       intersectingData.lastVerseNumber - 5
     ) {
 
-      if (getVersePagination.value?.next_page) {
+
+      if (getVersePagination.value) {
         await chapterStore.getVerses(chapterStore.selectedChapterId, true, getVersePagination.value?.next_page)
       }
     }
