@@ -7,7 +7,7 @@ import { _range, localizeNumber } from "@/utils/number";
 import { isVerseKeyWithinRanges } from "@/utils/verse";
 // types
 import type { Chapter, ManualIntersectingMode } from "@/types/chapter";
-import { scrollToElement } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_TOP } from "@/utils/useScrollToElement";
 
 // Stores
 const chapterStore = useChapterStore();
@@ -44,7 +44,7 @@ onMounted(async () => {
 
 watch(() => chapterStore.selectedChapterId, (newId) => {
   if (newId) {
-    scrollToElement(`#chapter${chapterStore.selectedChapterId}`, 700);
+    scrollToElement(`#chapter${chapterStore.selectedChapterId}`, 700, SMOOTH_SCROLL_TO_TOP);
   }
 }, { once: true });
 
