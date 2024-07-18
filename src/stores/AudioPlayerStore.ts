@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, onMounted, computed } from "vue";
 // utils
-import { getChapterNameByChapterId, TOTAL_CHAPTERS } from "@/utils/chapter";
 import { setLoadingIInterval, clearLoadingInterval } from "@/utils/interval";
 //axios
 import { instance, makeGetAudioRecitersUrl } from "@/axios";
@@ -13,11 +12,12 @@ import type {
   VerseTimingsProps,
   PlayAudioEmit,
 } from "@/types/audio";
-import { useSettingStore } from "@/stores";
+import { useChapterStore, useSettingStore } from "@/stores";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
   const settingStore = useSettingStore();
+  const { getChapterNameByChapterId, TOTAL_CHAPTERS } = useChapterStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
@@ -111,7 +111,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
 
   /**
    * play next chapter and loaddata when needed
-   * @param audioSrc 
+   * @param audioSrc
    * @return void
    */
   const playNext = async (audioSrc?: string) => {
@@ -121,8 +121,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
       chapterId.value =
         chapterId.value >= TOTAL_CHAPTERS ? 1 : chapterId.value + 1;
       // get the audio files
-      await getAudio(
-        { audioID: chapterId.value }, audioSrc);
+      await getAudio({ audioID: chapterId.value }, audioSrc);
       // TODO: Auto switch translations view with audio loop on
       // check chapter verses
       // const chapter = chapterStore.chaptersList.find(

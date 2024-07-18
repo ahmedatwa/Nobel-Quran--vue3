@@ -28,7 +28,7 @@ interface juzVersesByPageMap {
 }
 
 interface JuzHeaderData {
-  left: { nameArabic: string; nameSimple: string; bismillahPre: boolean };
+  left?: { nameArabic: string; nameSimple: string; bismillahPre: boolean };
   right: {
     pageNumber: string | number;
     hizbNumber: string | number;

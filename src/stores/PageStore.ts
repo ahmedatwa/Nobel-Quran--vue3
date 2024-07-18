@@ -1,13 +1,12 @@
 import { defineStore } from "pinia";
 import { computed, onMounted, ref, watch } from "vue";
 // stores
-import { useTranslationsStore } from "@/stores";
+import { useChapterStore, useTranslationsStore } from "@/stores";
 // axios
 import { instance } from "@/axios";
 // utils
 import { _range } from "@/utils/number";
 import { getAllPages } from "@/utils/pages";
-import { getChapterNameByChapterId } from "@/utils/chapter";
 // types
 import type { Page } from "@/types/page";
 import type { Verse } from "@/types/verse";
@@ -22,6 +21,7 @@ export const usePageStore = defineStore("page-store", () => {
   const isLoading = ref(false);
   const perPage = ref(10);
   const translationsStore = useTranslationsStore();
+  const { getChapterNameByChapterId } = useChapterStore();
   const selectedPage = ref<Page | null>(null);
   const selectedPageId = ref<number>();
   const searchValue = ref("");
@@ -68,7 +68,7 @@ export const usePageStore = defineStore("page-store", () => {
               page.verses?.push({ ...verse, bookmarked: false });
             }
           });
-          
+
           page.pagination = response.data.pagination;
           if (selectedPage.value?.pageNumber === page.pageNumber) {
             if (selectedPage.value) {

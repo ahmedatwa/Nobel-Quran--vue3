@@ -6,15 +6,15 @@ import { useTranslationsStore } from "@/stores";
 import { instance } from "@/axios";
 // types
 import type { Chapter, ChapterInfo } from "@/types/chapter";
-import type { Loading, ChapterSchema } from "@/types/chapter";
+import type { Loading } from "@/types/chapter";
 import type { Verse } from "@/types/verse";
 // utils
 import { verseWordFields, verseFields } from "@/utils/verse";
 import { verseTranslationFields } from "@/utils/verse";
-import { getAllChapters } from "@/utils/chapter";
 
 export const useChapterStore = defineStore("chapter-store", () => {
   const translationsStore = useTranslationsStore();
+  const TOTAL_CHAPTERS = ref(114);
   const isLoading = ref<Loading>({ chapters: false, verses: false });
   const chaptersList = ref<Chapter[]>([]);
   const currentSortDir = ref("asc");
@@ -56,17 +56,63 @@ export const useChapterStore = defineStore("chapter-store", () => {
     }
   });
 
-  const getChapters = async () => {
-    const chapters: Chapter[] = await getAllChapters();
-    chapters.forEach((chapter: Chapter) => {
-      chaptersList.value?.push({
-        ...chapter,
-        verses: [],
-        pagination: null,
-        chapterInfo: null,
-        audioFile: null,
-      });
+  const getAllChapters = (): Promise<Chapter[]> => {
+    return new Promise((resolve, reject) => {
+      try {
+        import("@/json/chapters.json").then((response) => {
+          resolve(response.chapters);
+        });
+      } catch (error) {
+        reject(error);
+      }
     });
+  };
+
+  /**
+   * get all chapters data from json file
+   */
+  const getChapters = async () => {
+    isLoading.value.chapters = true;
+    await getAllChapters()
+      .then((response) => {
+        response.forEach((chapter: Chapter) => {
+          chaptersList.value?.push({
+            ...chapter,
+            verses: [],
+            pagination: null,
+            chapterInfo: null,
+            audioFile: null,
+          });
+        });
+      })
+      .catch((error) => {
+        throw error;
+      })
+      .finally(() => {
+        isLoading.value.chapters = false;
+      });
+  };
+
+  /**
+   *
+   * @param chapterId
+   * @returns
+   */
+  const getChapter = (chapterId: number) => {
+    if (chaptersList.value) {
+      return chaptersList.value.find((chapter) => chapter.id === chapterId);
+    }
+  };
+
+  const getChapterNameByChapterId = (chapterId: number) => {
+    const chapter = getChapter(chapterId);
+    if (chapter) {
+      return {
+        nameSimple: chapter.nameSimple,
+        nameArabic: chapter.nameArabic,
+        bismillahPre: chapter.bismillahPre,
+      };
+    }
   };
 
   const getVerses = async (
@@ -248,10 +294,13 @@ export const useChapterStore = defineStore("chapter-store", () => {
     getLastVerseNumberOfChapter,
     getFirstVerseHeaderData,
     selectedChapterVerses,
+    TOTAL_CHAPTERS,
     getChapterName,
     getchapterInfo,
     getVerses,
     getVerseByKey,
     getChapters,
+    getChapter,
+    getChapterNameByChapterId,
   };
 });

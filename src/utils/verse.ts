@@ -1,3 +1,5 @@
+import { formatStringNumber, _range } from "@/utils/number";
+
 interface verseMap {
   [key: number]: string;
 }
@@ -118,6 +120,22 @@ export const getVerseNumberRangeFromKey = (
     from: Number(from),
     to: to ? Number(to) : Number(from),
   };
+};
+
+/**
+ * This will generate all the keys for the verses of a chapter. a key is `{chapterId}:{verseId}`.
+ *
+ * @param {string} chapterId
+ * @returns {string[]}
+ */
+export const generateChapterVersesKeys = (
+  versesCount: number,
+  chapterId: string
+): string[] | undefined => {
+  const chapterNumberString = formatStringNumber(chapterId);
+  return _range(versesCount, 0).map(
+    (verseId) => `${chapterNumberString}:${verseId + 1}`
+  );
 };
 
 export const verseFields = [

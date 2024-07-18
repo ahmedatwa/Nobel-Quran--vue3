@@ -23,7 +23,7 @@ type Pagination = Record<
 >;
 
 interface PageHeaderData {
-  left: { nameArabic: string; nameSimple: string; bismillahPre: boolean };
+  left: { nameArabic: string; nameSimple: string; bismillahPre: boolean } | undefined;
   right: {
     pageNumber: string | number;
     hizbNumber: string | number;

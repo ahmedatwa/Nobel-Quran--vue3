@@ -34,8 +34,8 @@ const getChaptersForPage = (
   if (chapter) {
     chapters.push({
       id: chapter.id,
-      nameArabic: chapter.name_arabic,
-      nameSimple: chapter.name_simple,
+      nameArabic: chapter.nameArabic,
+      nameSimple: chapter.nameSimple,
     });
   }
   return chapters;

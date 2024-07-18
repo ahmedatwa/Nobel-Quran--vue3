@@ -17,7 +17,7 @@ const _theme = useTheme();
 const $lang = inject(langKey);
 const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
-const headerDataValue = ref<ChapterHeaderData | JuzHeaderData | PageHeaderData>()
+const headerDataValue = ref<{left?: string, right: Record<"pageNumber" | "juzNumber" | "hizbNumber", string>}>()
 
 const props = defineProps<{
   headerData: { key: string, value: ChapterHeaderData | PageHeaderData | JuzHeaderData } | null;
