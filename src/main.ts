@@ -12,7 +12,6 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import router from "@/router";
 
-
 // fonts
 import "@fontsource/gulzar";
 import "@fontsource/amiri";
@@ -34,4 +33,6 @@ app.use(pinia).use(router).use(i18nPlugin, {
   ar,
 });
 
-app.mount("#app");
+router.isReady().then(() => {
+  app.mount("#app");
+});

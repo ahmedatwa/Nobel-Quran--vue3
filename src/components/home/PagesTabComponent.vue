@@ -1,5 +1,13 @@
-<script lang="ts">
+<script setup lang="ts">
 import { ref, computed } from "vue"
+// types
+import type { Page } from "@/types/page";
+// stores
+import { usePageStore } from "@/stores";
+// utils
+import { localizeNumber } from "@/utils/number"
+
+const pageStore = usePageStore()
 
 const pagesSearchValue = ref("")
 const pagesCurrentSortDir = ref("asc");
@@ -47,6 +55,22 @@ const pagesSort = (s: string) => {
     pagesCurrentSort.value = s;
 };
 
+const mouseEnter = async (page: Page) => {
+    if (!page.verses?.length)
+        await getPageVerses(page.pageNumber)
+}
+
+const getSelectedPage = async (page: Page) => {
+    if (!page.verses?.length) {
+        await getPageVerses(page.pageNumber)
+    }
+    pageStore.selectedPage = page
+}
+
+const getPageVerses = async (pageNumber: number) => {
+    await pageStore.getVerses(pageNumber, false)
+}
+
 </script>
 
 <template>
@@ -63,14 +87,14 @@ const pagesSort = (s: string) => {
                 </v-text-field>
             </v-col>
         </v-row>
-        <v-row v-if="!pageStore.pages?.length">
+        <v-row v-if="!pageStore.pagesList?.length">
             <v-col cols="12" md="4" v-for="n in totalPages" :key="n">
                 <v-skeleton-loader type="image"></v-skeleton-loader>
             </v-col>
         </v-row>
         <v-row dense v-else>
             <v-col v-for="page in pages" :key="page.pageNumber" cols="12" md="4">
-                <v-card @click="getSelected('page', page)" :border="true" @mouseenter="mouseEnter('page', page)">
+                <v-card @click="getSelectedPage(page)" :border="true" @mouseenter="mouseEnter(page)">
                     <v-sheet class="d-flex ms-2 mt-2">
                         {{ $tr.line("home.textPage") }} {{ localizeNumber(page.pageNumber,
                             $tr.locale.value) }}
@@ -95,6 +119,4 @@ const pagesSort = (s: string) => {
             </v-col>
         </v-row>
     </v-container>
-
-
 </template>

@@ -1,37 +1,70 @@
-import { createMemoryHistory, createRouter } from "vue-router";
+import { createWebHistory, createRouter } from "vue-router";
 import { RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     component: () => import("@/components/quran/QuranHomeComponent.vue"),
-  },
-  {
-    path: "/home",
     children: [
       {
-        path: "/chapters",
-        component: () => import("@/components/quran/QuranHomeComponent.vue"),
+        name: "chaptersTab",
+        path: "/",
+        component: () => import("@/components/home/ChaptersTabComponent.vue"),
       },
       {
-        path: "/juzs",
-        component: () => import("@/components/quran/QuranHomeComponent.vue"),
+        name: "juzsTab",
+        path: "/",
+        component: () => import("@/components/home/JuzsTabComponent.vue"),
       },
       {
-        path: "/pages",
-        component: () => import("@/components/quran/QuranHomeComponent.vue"),
+        name: "pagesTab",
+        path: "/",
+        component: () => import("@/components/home/PagesTabComponent.vue"),
       },
       {
-        path: "/relevation-order",
-        component: () => import("@/components/quran/QuranHomeComponent.vue"),
+        name: "relevationOrderTab",
+        path: "/",
+        component: () => import("@/components/home/RelevationTabComponent.vue"),
+      },
+    ],
+  },
+  // {
+  //   path: "",
+  //   name: "quranHome",
+  //   component: () => import("@/components/quran/QuranComponent.vue"),
+  //   props: true,
+  // },
+  {
+    path: "/chapters",
+    name: "chapters",
+    component: () => import("@/components/chapters/ChaptersComponent.vue"),
+    children: [
+      {
+        path: "/translations/:chapterName/verse/:verse",
+        name: "chapterTranslations",
+        component: () =>
+          import("@/components/chapters/ChapterTranslationsViewComponent.vue"),
+      },
+      {
+        path: "/reading/:chapterName/verse/:verse",
+        name: "chapterReading",
+        component: () =>
+          import("@/components/chapters/ChapterReadingViewComponent.vue"),
       },
     ],
   },
 ];
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
 });
+
+// router.beforeEach((_to, _from, _next) => {
+//   settingStore.isAppLoading = true;
+// });
+// router.afterEach((_to, _from) => {
+//   settingStore.isAppLoading = false;
+// });
 
 export default router;

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, provide, watch } from "vue";
 // components
-import { QuranHomeComponent, QuranComponent } from "@/components/quran";
-import { HeaderComponent, FooterComponent } from "@/components/common";
+import { HeaderComponent, FooterComponent, NavigationComponent } from "@/components/common";
 // types
 import type { Chapter } from "@/types/chapter";
 import type { Juz } from "@/types/juz";
@@ -11,7 +10,7 @@ import type { ChapterHeaderData } from "@/types/chapter";
 import type { JuzHeaderData } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 // utils
-import { getStorage, clearStorage, setStorage } from "@/utils/storage";
+import { getStorage, setStorage } from "@/utils/storage";
 import { useTheme } from "vuetify";
 // Store 
 import { useMetaStore, useSettingStore } from "@/stores"
@@ -23,7 +22,7 @@ const settingStore = useSettingStore()
 const selectedLanguage = ref("en");
 const settingsDrawer = ref(false);
 const headerData = ref<{ key: string, value: ChapterHeaderData | JuzHeaderData | PageHeaderData } | null>(null);
-const selected = ref<Chapter | Juz | Page | null>(null);
+const selected = ref(false);
 const tab = ref("chapters");
 //const isLoading = ref(false);
 
@@ -52,9 +51,6 @@ onBeforeMount(() => {
   }
 });
 
-const destroy = () => {
-  clearStorage(true);
-};
 
 watch(tab, (newVal) => {
   if (newVal) setStorage("tab", tab.value)
@@ -73,7 +69,7 @@ watch(selectedLanguage, (newLang) => {
       :content="metaItem.content">
   </teleport>
   <v-app>
-    
+
     <v-overlay :model-value="settingStore.isAppLoading" class="align-center justify-center">
       <v-progress-circular color="primary" size="64" indeterminate>
         <template v-slot:default> {{ settingStore.appIntervalValue }} % </template>
@@ -81,15 +77,10 @@ watch(selectedLanguage, (newLang) => {
     </v-overlay>
     <v-locale-provider :rtl="$tr.rtl.value">
       <header-component :header-data="headerData" @update:settings-drawer="settingsDrawer = $event"
-        @update:selected-language="selectedLanguage = $event" @update-home="destroy">
+        @update:selected-language="selectedLanguage = $event">
       </header-component>
-      <v-main style="overflow-x: hidden">
-        <router-view></router-view>
-        <!-- <quran-component :selected="tab" v-if="selected" @update:header-data="headerData = $event"
-          @update:navigation-model-value="navigationModelValue = $event"></quran-component>
-
-        <quran-home-component v-model:model-value="tab" @update-selected="selected = $event"
-          v-else></quran-home-component> -->
+      <v-main>
+        <router-view @update:selected="selected = $event"></router-view>
         <footer-component></footer-component>
       </v-main>
     </v-locale-provider>

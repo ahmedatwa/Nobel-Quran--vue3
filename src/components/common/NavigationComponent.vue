@@ -13,7 +13,7 @@ import type { JuzVersesIntersecting } from "@/types/juz"
 const navigationTab = ref("chapters")
 
 const props = defineProps<{
-    selected: string
+    selected?: string
     chapterManualIntersectingMode?: ManualIntersectingMode
     juzManualIntersecting?: JuzVersesIntersecting
     intersectingPageVerseNumber?: number

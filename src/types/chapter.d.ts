@@ -11,6 +11,7 @@ interface Chapter {
   nameSimple: string;
   nameArabic: string;
   nameComplex: string;
+  slug: string;
   translatedName: TranslatedName;
   versesCount: number;
   verses?: Verse[];

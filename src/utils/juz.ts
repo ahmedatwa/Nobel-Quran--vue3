@@ -1,6 +1,7 @@
 import jsonJuzsData from "@/json/juz-to-chapter-mappings.json";
 import jsonChaptersData from "@/json/chapters.json";
 import type { Verse } from "@/types/verse";
+import type { JuzVerseMapping } from "@/types/juz";
 
 /**
  * Given a juzId, get chapters ids from a json file
@@ -48,8 +49,25 @@ export const getChapterNameByJuzId = (
 };
 
 export const getFirstVerseOfJuzByPage = (verses: Verse[]) => {
-  const first = verses[0];  
+  const first = verses[0];
   if (first) {
     return first.verse_key;
   }
+};
+
+export const getChapterAndVerseMappingForJuz = (
+  juzNumber: number,
+  verseMapping: JuzVerseMapping
+) => {
+  const array = [];
+  for (const key in verseMapping) {
+    const verses = verseMapping[key];
+
+    array.push({
+      juzNumber: juzNumber,
+      chapter: getChapterNameByJuzId(juzNumber, Number(key)),
+      verses,
+    });
+  }
+  return array;
 };

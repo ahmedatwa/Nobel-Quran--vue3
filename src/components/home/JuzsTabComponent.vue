@@ -1,6 +1,15 @@
-<script lang="ts">
+<script setup lang="ts">
 import { ref, computed } from "vue"
-import type { Juz, JuzVerseMapping } from "@/types/juz"
+// types
+import type { Juz } from "@/types/juz"
+// utils
+import { getChapterAndVerseMappingForJuz } from "@/utils/juz"
+import { localizeNumber } from "@/utils/number"
+// stores
+import { useJuzStore } from "@/stores";
+
+
+const juzStore = useJuzStore()
 
 
 const juzSearchValue = ref("")
@@ -13,13 +22,14 @@ const juzsPaginationLength = computed(() => {
     return Math.ceil(totalJuzs.value / juzPageSize.value)
 })
 
-const props = defineProps<{
-    juzs: Juz[]
+
+const emit = defineEmits<{
+    "update:juzSelected": [value: Juz]
 }>()
 
 const juzsMapWithChapters = computed(() => {
-    if (props.juzs) {
-        const map = props.juzs.map((juz) => {
+    if (juzStore.juzList) {
+        const map = juzStore.juzList.map((juz) => {
             return {
                 ...juz,
                 chapters: getChapterAndVerseMappingForJuz(juz.juz_number, juz.verse_mapping)
@@ -44,24 +54,7 @@ const juzsMapWithChapters = computed(() => {
     }
 })
 
-const getChapterAndVerseMappingForJuz = (juzNumber: number, verseMapping: JuzVerseMapping) => {
-    // const array = []
-    // for (const key in verseMapping) {
-    //     const verses = verseMapping[key];
-    //     const chapterFound = chapterStore.chaptersList.find((chapter) => chapter.id === Number(key))
-    //     if (chapterFound) {
-    //         array.push({
-    //             juzNumber: juzNumber,
-    //             chapterId: key,
-    //             en: chapterFound.nameSimple,
-    //             ar: chapterFound.nameArabic,
-    //             verses
 
-    //         })
-    //     }
-    // }
-    // return array
-}
 const juzsSort = (s: string) => {
     if (s === juzCurrentSort.value) {
         juzCurrentSortDir.value = juzCurrentSortDir.value === "asc" ? "desc" : "asc";
@@ -75,6 +68,21 @@ const prevJuzPage = () => {
     if (juzCurrentPage.value > 1) juzCurrentPage.value--;
 }
 
+const mouseEnter = async (juz: Juz) => {
+    if (!juz.verses?.length)
+        await getJuzVerses(juz.juz_number)
+}
+
+const getSelectedJuz = async (juz: Juz) => {
+    if (!juz.verses?.length) {
+        await getJuzVerses(juz.juz_number)
+    }
+    juzStore.selectedJuz = juz
+}
+
+const getJuzVerses = async (juzNumber: number) => {
+    await juzStore.getVerses(juzNumber, false)
+}
 
 </script>
 
@@ -92,15 +100,15 @@ const prevJuzPage = () => {
                 </v-text-field>
             </v-col>
         </v-row>
-        <v-row v-if="!juzStore.juzs?.length">
+        <v-row v-if="!juzStore.juzList?.length">
             <v-col cols="12" md="4" v-for="n in totalJuzs" :key="n">
                 <v-skeleton-loader type="image"></v-skeleton-loader>
             </v-col>
         </v-row>
         <v-row dense v-else>
             <v-col v-for="juz in juzsMapWithChapters" :key="juz.id" cols="12" md="4">
-                <v-card :data-id="juz.id" @click="getSelected('juz', juz)" :border="true"
-                    @mouseenter="mouseEnter('juz', juz)" height="100">
+                <v-card :data-id="juz.id" @click="getSelectedJuz(juz)" :border="true" @mouseenter="mouseEnter(juz)"
+                    height="100">
                     <v-sheet class="d-flex ma-2">
                         <span class="me-auto">{{ $tr.line("home.textJuz") }}
                             {{ localizeNumber(juz.juz_number, $tr.locale.value) }}</span>
@@ -109,10 +117,10 @@ const prevJuzPage = () => {
                                 $tr.line('home.textVerse') }}</span>
                     </v-sheet>
                     <v-card-text>
-                        <v-sheet v-for="chapter in juz.chapters" :key="chapter.chapterId" class="w-100">
+                        <v-sheet v-for="chapter in juz.chapters" :key="chapter.juzNumber" class="w-100">
                             <div class="d-flex text-blue-grey-lighten-2">
                                 <div class="me-auto">- {{ $tr.rtl.value ?
-                                    chapter.ar : chapter.en }}
+                                    chapter.chapter.nameArabic : chapter.chapter.nameSimple }}
                                 </div>
                                 <div>{{ $tr.line("home.textVerses") }} {{
                                     localizeNumber(chapter.verses,
@@ -131,6 +139,4 @@ const prevJuzPage = () => {
             </v-col>
         </v-row>
     </v-container>
-
-
 </template>

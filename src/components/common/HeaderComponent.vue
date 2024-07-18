@@ -84,8 +84,7 @@ watchEffect(() => {
     <template #prepend>
       <v-app-bar-title class="ms-2">
         <template #text>
-          <v-btn class="quran-header-title" to="/" variant="flat"
-            :text="$tr.line('common.headingTitle')">
+          <v-btn to="/" variant="plain" :text="$tr.line('common.headingTitle')">
             <template #prepend>
               <v-avatar image="/logo.png"></v-avatar>
             </template>

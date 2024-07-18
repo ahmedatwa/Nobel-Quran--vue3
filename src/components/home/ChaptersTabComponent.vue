@@ -1,8 +1,14 @@
-<script lang="ts">
+<script setup lang="ts">
 import { ref, computed } from "vue"
 import type { Chapter } from "@/types/chapter";
-import { TOTAL_CHAPTERS } from "@/utils/chapter";
+// utils
+import { TOTAL_CHAPTERS, getChapterNameSlug, getFirstVerseOfChapter } from "@/utils/chapter";
+import { localizeNumber } from "@/utils/number"
+// stores
+import { useChapterStore } from "@/stores";
+import router from "@/router"
 
+const chapterStore = useChapterStore()
 
 const chaptersSearchValue = ref("")
 const chaptersCurrentSortDir = ref("asc");
@@ -14,14 +20,16 @@ const chaptersPaginationLength = computed(() => {
     return Math.ceil(totalChapters.value / chaptersPageSize.value)
 })
 
-const props = defineProps<{
-    chapters: Chapter[]
+
+const emit = defineEmits<{
+    "update:selected": [value: boolean]
 }>()
 
+
 const chapters = computed(() => {
-    if (props.chapters) {
+    if (chapterStore.chaptersList) {
         const searchableKeys = ["nameSimple", "nameArabic"];
-        return props.chapters
+        return chapterStore.chaptersList
             .filter((chapter: { nameSimple: string; nameArabic: string }) => {
                 return searchableKeys.some((key) => {
                     return chapter[key as keyof typeof chapter]
@@ -62,6 +70,23 @@ const chaptersSort = (s: string) => {
     chaptersCurrentSort.value = s;
 };
 
+const mouseEnter = async (chapter: Chapter) => {
+    if (!chapter.verses?.length)
+        await getChapterVerses(chapter.id)
+}
+
+const getSelectedChapter = async (chapter: Chapter) => {
+    if (!chapter.verses?.length) {
+        await getChapterVerses(chapter.id)
+        emit('update:selected', true)
+    }
+    chapterStore.selectedChapter = chapter
+    router.push(`/${chapter.slug}/verse/${getFirstVerseOfChapter(chapter.verses).verse_number}`)
+}
+
+const getChapterVerses = async (chapterId: number) => {
+    await chapterStore.getVerses(chapterId, false)
+}
 </script>
 
 <template>
@@ -85,8 +110,8 @@ const chaptersSort = (s: string) => {
         </v-row>
         <v-row dense v-else>
             <v-col v-for="chapter in chapters" :key="chapter.id" cols="12" md="4">
-                <v-card :data-id="chapter.id" @click="getSelected('chapter', chapter)" :border="true"
-                    @mouseenter="mouseEnter('chapter', chapter)">
+                <v-card :data-id="chapter.id" @click="getSelectedChapter(chapter)" :border="true"
+                    @mouseenter="mouseEnter(chapter)">
                     <v-card-text>
                         <div class="d-flex">
                             <v-chip color="primary">{{ chapter.id }}</v-chip>

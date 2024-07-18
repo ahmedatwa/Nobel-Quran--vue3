@@ -18,7 +18,7 @@ import { setStorage } from "@/utils/storage";
 const chapterStore = useChapterStore();
 const { mobile } = useDisplay()
 const isIntersecting = ref(false);
-const translationsDrawer = inject("translationDrawer");
+const translationsDrawer = inject<boolean>("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 
@@ -46,7 +46,7 @@ const chapterAudioId = computed(() => {
 
 const props = defineProps<{
   isTranslationsView: boolean;
-  isAudioPlaying: IsAudioPlayingProps
+  isAudioPlaying?: IsAudioPlayingProps
   groupedTranslationsAuthors?: string;
   verseTiming?: VerseTimingsProps
   audioExperience: { autoScroll: boolean; tooltip: boolean };
