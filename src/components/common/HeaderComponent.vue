@@ -17,7 +17,7 @@ const _theme = useTheme();
 const $lang = inject(langKey);
 const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
-const headerDataValue = ref<{left?: string, right: Record<"pageNumber" | "juzNumber" | "hizbNumber", string>}>()
+const headerDataValue = ref<{ left?: string, right: Record<"pageNumber" | "juzNumber" | "hizbNumber", string> }>()
 
 const props = defineProps<{
   headerData: { key: string, value: ChapterHeaderData | PageHeaderData | JuzHeaderData } | null;
@@ -102,7 +102,8 @@ watchEffect(() => {
           <v-list>
             <v-list-item v-for="i in LANGUAGES" :key="i.key" :value="i.key" :active="$tr.locale.value === i.key">
               <v-list-item-title @click="$tr.setLocale(i.key, i.rtl)">
-                {{ i.value }}</v-list-item-title>
+                <v-icon :icon="i.key === 'en' ? 'mdi-alpha-e' : 'mdi-abjad-arabic'"></v-icon> {{ i.value }}
+              </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
