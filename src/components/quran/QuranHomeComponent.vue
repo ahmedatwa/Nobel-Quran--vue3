@@ -250,13 +250,16 @@ const prevJuzPage = () => {
 // Audio Player
 const isAudioPlayer = ref(false)
 const audioPlayerData = ref<{ audioID: number } | null>(null)
+const isAudioButtonLoading = ref(false)
 const playRandomAudio = async () => {
+    isAudioButtonLoading.value = true
     const audioID = randomNumber(1, 114)
-    await getAudio({audioID})
-    isAudioPlayer.value = true
+    await getAudio({ audioID })
     audioPlayerData.value = {
         audioID
     }
+    isAudioPlayer.value = true
+    isAudioButtonLoading.value = false
 }
 </script>
 <template>
@@ -265,8 +268,8 @@ const playRandomAudio = async () => {
             <v-col cols="12" class="my-4">
                 <v-card class="pa-4 text-center mx-auto" elevation="12" max-width="600" rounded="lg" width="100%">
                     <v-card-title>
-                        <v-btn variant="tonal" prepend-icon="mdi-play-circle-outline" @click="playRandomAudio">
-                            {{ $tr.line('home.buttonPlayAudio') }}</v-btn>
+                        <v-btn variant="tonal" prepend-icon="mdi-play-circle-outline" @click="playRandomAudio"
+                            :loading="isAudioButtonLoading">{{ $tr.line('home.buttonPlayAudio') }}</v-btn>
                     </v-card-title>
                     <v-icon class="mb-5" color="primary" icon="mdi-book-open-page-variant-outline" size="112"></v-icon>
                     <h2 class='text-h5 mb-6'>{{ $tr.line("home.intoTitle") }}</h2>
@@ -279,7 +282,7 @@ const playRandomAudio = async () => {
                         @update:model-value="$emit('update:modelValue', $event as string)" grow>
                         <v-tab value="chapters" prepend-icon="mdi-book-alphabet" @click="chaptersCurrentSort = 'id'">{{
                             $tr.line('home.textChapters')
-                        }}</v-tab>
+                            }}</v-tab>
                         <v-tab value="juzs" prepend-icon="mdi-bookshelf">{{ $tr.line('home.textJuzs') }}</v-tab>
                         <v-tab value="pages" prepend-icon="mdi-page-layout-sidebar-left">{{ $tr.line('home.textPages')
                             }}</v-tab>
