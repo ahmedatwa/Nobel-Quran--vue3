@@ -131,7 +131,7 @@
   display: flex;
   direction: rtl;
   flex-wrap: wrap;
-  }
+}
 
 .quran-translations-font {
   font-size: var(--translation-font-size-3);
@@ -142,5 +142,13 @@
 }
 
 .smooth-scroll-behaviour {
-    transform: translate3d(0,0,0);
+  transform: translate3d(0, 0, 0);
+}
+
+.hafs-nastaleeq {
+  @font-face {
+    font-family: "hafs nastaleeq";
+    src: local('hafs nastaleeq'), url("/fonts/hafs-nastaleeq/hafs-nastaleeq-ver10.otf")
+      format("opentype");
+  }
 }

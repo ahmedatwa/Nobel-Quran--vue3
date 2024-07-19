@@ -27,6 +27,12 @@ export const useChapterStore = defineStore("chapter-store", () => {
     }
     return 1;
   });
+
+  const selectedChapterPagination = computed(() => {
+    if (selectedChapter.value) {
+      return selectedChapter.value.pagination
+    }
+  })
   const chapterInfo = ref<ChapterInfo | null>(null);
   const perPage = ref(10);
   // url fields
@@ -295,6 +301,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     getFirstVerseHeaderData,
     selectedChapterVerses,
     TOTAL_CHAPTERS,
+    selectedChapterPagination,
     getChapterName,
     getchapterInfo,
     getVerses,
