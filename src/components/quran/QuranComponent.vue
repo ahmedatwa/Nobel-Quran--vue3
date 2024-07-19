@@ -76,6 +76,8 @@ watch(
     emit("update:navigationModelValue", !newV);
   }
 );
+
+ 
 // Front Styles
 const quranCssVars = computed(() => {
   if (settingStore.cssVars) {
