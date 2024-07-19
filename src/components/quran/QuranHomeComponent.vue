@@ -260,6 +260,7 @@ const playRandomAudio = async () => {
     }
     isAudioPlayer.value = true
     isAudioButtonLoading.value = false
+
 }
 </script>
 <template>

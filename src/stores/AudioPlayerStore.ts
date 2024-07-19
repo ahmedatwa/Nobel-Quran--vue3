@@ -7,17 +7,15 @@ import { instance, makeGetAudioRecitersUrl } from "@/axios";
 import { makeGetRecitationsUrl } from "@/axios";
 // types
 import type { AudioFile, Recitations } from "@/types/audio";
-import type {
-  mapRecitions,
-  VerseTimingsProps,
-  PlayAudioEmit,
-} from "@/types/audio";
+import type { mapRecitions, PlayAudioEmit } from "@/types/audio";
+import { VerseTimingsProps } from "@/types/audio";
 import { useChapterStore, useSettingStore } from "@/stores";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
   const settingStore = useSettingStore();
-  const { getChapterNameByChapterId, TOTAL_CHAPTERS } = useChapterStore();
+  const { getChapterNameByChapterId, TOTAL_CHAPTERS, chaptersList } =
+    useChapterStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
   const autoStartPlayer = ref(false);
@@ -73,9 +71,17 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const getAudio = async (payload: PlayAudioEmit, audioSrc?: string) => {
     //https://api.qurancdn.com/api/qdc/audio/reciters/9/audio_files?chapter=1&segments=true
     // if (payload.audioID === chapterId.value) return;
+    const chapter = chaptersList.find((c) => c.id === payload.audioID);
     chapterId.value = payload.audioID;
     selectedVerseKey.value = payload.verseKey;
     audioPayLoadSrc.value = payload.audioSrc ? payload.audioSrc : audioSrc;
+    // stop the api call if audio files are already loaded 
+    // to chapter from prev api call
+    if (chapter?.audioFile) {
+      audioFiles.value = chapter.audioFile;
+      return;
+    }
+    
     isLoading.value = true;
     await instance
       .get(makeGetAudioRecitersUrl(selectedReciter.value.id, payload.audioID))
@@ -83,6 +89,10 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
         // this triggers verseTiming computed func in audioPlayer Component
         audioFiles.value = null;
         audioFiles.value = response.data.audio_files[0];
+        // push audio chapter data
+        if (chapter) {
+          chapter.audioFile = audioFiles.value;
+        }
       })
       .catch((e) => {
         throw e;
