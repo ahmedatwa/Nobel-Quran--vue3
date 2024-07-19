@@ -75,8 +75,6 @@ const getSelectedVerse = async (id: number) => {
 watchEffect(async () => {
   if (props.manualIntersectingMode) {
     const intersectingData = props.manualIntersectingMode
-
-
     selectedVerseID.value = intersectingData.currentVerseNumber;
 
     if (selectedChapterVersesCount.value === intersectingData.lastVerseNumber) {
