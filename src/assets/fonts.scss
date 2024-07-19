@@ -1,0 +1,17 @@
+@font-face {
+  font-family: "hafs-nastaleeq";
+  src: local("Hafs Nastaleeq"),
+    url("/fonts/hafs-nastaleeq/hafs-nastaleeq-ver10.otf") format("opentype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "UthmanTahaNaskh";
+  src: local("Uthman Taha Naskh"), url("/fonts/kfgqpc/KFGQPC-AnRegular.ttf"),
+    format("truetype"), url("/fonts/kfgqpc/KFGQPC-AnLight.ttf"),
+    format("truetype"), url("/fonts/kfgqpc/KFGQPC-AnBold.ttf"),
+    format("truetype");
+  font-display: swap;
+  font-weight: bold;
+}
+

@@ -1,9 +1,12 @@
+@import "./fonts.scss";
+
 :root {
   --direct: rtl;
   --quran-font-family-amiri: "Amiri", serif;
-  --quran-font-family-aref: "Aref Ruqaa", serif;
-  --quran-font-family-noto-naksh: "Noto Naskh Arabic Variable", serif;
   --quran-font-family-noto-kufi: "Noto Kufi Arabic Variable", sans-serif;
+  --quran-font-family-hafs-nastaleeq: "hafs-nastaleeq", serif;
+  --quran-font-family-uthman-taha-naskh: "Uthman-Taha-Naskh", serif;
+  
   /* Noto Naskh Arabic Variable', serif */
   --quran-reader-direction: rtl;
   --quran-content-title: "Gulzar", serif;
@@ -143,12 +146,4 @@
 
 .smooth-scroll-behaviour {
   transform: translate3d(0, 0, 0);
-}
-
-.hafs-nastaleeq {
-  @font-face {
-    font-family: "hafs nastaleeq";
-    src: local('hafs nastaleeq'), url("/fonts/hafs-nastaleeq/hafs-nastaleeq-ver10.otf")
-      format("opentype");
-  }
 }
