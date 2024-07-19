@@ -117,10 +117,10 @@ const isWordHighlighted = (location: string, verseKey: string) => {
 
 // watchers
 // auto mode with verse timing and feed header data
-watchEffect(() => {
+watchEffect(async () => {
   if (props.verseTiming) {
     if (props.audioExperience.autoScroll) {
-      const el = document.querySelector(`#verse-row-${props.verseTiming.verseNumber}`) as HTMLDivElement
+      const el = document.querySelector(`#verse-col-number-${props.verseTiming.verseNumber}`) as HTMLDivElement
       let newHeaderData: ChapterHeaderData | null = null
       if (!isInViewport(el)) {
         // Avoid watchers by comparing 2 objects
@@ -137,15 +137,23 @@ watchEffect(() => {
         if (newHeaderData !== headerData.value) {
           headerData.value = newHeaderData
           // emit header Data
+          console.log(headerData.value);
+          
           emit("update:headerData", headerData.value)
         }
         ;
         // Scroll into View
         if (props.isAudioPlaying?.isPlaying) {
-          if (mobile.value) {
-            scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`, 50, SMOOTH_SCROLL_TO_CENTER, 200)
-          } else {
-            scrollToElement(`#verse-row-${props.verseTiming.verseNumber}`)
+          // fetch more Verses
+          await loadMoreVerses(props.verseTiming.verseNumber, chapterStore.getLastVerseNumberOfChapter)
+
+          const verseElement = `#verse-row-${props.verseTiming.verseNumber}`
+          if (verseElement) {
+            if (mobile.value) {
+              scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 200)
+            } else {
+              scrollToElement(verseElement)
+            }
           }
 
         }
@@ -190,6 +198,14 @@ watchEffect(() => {
   }
 });
 
+
+const loadMoreVerses = async (currentVerseNumber: number, lastVerseNumber: number) => {
+  if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
+    if (chapterStore.selectedChapterPagination) {
+      await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
+    }
+  }
+}
 </script>
 
 <template>

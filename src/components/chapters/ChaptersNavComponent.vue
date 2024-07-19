@@ -19,11 +19,7 @@ const selectedChapterVersesCount = computed(() => {
     return chapterStore.selectedChapter?.versesCount
   }
 })
-const getVersePagination = computed(() => {
-  if (chapterStore.selectedChapter?.pagination) {
-    return chapterStore.selectedChapter?.pagination
-  }
-})
+
 const emit = defineEmits<{
   "update:selectedVerseNumber": [value: number];
 }>();
@@ -79,6 +75,8 @@ const getSelectedVerse = async (id: number) => {
 watchEffect(async () => {
   if (props.manualIntersectingMode) {
     const intersectingData = props.manualIntersectingMode
+
+
     selectedVerseID.value = intersectingData.currentVerseNumber;
 
     if (selectedChapterVersesCount.value === intersectingData.lastVerseNumber) {
@@ -96,8 +94,8 @@ watchEffect(async () => {
     ) {
 
 
-      if (getVersePagination.value) {
-        await chapterStore.getVerses(chapterStore.selectedChapterId, true, getVersePagination.value?.next_page)
+      if (chapterStore.selectedChapterPagination) {
+        await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
       }
     }
   }
