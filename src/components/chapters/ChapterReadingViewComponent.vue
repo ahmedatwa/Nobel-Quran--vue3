@@ -151,11 +151,15 @@ watchEffect(async () => {
           emit("update:headerData", headerData.value)
         }
         // Scroll into View
-        scrollToElement(`#line-${props.verseTiming.verseNumber}`)
-        // toggle active state
-        const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
-        if (element) {
-          //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
+        if (props.isAudioPlaying?.isPlaying) {
+          // fetch more Verses
+          await loadMoreVerses(props.verseTiming.verseNumber, chapterStore.getLastVerseNumberOfChapter)
+          scrollToElement(`#line-${props.verseTiming.verseNumber}`)
+          // toggle active state
+          const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
+          if (element) {
+            //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
+          }
         }
       }
     }
@@ -172,6 +176,15 @@ watchEffect(() => {
     scrollToElement(`#verse-row-${props.selectedVerseNumber}`)
   }
 });
+
+const loadMoreVerses = async (currentVerseNumber: number, lastVerseNumber: number) => {
+  if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
+    if (chapterStore.selectedChapterPagination) {
+      await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
+    }
+  }
+}
+
 </script>
 
 <template>
@@ -200,18 +213,18 @@ watchEffect(() => {
           <v-row class="verse-row" no-gutters justify="center" :align="'start'"
             v-for="(verses, page) in mapVersesByPage" :key="page" :id="`row-page-${page}`">
             <v-col class="verse-col" :id="`page-${page}`" cols="10">
-              <div class="" v-for="verse in verses" :key="verse.id"
-                :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
-                :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number" :data-page-number="page"
-                :data-verse-number="verse.verse_number" v-intersect.quite="{
+              <div class="" v-for="verse in verses" :key="verse.id" :id="`line-${verse.verse_number}`"
+                :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
+                :data-juz-number="verse.juz_number" :data-page-number="page" :data-verse-number="verse.verse_number"
+                v-intersect.quite="{
                   handler: onIntersect,
                   options: {
                     threshold: [0, 0.5, 1.0],
                   },
                 }">
-                <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position" class="d-flex flex-wrap d-inline-flex"
-                  :data-hizb-number="verse.hizb_number" :data-juz-number="verse.juz_number"
-                  :data-chapter-id="verse.chapter_id" :data-page-number="page">
+                <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position"
+                  class="d-flex flex-wrap d-inline-flex" :data-hizb-number="verse.hizb_number"
+                  :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id" :data-page-number="page">
                   <div :class="isWordHighlighted(word.location, word.verse_key)
                     ? 'text-blue'
                     : ''
