@@ -88,3 +88,7 @@ export const _range = (end: number | string, start: number | string) => {
     (_, i) => i + Number(start)
   );
 };
+
+export const randomNumber = (min: number, max: number) => {
+  return Math.floor(Math.random() * (max - min) + min);
+};

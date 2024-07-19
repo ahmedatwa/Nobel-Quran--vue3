@@ -25,7 +25,7 @@ const settingsDrawer = ref(false);
 const headerData = ref<{ key: string, value: ChapterHeaderData | JuzHeaderData | PageHeaderData } | null>(null);
 const selected = ref<Chapter | Juz | Page | null>(null);
 const tab = ref("chapters");
-//const isLoading = ref(false);
+const randomAudioId = ref<number | undefined>()
 
 const navigationModelValue = ref(true);
 provide("navigationModelValue", navigationModelValue);
@@ -87,7 +87,7 @@ watch(selectedLanguage, (newLang) => {
           @update:navigation-model-value="navigationModelValue = $event"></quran-component>
 
         <quran-home-component v-model:model-value="tab" @update-selected="selected = $event"
-          v-else></quran-home-component>
+          @update:play-random-audio="randomAudioId = $event" v-else></quran-home-component>
         <footer-component></footer-component>
       </v-main>
     </v-locale-provider>

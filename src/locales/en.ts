@@ -75,6 +75,7 @@ export default {
     textAyah: "Ayah",
     buttonSort: "Sort Order",
     intoTitle: "Read, study, and learn The Noble Quran.",
+    buttonPlayAudio: "Play Audio",
     introSubtitle:
       "Quran Mac/IOS App is a Sadaqah Jariyah. I hope to make it easy for everyone to read, study, and learn The Noble Quran. The Noble Quran has many names including Al-Quran Al-Kareem, Al-Ketab, Al-Furqan, Al-Maw'itha, Al-Thikr, and Al-Noor.",
   },
