@@ -136,12 +136,10 @@ watchEffect(async () => {
 
         if (newHeaderData !== headerData.value) {
           headerData.value = newHeaderData
-          // emit header Data
-          console.log(headerData.value);
-          
+          // emit header Data          
           emit("update:headerData", headerData.value)
         }
-        ;
+        
         // Scroll into View
         if (props.isAudioPlaying?.isPlaying) {
           // fetch more Verses
