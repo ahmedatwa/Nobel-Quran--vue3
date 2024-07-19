@@ -148,7 +148,7 @@ watchEffect(async () => {
           const verseElement = `#verse-row-${props.verseTiming.verseNumber}`
           if (verseElement) {
             if (mobile.value) {
-              scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 100)
+              scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
             } else {
               scrollToElement(verseElement)
             }
