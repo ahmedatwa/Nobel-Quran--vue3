@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, provide, watch } from "vue";
 // components
-import { QuranHomeComponent, QuranComponent } from "@/components/quran";
+import { QuranComponent } from "@/components/quran";
+import { HomeComponent } from "@/components/home";
 import { HeaderComponent, FooterComponent } from "@/components/common";
 // types
 import type { Chapter } from "@/types/chapter";
@@ -86,8 +87,8 @@ watch(selectedLanguage, (newLang) => {
         <quran-component :selected="tab" v-if="selected" @update:header-data="headerData = $event"
           @update:navigation-model-value="navigationModelValue = $event"></quran-component>
 
-        <quran-home-component v-model:model-value="tab" @update-selected="selected = $event"
-          @update:play-random-audio="randomAudioId = $event" v-else></quran-home-component>
+        <home-component v-model:model-value="tab" @update-selected="selected = $event"
+          @update:play-random-audio="randomAudioId = $event" v-else></home-component>
         <footer-component></footer-component>
       </v-main>
     </v-locale-provider>
