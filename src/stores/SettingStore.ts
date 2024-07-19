@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watchEffect } from "vue";
 import { CssVars } from "@/types";
 import { getStorage, setStorage } from "@/utils/storage";
 import { loadingIntervalValue } from "@/utils/interval";
+import { useDisplay } from "vuetify";
 
 export const useSettingStore = defineStore("setting-store", () => {
   const versesPages = ref([10, 20, 30, 40, 50]);
@@ -18,9 +19,9 @@ export const useSettingStore = defineStore("setting-store", () => {
   });
 
   const cssVars = ref<CssVars>({
-    quranFrontSize: 3,
+    quranFrontSize: useDisplay().mobile ? 1 : 3,
     quranFontFamily: "Noto-Kufi",
-    translationsFontSize: 3,
+    translationsFontSize: useDisplay().mobile ? 1 : 3,
     translationsFontFamily: "1",
   });
 

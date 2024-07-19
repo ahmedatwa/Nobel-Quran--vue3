@@ -23,7 +23,7 @@ const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
-  fontSize: "var(--quran-font-size-3)",
+  fontSize: useDisplay().mobile ? "var(--quran-font-size-1)" : "var(--quran-font-size-3)",
   fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 
