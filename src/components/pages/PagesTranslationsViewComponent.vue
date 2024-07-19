@@ -240,7 +240,7 @@ watch(() => pageStore.getInitialHeaderData, (initHeaderData) => {
                                     <h3 v-if="word.char_type_name === 'end'">
                                         ({{ word.text_uthmani }})
                                     </h3>
-                                    <h3 class="hafs-nastaleeq" v-else> {{ word.text_uthmani }}
+                                    <h3 :style="[defaultStyles, cssVars]" v-else> {{ word.text_uthmani }}
                                         <v-tooltip v-if="audioExperience.tooltip" activator="parent"
                                             :target="`#target${word.id}`" :model-value="isWordHighlighted(word.location, word.verse_key)
                                                 " location="top center" origin="bottom center"

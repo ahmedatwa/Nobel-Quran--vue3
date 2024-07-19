@@ -4,11 +4,10 @@ import { CssVars } from "@/types";
 import { getStorage, setStorage } from "@/utils/storage";
 import { loadingIntervalValue } from "@/utils/interval";
 
-
 export const useSettingStore = defineStore("setting-store", () => {
   const versesPages = ref([10, 20, 30, 40, 50]);
-  const isAppLoading = ref(false)
-  const appIntervalValue = computed(() => loadingIntervalValue.value)
+  const isAppLoading = ref(false);
+  const appIntervalValue = computed(() => loadingIntervalValue.value);
   const VersesPerPage = ref(10);
   const audioPlayerSetting = ref({
     fullwidth: false,
@@ -25,7 +24,12 @@ export const useSettingStore = defineStore("setting-store", () => {
     translationsFontFamily: "1",
   });
 
-  const fontFamilyGroup = ref(["Amiri", "Noto-Kufi"]);
+  const fontFamilyGroup = ref([
+    "Amiri",
+    "Noto-Kufi",
+    "Hafs-Nastaleeq",
+    "Uthman-Taha-Naskh",
+  ]);
 
   watchEffect(() => {
     if (audioPlayerSetting.value) {
