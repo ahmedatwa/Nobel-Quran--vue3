@@ -94,11 +94,23 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
   }
 };
 
+/**
+ * 
+ * @param verseNumber 
+ * @returns void
+ */
 const setBookmarked = (verseNumber: number) => {
   chapterStore.selectedChapter?.verses?.forEach((v) => {
     if (v.verse_number === verseNumber) {
       v.bookmarked = true
-      setStorage('bookmarked-verse', { key: "chapter-translations", value: v })
+      setStorage('bookmarked-verse', {
+        key: "chapter-translations",
+        value: {
+          verseNumber: v.verse_number,
+          verseKey: v.verse_key,
+          chapterId: v.chapter_id
+        }
+      })
       return;
     }
 
@@ -139,7 +151,7 @@ watchEffect(async () => {
           // emit header Data          
           emit("update:headerData", headerData.value)
         }
-        
+
         // Scroll into View
         if (props.isAudioPlaying?.isPlaying) {
           // fetch more Verses
