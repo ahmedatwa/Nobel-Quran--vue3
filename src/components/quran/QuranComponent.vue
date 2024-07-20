@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { ref, inject, watch } from "vue";
-import { computed, provide, onBeforeMount } from "vue";
+import { ref, watch } from "vue";
+import { computed, provide } from "vue";
 // components
 import { AudioPlayerComponent } from "@/components/audio";
 import { PagesComponent } from "@/components/pages";
 import { TranslationListComponent } from "@/components/translations";
 import { JuzsComponent } from "@/components/juzs";
 import { ChaptersComponent } from "@/components/chapters";
-import { NavigationComponent } from "@/components/common";
 // stores
 import {
   useTranslationsStore,
@@ -19,8 +18,6 @@ import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter"
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 import type { PlayAudioEmit } from "@/types/audio";
-// utils
-import { getStorage } from "@/utils/storage";
 
 // Stores
 const translationsStore = useTranslationsStore();
@@ -29,19 +26,11 @@ const audioPlayerStore = useAudioPlayerStore();
 
 const translationDrawer = ref(false);
 provide("translationDrawer", translationDrawer);
-const navigationModelValue = inject<boolean>("navigationModelValue");
 
 // Refs
 const selectedTab = ref("");
 const selectedPage = ref(1);
-const chapterManualIntersectingModeData = ref<ManualIntersectingMode>();
-const juzManualIntersecting = ref<JuzVersesIntersecting>();
-const intersectingPageVerseNumber = ref<number>();
 const audioPlayerModelValue = ref(false);
-// when user select specific verse number from chapters Nav
-const chapterSelectedVerseNumber = ref<number>();
-const activeJuzNumber = ref<number>();
-const activePageNumber = ref<number>();
 const audioPlayer = ref<{
   audioID: number;
   verseKey?: string;
@@ -51,11 +40,18 @@ const audioPlayer = ref<{
 
 defineProps<{
   selected: string;
+  chapterSelectedVerse?: number
 }>();
 
 const emit = defineEmits<{
   "update:headerData": [{ key: string, value: JuzHeaderData | PageHeaderData | ChapterHeaderData }];
   "update:navigationModelValue": [value: boolean];
+  "update:activeJuzNumber": [value: number]
+  "update:chapterSelectedVerse": [value: number]
+  "update:chapterManualIntersection": [value: ManualIntersectingMode]
+  "update:activePageNumber": [value: number]
+  "update:juzManualIntersecting": [value: JuzVersesIntersecting]
+  "update:intersectingPageVerseNumber": [value: number]
 }>();
 
 const playAudio = (event: PlayAudioEmit) => {
@@ -77,7 +73,7 @@ watch(
   }
 );
 
- 
+
 // Front Styles
 const quranCssVars = computed(() => {
   if (settingStore.cssVars) {
@@ -93,35 +89,32 @@ const updateTranslations = ($event: number[]) => {
   translationsStore.selectedTranslationIds = $event;
 };
 
-onBeforeMount(() => {
-  const tab = getStorage("tab");
-  if (tab) selectedTab.value = tab;
-});
+// onBeforeMount(() => {
+//   const tab = getStorage("tab");
+//   if (tab) selectedTab.value = tab;
+// });
 </script>
 <template>
-  <navigation-component v-model:navigation-model-value="navigationModelValue" :selected="selected"
-    @update:selected-tab="selectedTab = $event" :chapter-manual-intersecting-mode="chapterManualIntersectingModeData"
-    :juz-manual-intersecting="juzManualIntersecting" @update:selected-page="selectedPage = $event"
-    :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
-    :intersecting-page-verse-number="intersectingPageVerseNumber"
-    @update:selected-verse-number="chapterSelectedVerseNumber = $event"></navigation-component>
+
   <!-- Juz -->
-  <juzs-component :selected="selectedTab === 'juzs'" :selected-tab="selectedTab" :audio-player="audioPlayer"
+  <juzs-component :selected="selected === 'juzs'" :selected-tab="selectedTab" :audio-player="audioPlayer"
     :css-vars="quranCssVars" @update:translation-drawer="translationDrawer = $event"
-    @update:manual-intersecting="juzManualIntersecting = $event" @update:play-audio="playAudio"
+    @update:manual-intersecting="$emit('update:juzManualIntersecting', $event)" @update:play-audio="playAudio"
     @update:header-data="$emit('update:headerData', { key: 'juz', value: $event as JuzHeaderData })"
-    @update:active-juz-number="activeJuzNumber = $event"></juzs-component>
+    @update:active-juz-number="$emit('update:activeJuzNumber', $event)"></juzs-component>
   <!-- Chapters -->
-  <chapters-component :selected="selectedTab === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
-    :selected-verse-number="chapterSelectedVerseNumber" :css-vars="quranCssVars"
-    @update:manual-intersecting-mode="chapterManualIntersectingModeData = $event"
+  <chapters-component :selected="selected === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
+    :selected-verse-number="chapterSelectedVerse" :css-vars="quranCssVars"
+    @update:manual-intersecting-mode="$emit('update:chapterManualIntersection', $event)"
     @update:header-data="$emit('update:headerData', { key: 'chapter', value: $event as ChapterHeaderData })"
     @update:play-audio="playAudio">
   </chapters-component>
   <!-- Pages -->
-  <pages-component :selected="selectedTab === 'pages'" :selected-page="selectedPage" :audio-player="audioPlayer"
-    :css-vars="quranCssVars" @update:intersecting-page-verse-number="intersectingPageVerseNumber = $event"
-    @update:translation-drawer="translationDrawer = $event" @update:active-page-number="activePageNumber = $event"
+  <pages-component :selected="selected === 'pages'" :selected-page="selectedPage" :audio-player="audioPlayer"
+    :css-vars="quranCssVars"
+    @update:intersecting-page-verse-number="$emit('update:intersectingPageVerseNumber', $event)"
+    @update:translation-drawer="translationDrawer = $event"
+    @update:active-page-number="$emit('update:activePageNumber', $event)"
     @update:header-data="$emit('update:headerData', { key: 'page', value: $event as PageHeaderData })"
     @update:play-audio="playAudio"></pages-component>
 

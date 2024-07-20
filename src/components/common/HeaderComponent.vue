@@ -80,7 +80,7 @@ watchEffect(() => {
 });
 </script>
 <template>
-  <v-app-bar :elevation="2" density="comfortable" :extension-height="40">
+  <v-app-bar :elevation="2" density="comfortable" scroll-behavior="hide" >
     <template #prepend>
       <v-app-bar-title class="ms-2">
         <template #text>
@@ -110,6 +110,7 @@ watchEffect(() => {
         {{ $tr.locale.value }}
       </v-btn>
     </template>
+
     <template #extension v-if="headerDataValue">
       <v-btn @click="navigationModelValue = !navigationModelValue"
         :append-icon="navigationModelValue ? 'mdi-menu-down' : 'mdi-menu-up'">

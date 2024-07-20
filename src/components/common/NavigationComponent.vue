@@ -6,6 +6,7 @@ import { JuzsNavComponent } from "@/components/juzs";
 import { PagesNavComponent } from "@/components/pages";
 // utils
 import { setStorage } from "@/utils/storage";
+import { useWindowScroll } from "@/utils/useWindowScroll"
 // types
 import type { ManualIntersectingMode } from "@/types/chapter"
 import type { JuzVersesIntersecting } from "@/types/juz"
@@ -40,10 +41,15 @@ watchEffect(() => {
         setStorage("tab", navigationTab.value)
     }
 })
+
+
+const { currentScrollPos } = useWindowScroll()
+
 </script>
 <template>
     <v-navigation-drawer :model-value="navigationModelValue" width="300" :temporary="$vuetify.display.smAndDown"
-        :permanent="$vuetify.display.mdAndUp">
+        :permanent="$vuetify.display.mdAndUp" disable-resize-watcher id="v-navigation-drawer"
+        :class="[currentScrollPos > 350 ? 'top-45' : 'top-1oo']" class="top-1oo">
         <template #prepend>
             <v-tabs v-model="navigationTab" align-tabs="center" :show-arrows="false" hide-slider class="mt-4"
                 density="comfortable" color="primary" grow>
@@ -75,3 +81,18 @@ watchEffect(() => {
         </template>
     </v-navigation-drawer>
 </template>
+<style>
+.top-45 {
+    top: 45px !important;
+    transition: all .5s ease-in-out;
+    transform-origin: left top;
+    transform: scaleY(1);
+}
+
+.top-100 {
+    top: 100px;
+    transition: all .5s ease-in-out;
+    transform-origin: left top;
+    transform: scaleY(1);
+}
+</style>
