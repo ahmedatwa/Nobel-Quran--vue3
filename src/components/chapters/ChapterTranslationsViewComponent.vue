@@ -24,7 +24,7 @@ const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
-  fontSize: useDisplay().mobile ? "var(--quran-font-size-1)" : "var(--quran-font-size-3)",
+  fontSize: mobile.value ? "var(--quran-font-size-1)" : "var(--quran-font-size-3)",
   fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 
@@ -82,6 +82,7 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
           juzNumber: target.dataset.juzNumber || "",
         },
       };
+      
       if (newHeaderData !== headerData.value) {
         headerData.value = newHeaderData
         emit("update:headerData", headerData.value);
