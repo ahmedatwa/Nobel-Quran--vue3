@@ -51,7 +51,7 @@ const playRandomAudio = async () => {
                     <h2 class='text-h5 mb-6'>{{ $tr.line("home.intoTitle") }}</h2>
                     <div>{{ $tr.line("home.introSubtitle") }}</div>
                     <v-card-actions class="mt-4">
-                        <v-btn variant="tonal" prepend-icon="mdi-play-circle-outline" @click="playRandomAudio" block
+                        <v-btn variant="outlined" color="primary" prepend-icon="mdi-play-circle-outline" @click="playRandomAudio" block
                             :loading="isAudioButtonLoading">{{ $tr.line('home.buttonPlayAudio') }}</v-btn>
                     </v-card-actions>
                 </v-card>
