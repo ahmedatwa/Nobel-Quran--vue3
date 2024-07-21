@@ -1,23 +1,26 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect, reactive } from "vue";
+import { useDisplay } from "vuetify";
+
 // stores
 import { useChapterStore } from "@/stores";
 // components
 import { TitleButtonsComponent } from "@/components/quran";
 // types
-import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
+import type { ChapterHeaderData, IntersectingData } from "@/types/chapter";
 import type { MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 // utils
-import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
 
 const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
+const { mobile } = useDisplay()
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
-  fontSize: "var(--quran-font-size-3)",
+  fontSize: mobile.value ? "var(--quran-font-size-1)" : "var(--quran-font-size-3)",
   fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 
@@ -39,7 +42,7 @@ const chapterAudioId = computed(() => {
 const emit = defineEmits<{
   "update:playAudio": [value: PlayAudioEmit];
   "update:headerData": [value: ChapterHeaderData];
-  "update:manualIntersectingMode": [value: ManualIntersectingMode];
+  "update:intersectionData": [value: IntersectingData];
 }>();
 
 const props = defineProps<{
@@ -75,36 +78,36 @@ const mapVersesByPage = computed((): MapVersesByPage | undefined => {
 const onIntersect = async (intersecting: boolean, entries: any) => {
   isIntersecting.value = intersecting;
   if (intersecting && entries[0].intersectionRatio === 1) {
-    intersectingVerseNumber.value = Number(
-      entries[0].target.dataset.verseNumber
-    );
+    const target = entries[0].target as HTMLDivElement
 
-    if (intersectingVerseNumber.value === 1) {
-      return
+    if (target) {
+      intersectingVerseNumber.value = Number(target.dataset.verseNumber);
+
+
+      // emit header data
+      const newHeaderData = ref<ChapterHeaderData>()
+      newHeaderData.value = {
+        left: chapterStore.selectedChapterName,
+        right: {
+          pageNumber: target.dataset.pageNumber || "",
+          hizbNumber: target.dataset.hizbNumber || "",
+          juzNumber: target.dataset.juzNumber || "",
+        },
+      };
+
+      if (newHeaderData.value !== headerData.value) {
+        headerData.value = newHeaderData.value
+        emit("update:headerData", headerData.value);
+      }
+
+      // emit verse id for scroll in verses list
+      // help to fetch new verses
+      // sending current/last verse Numbers to the chapters Nav
+      emit("update:intersectionData", {
+        lastVerseNumber: chapterStore.getLastVerseNumberOfChapter,
+        currentVerseNumber: intersectingVerseNumber.value
+      });
     }
-    // emit header data
-    const newHeaderData = ref<ChapterHeaderData>()
-    newHeaderData.value = {
-      left: chapterStore.selectedChapterName,
-      right: {
-        pageNumber: entries[0].target.dataset.pageNumber,
-        hizbNumber: entries[0].target.dataset.hizbNumber,
-        juzNumber: entries[0].target.dataset.juzNumber,
-      },
-    };
-
-    if (newHeaderData.value !== headerData.value) {
-      headerData.value = newHeaderData.value
-      emit("update:headerData", headerData.value);
-    }
-
-    // emit verse id for scroll in verses list
-    // help to fetch new verses
-    // sending current/last verse Numbers to the chapters Nav
-    emit("update:manualIntersectingMode", {
-      lastVerseNumber: chapterStore.getLastVerseNumberOfChapter,
-      currentVerseNumber: intersectingVerseNumber.value
-    });
   }
 };
 
@@ -131,34 +134,26 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
 watchEffect(async () => {
   if (props.verseTiming) {
     if (props.audioExperience.autoScroll) {
-      const el = document.querySelector(`#line-${props.verseTiming.verseNumber}`) as HTMLDivElement
-      let newHeaderData: ChapterHeaderData | null = null
-      if (!isInViewport(el)) {
-        // Avoid watchers by comparing 2 objects
-        newHeaderData = {
-          left: chapterStore.selectedChapterName,
-          right: {
-            pageNumber: el.getAttribute("data-page-number") || "",
-            hizbNumber: el.getAttribute("data-hizb-number") || "",
-            juzNumber: el.getAttribute("data-juz-number") || "",
-          },
-        };
+      const currentVerseNumber = props.verseTiming.verseNumber
+      const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
 
-
-        if (newHeaderData !== headerData.value) {
-          headerData.value = newHeaderData
-          // emit header Data
-          emit("update:headerData", headerData.value)
+      if (props.isAudioPlaying?.isPlaying) {
+        // fetch more Verses
+        if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
+          if (chapterStore.selectedChapterPagination?.next_page) {
+            await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
+          }
         }
         // Scroll into View
-        if (props.isAudioPlaying?.isPlaying) {
-          // fetch more Verses
-          await loadMoreVerses(props.verseTiming.verseNumber, chapterStore.getLastVerseNumberOfChapter)
-          scrollToElement(`#line-${props.verseTiming.verseNumber}`)
-          // toggle active state
-          const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
-          if (element) {
-            //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
+        const verseElement = `#verse-row-${props.verseTiming.verseNumber}`
+        if (verseElement) {
+          if (props.verseTiming.verseNumber !== intersectingVerseNumber.value) {
+
+            if (mobile.value) {
+              scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
+            } else {
+              scrollToElement(verseElement)
+            }
           }
         }
       }
