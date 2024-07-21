@@ -10,6 +10,7 @@ export const useSettingStore = defineStore("setting-store", () => {
   const isAppLoading = ref(false);
   const appIntervalValue = computed(() => loadingIntervalValue.value);
   const VersesPerPage = ref(10);
+  const highlightedWordColor = ref("blue-darken-2")
   const audioPlayerSetting = ref({
     fullwidth: false,
     autoPlay: true,
@@ -24,6 +25,7 @@ export const useSettingStore = defineStore("setting-store", () => {
     translationsFontSize: useDisplay().mobile ? 1 : 3,
     translationsFontFamily: "1",
   });
+
 
   const fontFamilyGroup = ref([
     "Amiri",
@@ -64,6 +66,7 @@ export const useSettingStore = defineStore("setting-store", () => {
     VersesPerPage,
     audioPlayerSetting,
     cssVars,
+    highlightedWordColor,
     isAppLoading,
     appIntervalValue,
     fontFamilyGroup,

@@ -6,7 +6,7 @@ import { useChapterStore } from "@/stores";
 import { _range, localizeNumber } from "@/utils/number";
 import { isVerseKeyWithinRanges } from "@/utils/verse";
 // types
-import type { Chapter, ManualIntersectingMode } from "@/types/chapter";
+import type { Chapter, IntersectingData, ChapterAutoScrollData } from "@/types/chapter";
 import { scrollToElement, SMOOTH_SCROLL_TO_TOP } from "@/utils/useScrollToElement";
 
 // Stores
@@ -25,7 +25,7 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps<{
-  manualIntersectingMode?: ManualIntersectingMode
+  intersectingData?: IntersectingData
 }>();
 
 onMounted(async () => {
@@ -64,6 +64,7 @@ const getSelectedVerse = async (id: number) => {
   emit("update:selectedVerseNumber", id);
 };
 
+
 /**
  * watch the verse number when
  * user scroll the translations View manually
@@ -73,8 +74,9 @@ const getSelectedVerse = async (id: number) => {
  * duplicate verses will be handeled by the chapter store
  */
 watchEffect(async () => {
-  if (props.manualIntersectingMode) {
-    const intersectingData = props.manualIntersectingMode
+  if (props.intersectingData) {
+    // console.log("nav", props.intersectingData);
+    const intersectingData = props.intersectingData
     selectedVerseID.value = intersectingData.currentVerseNumber;
 
     if (selectedChapterVersesCount.value === intersectingData.lastVerseNumber) {
@@ -82,7 +84,8 @@ watchEffect(async () => {
       return;
     }
 
-    scrollToElement(`#verse${selectedVerseID.value}`, 100);
+
+    scrollToElement(`#verse-list-${selectedVerseID.value}`, 50);
 
     if (
       intersectingData.currentVerseNumber ===
@@ -107,7 +110,7 @@ const mouseEnter = async (k: string, value: Chapter | number) => {
   if (k === "chapter") {
     const chapter = value as Chapter;
     if (!chapter.verses?.length) {
-      await chapterStore.getVerses(chapter.id, true);
+      await chapterStore.getVerses(chapter.id, false);
     }
   }
   if (k === "verse") {
@@ -146,19 +149,21 @@ const getVerseByKey = async (verseKey: string) => {
 
 </script>
 <template>
-  <v-container fluid class="pa-0 mt-2">
+  <!-- <v-container fluid class="pa-0 mt-2">
     <v-row no-gutters dense>
-      <v-col cols="7">
-        <v-card density="compact" flat>
+      <v-col cols="7"> -->
+  <v-card density="compact" flat style="overflow: initial; z-index: initial">
+    <v-container fluid class="pa-1">
+      <v-row no-gutters dense>
+        <v-col cols="7">
           <v-card-title>
             <v-text-field v-model="chapterStore.searchValue" hide-details variant="filled" density="compact"
               :label="$tr.line('surahNav.textChapters')"></v-text-field>
           </v-card-title>
-          <v-divider></v-divider>
-          <v-sheet height="650" class="overflow-y-auto">
+          <v-card-text class="overflow-y-auto mb-4 w-100 h-100 pa-0 ma-0">
             <v-skeleton-loader type="list-item" v-for="n in chapterStore.TOTAL_CHAPTERS" :key="n"
               v-if="chapterStore.isLoading.chapters"></v-skeleton-loader>
-            <v-list lines="two" class="mb-5">
+            <v-list lines="two">
               <v-list-item v-for="chapter in chapterStore.chapters" :key="chapter.id" :value="chapter.nameSimple"
                 :active="chapterStore.selectedChapterId === chapter.id" @click="getSelectedChapter(chapter)"
                 :id="`chapter${chapter.id}`" @mouseenter="mouseEnter('chapter', chapter)">
@@ -169,13 +174,11 @@ const getVerseByKey = async (verseKey: string) => {
                 </template>
               </v-list-item>
             </v-list>
-          </v-sheet>
-        </v-card>
-      </v-col>
-      <v-divider vertical></v-divider>
-      <v-col cols="5">
-        <v-card density="compact" flat>
-          <v-card-title>
+          </v-card-text>
+        </v-col>
+        <v-divider vertical></v-divider>
+        <v-col>
+          <v-card-title class="w-100">
             <v-text-field v-model="searchValue" hide-details density="compact" :label="$tr.line('surahNav.textVerses')"
               variant="filled"></v-text-field>
           </v-card-title>
@@ -186,12 +189,22 @@ const getVerseByKey = async (verseKey: string) => {
             <v-list class="mb-5">
               <v-list-item v-for="n in versesCount" :key="n" :value="n" class="text-center"
                 :title="localizeNumber(n, $tr.locale.value)" @click="getSelectedVerse(n)"
-                :active="selectedVerseID === n" :id="`verse${n}`" @mouseenter="mouseEnter('verse', n)">
+                :active="selectedVerseID === n" :id="`verse-list-${n}`" @mouseenter="mouseEnter('verse', n)">
               </v-list-item>
             </v-list>
           </v-sheet>
-        </v-card>
-      </v-col>
+        </v-col>
+      </v-row>
+    </v-container>
+
+
+
+  </v-card>
+  <!-- </v-col> -->
+
+  <!-- <v-col cols="5"> -->
+
+  <!-- </v-col>
     </v-row>
-  </v-container>
+  </v-container> -->
 </template>

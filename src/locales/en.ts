@@ -10,6 +10,7 @@ export default {
     translation: "Translation",
     reciter: "Reciter",
     fontSize: "Font Size",
+    highlightedWord: "Highlighted Word Color",
   },
   audio: {
     download: "Download",

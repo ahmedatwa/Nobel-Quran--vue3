@@ -11,7 +11,7 @@ interface Chapter {
   nameSimple: string;
   nameArabic: string;
   nameComplex: string;
-  slug: string,
+  slug: string;
   translatedName: TranslatedName;
   versesCount: number;
   verses?: Verse[];
@@ -138,10 +138,12 @@ interface SingleTafsir {
   };
 }
 
-type ManualIntersectingMode = {
+type IntersectingData = {
   currentVerseNumber: number;
   lastVerseNumber: number;
 };
+
+type ChapterAutoScrollData = { activeVerseNumber: number };
 export {
   Chapter,
   ChapterInfo,
@@ -150,5 +152,6 @@ export {
   ChapterHeaderData,
   Tafsirs,
   SingleTafsir,
-  ManualIntersectingMode,
+  IntersectingData,
+  ChapterAutoScrollData,
 };
