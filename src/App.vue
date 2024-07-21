@@ -7,7 +7,7 @@ import { HeaderComponent, FooterComponent } from "@/components/common";
 import { NavigationComponent } from "@/components/common";
 
 // types
-import type { Chapter, IntersectingData, ChapterAutoScrollData } from "@/types/chapter";
+import type { Chapter, IntersectingData } from "@/types/chapter";
 import type { Juz } from "@/types/juz";
 import type { Page } from "@/types/page"
 import type { ChapterHeaderData } from "@/types/chapter";
@@ -31,7 +31,6 @@ const tab = ref("chapters");
 const randomAudioId = ref<number | undefined>()
 // when user select specific verse number from chapters Nav
 const chapterIntersectingData = ref<IntersectingData>();
-const chapterAutoScrollData = ref<ChapterAutoScrollData>()
 const chapterSelectedVerseNumber = ref<number>();
 const activeJuzNumber = ref<number>();
 const activePageNumber = ref<number>();

@@ -20,7 +20,7 @@ const metaStore = useMetaStore()
 const { audioPlayerSetting } = useSettingStore()
 const $tr = inject(langKey)
 
-const props = defineProps<{
+defineProps<{
     audioPlayer: { audioID: number, verseKey?: string, format?: string, isPlaying?: boolean, pause?: boolean } | null,
     modelValue: boolean
 }>()

@@ -6,7 +6,7 @@ import { useChapterStore } from "@/stores";
 import { _range, localizeNumber } from "@/utils/number";
 import { isVerseKeyWithinRanges } from "@/utils/verse";
 // types
-import type { Chapter, IntersectingData, ChapterAutoScrollData } from "@/types/chapter";
+import type { Chapter, IntersectingData } from "@/types/chapter";
 import { scrollToElement, SMOOTH_SCROLL_TO_TOP } from "@/utils/useScrollToElement";
 
 // Stores
