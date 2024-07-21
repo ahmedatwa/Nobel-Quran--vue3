@@ -172,14 +172,6 @@ watchEffect(() => {
   }
 });
 
-const loadMoreVerses = async (currentVerseNumber: number, lastVerseNumber: number) => {
-  if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
-    if (chapterStore.selectedChapterPagination) {
-      await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
-    }
-  }
-}
-
 </script>
 
 <template>
