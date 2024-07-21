@@ -152,7 +152,7 @@ const getVerseByKey = async (verseKey: string) => {
   <!-- <v-container fluid class="pa-0 mt-2">
     <v-row no-gutters dense>
       <v-col cols="7"> -->
-  <v-card density="compact" flat style="overflow: initial; z-index: initial">
+  <v-card density="compact" flat style="overflow: initial; z-index: initial" height="700">
     <v-container fluid class="pa-1">
       <v-row no-gutters dense>
         <v-col cols="7">
@@ -160,10 +160,10 @@ const getVerseByKey = async (verseKey: string) => {
             <v-text-field v-model="chapterStore.searchValue" hide-details variant="filled" density="compact"
               :label="$tr.line('surahNav.textChapters')"></v-text-field>
           </v-card-title>
-          <v-card-text class="overflow-y-auto mb-4 w-100 h-100 pa-0 ma-0">
+          <v-card-text class="mb-4 pa-0 ma-0" >
             <v-skeleton-loader type="list-item" v-for="n in chapterStore.TOTAL_CHAPTERS" :key="n"
               v-if="chapterStore.isLoading.chapters"></v-skeleton-loader>
-            <v-list lines="two">
+            <v-list lines="two" height="650" class="overflow-y-auto">
               <v-list-item v-for="chapter in chapterStore.chapters" :key="chapter.id" :value="chapter.nameSimple"
                 :active="chapterStore.selectedChapterId === chapter.id" @click="getSelectedChapter(chapter)"
                 :id="`chapter${chapter.id}`" @mouseenter="mouseEnter('chapter', chapter)">
@@ -183,16 +183,16 @@ const getVerseByKey = async (verseKey: string) => {
               variant="filled"></v-text-field>
           </v-card-title>
           <v-divider></v-divider>
-          <v-sheet height="650" class="overflow-y-auto">
+          <v-card-text class="mb-4 pa-0 ma-0" >
             <v-skeleton-loader type="list-item" v-for="n in versesCount" :key="n"
               v-if="chapterStore.isLoading.chapters"></v-skeleton-loader>
-            <v-list class="mb-5">
+            <v-list height="650" class="overflow-y-auto">
               <v-list-item v-for="n in versesCount" :key="n" :value="n" class="text-center"
                 :title="localizeNumber(n, $tr.locale.value)" @click="getSelectedVerse(n)"
                 :active="selectedVerseID === n" :id="`verse-list-${n}`" @mouseenter="mouseEnter('verse', n)">
               </v-list-item>
             </v-list>
-          </v-sheet>
+          </v-card-text>
         </v-col>
       </v-row>
     </v-container>
