@@ -52,14 +52,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
     "2",
   ]);
   const recitations = ref<Recitations[]>([]);
-  const verseTiming = ref<VerseTimingsProps>({
-    chapterId: chapterId.value,
-    verseKey: "",
-    verseNumber: 0,
-    inRange: false,
-    wordLocation: "",
-    audioSrc: "",
-  });
+  const verseTiming = ref<VerseTimingsProps>();
 
   const chapterName = computed(() => {
     const chapter = getChapterNameByChapterId(chapterId.value);

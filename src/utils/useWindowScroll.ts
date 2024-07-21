@@ -1,23 +1,30 @@
 import { ref, onMounted, onUnmounted } from "vue";
 
-export const useWindowScroll = () => {
-  const currentScrollPos = ref();
-  const prevScrollpos = ref(window.scrollY);
-  const isScroll = ref();
 
-  const update = () => {
+export const useWindowScroll = (threshold: number = 300) => {
+  let prevScrollpos = window.scrollY;
+
+  const currentScrollPos = ref(0);
+  const isScrollingUp = ref<boolean>(false)
+  
+  const scrollDirection = ref("");
+
+  const update = (_event: any) => {    
     currentScrollPos.value = window.scrollY;
-    
-    if (prevScrollpos.value > currentScrollPos.value) {
-      isScroll.value = false;
+    //scrollTop.value = wi
+    if (prevScrollpos < currentScrollPos.value) {
+      scrollDirection.value = "d";
+      //prevScrollpos = currentScrollPos.value;
+      isScrollingUp.value = prevScrollpos < currentScrollPos.value
     } else {
-      isScroll.value = true;
+      scrollDirection.value = "u";
+      isScrollingUp.value = prevScrollpos < currentScrollPos.value
     }
-    prevScrollpos.value = currentScrollPos.value;
+    prevScrollpos = currentScrollPos.value;
   };
 
   onMounted(() => window.addEventListener("scroll", update));
   onUnmounted(() => window.removeEventListener("scroll", update));
 
-  return { isScroll, currentScrollPos, prevScrollpos };
+  return { scrollDirection, isScrollingUp, currentScrollPos, prevScrollpos };
 };

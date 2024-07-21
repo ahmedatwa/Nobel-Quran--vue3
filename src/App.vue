@@ -7,7 +7,7 @@ import { HeaderComponent, FooterComponent } from "@/components/common";
 import { NavigationComponent } from "@/components/common";
 
 // types
-import type { Chapter, ManualIntersectingMode } from "@/types/chapter";
+import type { Chapter, IntersectingData, ChapterAutoScrollData } from "@/types/chapter";
 import type { Juz } from "@/types/juz";
 import type { Page } from "@/types/page"
 import type { ChapterHeaderData } from "@/types/chapter";
@@ -30,8 +30,8 @@ const selected = ref<Chapter | Juz | Page | null>(null);
 const tab = ref("chapters");
 const randomAudioId = ref<number | undefined>()
 // when user select specific verse number from chapters Nav
-const chapterManualIntersectingModeData = ref<ManualIntersectingMode>();
-
+const chapterIntersectingData = ref<IntersectingData>();
+const chapterAutoScrollData = ref<ChapterAutoScrollData>()
 const chapterSelectedVerseNumber = ref<number>();
 const activeJuzNumber = ref<number>();
 const activePageNumber = ref<number>();
@@ -86,34 +86,35 @@ watch(selectedLanguage, (newLang) => {
   </teleport>
   <v-app>
     <v-locale-provider :rtl="$tr.rtl.value">
-    <v-overlay :model-value="settingStore.isAppLoading" class="align-center justify-center">
-      <v-progress-circular color="primary" size="64" indeterminate>
-        <template v-slot:default> {{ settingStore.appIntervalValue }} % </template>
-      </v-progress-circular>
-    </v-overlay>
-   
+      <v-overlay :model-value="settingStore.isAppLoading" class="align-center justify-center">
+        <v-progress-circular color="primary" size="64" indeterminate>
+          <template v-slot:default> {{ settingStore.appIntervalValue }} % </template>
+        </v-progress-circular>
+      </v-overlay>
+
       <header-component :header-data="headerData" @update:settings-drawer="settingsDrawer = $event"
         @update:selected-language="selectedLanguage = $event" @update-home="destroy">
       </header-component>
       <navigation-component v-model:navigation-model-value="navigationModelValue" :selected="tab" v-if="selected"
-        :chapter-manual-intersecting-mode="chapterManualIntersectingModeData"
-        :juz-manual-intersecting="juzManualIntersecting"
+        :chapter-intersecting-data="chapterIntersectingData" :juz-manual-intersecting="juzManualIntersecting"
         :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
         :intersecting-page-verse-number="intersectingPageVerseNumber"
+        @update:model-value="navigationModelValue = $event"
         @update:selected-verse-number="chapterSelectedVerseNumber = $event"></navigation-component>
-      <v-main style="overflow-x: hidden">
+      <v-main>
 
         <quran-component :selected="tab" v-if="selected" @update:header-data="headerData = $event"
           @update:active-juz-number="activeJuzNumber = $event" @update:active-page-number="activePageNumber = $event"
-          @update:chapter-manual-intersection="chapterManualIntersectingModeData = $event"
+          @update:chapter-intersection-data="chapterIntersectingData = $event"
           :chapter-selected-verse="chapterSelectedVerseNumber"
           @update:intersecting-page-verse-number="intersectingPageVerseNumber = $event"
           @update:juz-manual-intersecting="juzManualIntersecting = $event"> </quran-component>
 
         <home-component v-model:model-value="tab" @update-selected="selected = $event"
           @update:play-random-audio="randomAudioId = $event" v-else></home-component>
-        <footer-component></footer-component>
+
       </v-main>
+      <footer-component></footer-component>
     </v-locale-provider>
   </v-app>
 </template>

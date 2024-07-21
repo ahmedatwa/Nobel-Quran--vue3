@@ -8,11 +8,12 @@ import { useChapterStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran";
 import { ButtonsActionListComponent } from "@/components/quran";
 // types
-import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
+import type { ChapterHeaderData, IntersectingData } from "@/types/chapter";
+import type { VerseWord } from "@/types/verse"
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 
 // utils
-import { scrollToElement, isInViewport, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
 import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
@@ -52,12 +53,13 @@ const props = defineProps<{
   audioExperience: { autoScroll: boolean; tooltip: boolean };
   cssVars?: Record<"fontSize" | "fontFamily", string>
   selectedVerseNumber?: number;
+  wordColor: string
 }>();
 
 const emit = defineEmits<{
   "update:playAudio": [value: PlayAudioEmit];
   "update:headerData": [value: ChapterHeaderData];
-  "update:manualIntersectingMode": [value: ManualIntersectingMode];
+  "update:intersectionData": [value: IntersectingData];
 }>();
 
 // Manual Mode Scroll
@@ -67,6 +69,7 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
 
   if (intersecting && entries[0].intersectionRatio >= 0.8) {
     const target = entries[0].target as HTMLDivElement
+
     if (target) {
       intersectingVerseNumber.value = Number(target.dataset.verseNumber);
       // emit header data
@@ -74,9 +77,9 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
       newHeaderData = {
         left: chapterStore.selectedChapterName,
         right: {
-          pageNumber: Number(target.dataset.pageNumber),
-          hizbNumber: Number(target.dataset.hizbNumber),
-          juzNumber: Number(target.dataset.juzNumber),
+          pageNumber: target.dataset.pageNumber || "",
+          hizbNumber: target.dataset.hizbNumber || "",
+          juzNumber: target.dataset.juzNumber || "",
         },
       };
       if (newHeaderData !== headerData.value) {
@@ -86,7 +89,7 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
       // emit verse id for scroll in verses list
       // help to fetch new verses
       // sending current/last verse Numbers to the chapters Nav
-      emit("update:manualIntersectingMode", {
+      emit("update:intersectionData", {
         lastVerseNumber: chapterStore.getLastVerseNumberOfChapter,
         currentVerseNumber: intersectingVerseNumber.value
       });
@@ -118,12 +121,9 @@ const setBookmarked = (verseNumber: number) => {
 };
 
 // Highlight Active Words
-const isWordHighlighted = (location: string, verseKey: string) => {
+const isWordHighlighted = (word: VerseWord) => {
   if (props.verseTiming && props.isTranslationsView) {
-    return (
-      props.verseTiming.wordLocation === location &&
-      verseKey === props.verseTiming.verseKey
-    );
+    return props.verseTiming.wordLocation === word.location
   }
 };
 
@@ -132,48 +132,39 @@ const isWordHighlighted = (location: string, verseKey: string) => {
 watchEffect(async () => {
   if (props.verseTiming) {
     if (props.audioExperience.autoScroll) {
-      const el = document.querySelector(`#verse-col-number-${props.verseTiming.verseNumber}`) as HTMLDivElement
-      let newHeaderData: ChapterHeaderData | null = null
-      if (!isInViewport(el)) {
-        // Avoid watchers by comparing 2 objects
-        newHeaderData = {
-          left: chapterStore.selectedChapterName,
-          right: {
-            pageNumber: el.getAttribute("data-page-number") || "",
-            hizbNumber: el.getAttribute("data-hizb-number") || "",
-            juzNumber: el.getAttribute("data-juz-number") || "",
-          },
-        };
+      const currentVerseNumber = props.verseTiming.verseNumber
+      const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
 
 
-        if (newHeaderData !== headerData.value) {
-          headerData.value = newHeaderData
-          // emit header Data          
-          emit("update:headerData", headerData.value)
+      if (props.isAudioPlaying?.isPlaying) {
+        // fetch more Verses
+        if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
+          if (chapterStore.selectedChapterPagination?.next_page) {
+            await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
+          }
         }
 
         // Scroll into View
-        if (props.isAudioPlaying?.isPlaying) {
-          // fetch more Verses
-          await loadMoreVerses(props.verseTiming.verseNumber, chapterStore.getLastVerseNumberOfChapter)
+        const verseElement = `#verse-row-${props.verseTiming.verseNumber}`
+        if (verseElement) {
+          if (props.verseTiming.verseNumber !== intersectingVerseNumber.value) {
 
-          const verseElement = `#verse-row-${props.verseTiming.verseNumber}`
-          if (verseElement) {
             if (mobile.value) {
               scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
             } else {
               scrollToElement(verseElement)
             }
           }
+        }
 
-        }
-        // toggle active state
-        const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
-        if (element) {
-          //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
-        }
+      }
+      // toggle active state
+      const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
+      if (element) {
+        //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
       }
     }
+
   }
 });
 
@@ -209,18 +200,12 @@ watchEffect(() => {
 });
 
 
-const loadMoreVerses = async (currentVerseNumber: number, lastVerseNumber: number) => {
-  if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
-    if (chapterStore.selectedChapterPagination) {
-      await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
-    }
-  }
-}
+
 </script>
 
 <template>
   <v-container fluid class="smooth-scroll-behaviour" id="chapters-translations-container">
-    <v-card :loading="chapterStore.isLoading.verses">
+    <v-card>
       <v-row :align="'center'" justify="center" dense>
         <v-col cols="12">
           <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors"
@@ -237,7 +222,7 @@ const loadMoreVerses = async (currentVerseNumber: number, lastVerseNumber: numbe
           :id="`verse-col-number-${verse.verse_number}`" v-intersect="{
             handler: onIntersect,
             options: {
-              threshold: [0, 0.5, 1.0],
+              threshold: [0, 0.8, 1.0],
             },
           }">
           <v-row :id="`verse-row-${verse.verse_number}`">
@@ -258,16 +243,17 @@ const loadMoreVerses = async (currentVerseNumber: number, lastVerseNumber: numbe
                 <v-list-item v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
                   :data-verse-number="verse.verse_number" :data-chapter-id="verse.chapter_id"
                   :data-juz-number="verse.juz_number" :data-page-number="verse.page_number" class="item">
-                  <v-list-item-title class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word.location, word.verse_key)
-                    ? 'text-blue'
+                  <v-list-item-title class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
+                    ? wordColor
                     : ''">
                     <h3 v-if="word.char_type_name === 'end'">
                       ({{ word.text_uthmani }})
                     </h3>
-                    <h3 :style="[defaultStyles, cssVars]" v-else> {{ word.text_uthmani }}
+                    <h3 :style="[defaultStyles, cssVars]" :data-word-location="word.location" v-else> {{
+                      word.text_uthmani }}
                       <v-tooltip v-if="audioExperience.tooltip" activator="parent" :target="`#word-tooltip-${word.id}`"
-                        :model-value="isWordHighlighted(word.location, word.verse_key)
-                          " location="top center" origin="bottom center" :text="word.translation.text">
+                        :model-value="isWordHighlighted(word)" location="top center" origin="bottom center"
+                        :text="word.translation.text">
                       </v-tooltip>
                       <v-tooltip v-else activator="parent" :target="`#word-tooltip-${word.id}`" location="top center"
                         origin="bottom center" :text="word.translation.text">

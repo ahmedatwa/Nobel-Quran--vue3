@@ -14,7 +14,7 @@ import {
   useAudioPlayerStore,
 } from "@/stores";
 // types
-import type { ChapterHeaderData, ManualIntersectingMode } from "@/types/chapter";
+import type { ChapterHeaderData, IntersectingData } from "@/types/chapter";
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
 import type { PageHeaderData } from "@/types/page";
 import type { PlayAudioEmit } from "@/types/audio";
@@ -48,10 +48,12 @@ const emit = defineEmits<{
   "update:navigationModelValue": [value: boolean];
   "update:activeJuzNumber": [value: number]
   "update:chapterSelectedVerse": [value: number]
-  "update:chapterManualIntersection": [value: ManualIntersectingMode]
+  "update:chapterIntersectionData": [value: IntersectingData]
   "update:activePageNumber": [value: number]
   "update:juzManualIntersecting": [value: JuzVersesIntersecting]
   "update:intersectingPageVerseNumber": [value: number]
+  "update:chapterAutoScrollData": [value: { activeVerseNumber: number }]
+
 }>();
 
 const playAudio = (event: PlayAudioEmit) => {
@@ -105,7 +107,7 @@ const updateTranslations = ($event: number[]) => {
   <!-- Chapters -->
   <chapters-component :selected="selected === 'chapters'" :audio-player="audioPlayer" :selected-tab="selectedTab"
     :selected-verse-number="chapterSelectedVerse" :css-vars="quranCssVars"
-    @update:manual-intersecting-mode="$emit('update:chapterManualIntersection', $event)"
+    @update:intersection-data="$emit('update:chapterIntersectionData', $event)"
     @update:header-data="$emit('update:headerData', { key: 'chapter', value: $event as ChapterHeaderData })"
     @update:play-audio="playAudio">
   </chapters-component>

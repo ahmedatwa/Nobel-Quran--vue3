@@ -34,8 +34,7 @@ const emit = defineEmits<{
                 <v-switch :label="$tr.line('setting.autoplay')" color="primary"
                     v-model="settingStore.audioPlayerSetting.autoPlay" hide-details></v-switch>
                 <v-switch :label="$tr.line('setting.playerFullWidth')" color="primary"
-                    v-model="settingStore.audioPlayerSetting.fullwidth"
-                    hide-details></v-switch>
+                    v-model="settingStore.audioPlayerSetting.fullwidth" hide-details></v-switch>
                 <v-switch :label="$tr.line('setting.dismissPlayer')" color="primary"
                     v-model="settingStore.audioPlayerSetting.dismissOnEnd" hide-details></v-switch>
                 <!-- Reciters -->
@@ -52,15 +51,6 @@ const emit = defineEmits<{
                         </v-menu>
                     </v-btn>
                 </v-sheet>
-
-                <!-- <v-select v-model="audioPlayerStore.selectedReciter" :label="$tr.line('setting.reciter')"
-                    :items="audioPlayerStore.recitations" item-title="name" item-value="reciter_id" return-object>
-                    <template v-slot:item="{ props, item }">
-                        <v-list-item v-bind="props" :subtitle="item.raw.style.name"
-                            :title="item.raw.name"></v-list-item>
-                    </template>
-                </v-select> -->
-
                 <v-divider class="my-2" :thickness="2"></v-divider>
                 <p class="text-subtitle-2 mb-3">{{ $tr.line("setting.quran") }}</p>
                 <v-sheet class="d-flex flex-column">
@@ -86,9 +76,26 @@ const emit = defineEmits<{
                                 @click="settingStore.cssVars.quranFrontSize++"
                                 :disabled="settingStore.cssVars.quranFrontSize === 10"></v-btn>
                         </div>
-
+                    </v-sheet>
+                    <v-sheet>
+                        <div class="ma-2 py-5">{{ $tr.line('setting.highlightedWord') }}</div>
+                        <v-btn-toggle divided v-model="settingStore.highlightedWordColor">
+                            <v-btn value="blue-darken-2">
+                                <v-sheet color="blue-darken-2" height="20" width="26" tile></v-sheet>
+                            </v-btn>
+                            <v-btn value="deep-purple-lighten-1">
+                                <v-sheet color="deep-purple-lighten-1" height="20" width="26" tile></v-sheet>
+                            </v-btn>
+                            <v-btn value="teal-lighten-1">
+                                <v-sheet color="teal-lighten-1" height="20" width="26" tile></v-sheet>
+                            </v-btn>
+                            <v-btn value="orange-darken-1">
+                                <v-sheet color="orange-darken-1" height="20" width="26" tile></v-sheet>
+                            </v-btn>
+                        </v-btn-toggle>
                     </v-sheet>
                 </v-sheet>
+
                 <v-divider class="my-2" :thickness="2"></v-divider>
                 <v-sheet>
                     <p class="text-subtitle-2 mb-3">{{ $tr.line("setting.translation") }}</p>

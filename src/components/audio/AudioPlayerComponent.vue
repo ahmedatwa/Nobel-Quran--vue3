@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onUnmounted, inject } from "vue";
-import { computed, watchEffect, onBeforeMount } from "vue";
+import { ref, onUnmounted, inject, watchEffect } from "vue";
+import { computed, onBeforeMount } from "vue";
 // components
 import { AudioPlayerControlsComponent } from "@/components/audio"
 // stores
@@ -10,10 +10,10 @@ import { langKey } from "@/types/symbols";
 // utils
 import { getStorage, setStorage } from "@/utils/storage";
 import { getLangFullLocale } from "@/utils/locale"
-import { makeWordLocation, getVerseNumberFromKey } from "@/utils/verse"
+import { makeWordLocation, getVerseNumberFromKey, getChapterIdfromKey } from "@/utils/verse"
 import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "@/utils/datetime"
 // types
-import type { VerseTimings } from "@/types"
+import type { VerseTimings, VerseTimingSegments } from "@/types/audio"
 
 const audioPlayerStore = useAudioPlayerStore()
 const metaStore = useMetaStore()
@@ -53,6 +53,7 @@ const getVerseTiming = computed((): VerseTimings[] | undefined => {
             return {
                 inRange: false,
                 wordLocation: "",
+                wordPosition: 0,
                 verseNumber: 0,
                 ...vt
             }
@@ -81,7 +82,7 @@ const AUDIO_DURATION_TOLERANCE = 1; // 1s ,
  * @returns {boolean} isWithinRange
  */
 const isCurrentTimeInRange = (currentTimeValue: number, timestampFrom: number, timestampTo: number) =>
-currentTimeValue >= timestampFrom && currentTimeValue < timestampTo;
+    currentTimeValue >= timestampFrom && currentTimeValue < timestampTo;
 
 
 const playbackListener = () => {
@@ -98,57 +99,37 @@ const playbackListener = () => {
     }
 }
 
-// watch timestamp for highlighted words
+
 watchEffect(() => {
-    // emit verse timing data
-    const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
+    if (getVerseTiming) {
+        // set current time to millseconds
+        const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
+        // Find current verse Key 
+        const currentVerseTimingData = getVerseTiming.value?.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
+        if (currentVerseTimingData) {
+            const isVerseInRange = isCurrentTimeInRange(currentTime, currentVerseTimingData.timestamp_from, currentVerseTimingData?.timestamp_to)
 
-    if (getVerseTiming.value) {
-        const currentVerse = getVerseTiming.value.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
+            if (isVerseInRange) {
+                currentVerseTimingData.segments.map((vt: VerseTimingSegments) => {
 
-        if (currentVerse) {
-            const isVerseInRange = isCurrentTimeInRange(currentTime, currentVerse?.timestamp_from, currentVerse?.timestamp_to)
-            let wordLocation = ""
-            //let verseNumber = 0
-            if (!isVerseInRange) {
-                const f = getVerseTiming.value.find((vt) => vt.verse_key === currentVerse.verse_key)
-                if (f) {
-                    f.inRange = false
-                    f.wordLocation
-                }
-            } else {
-                if (getVerseTiming.value) {
-                    getVerseTiming.value.forEach((vt) => {
-                        vt.inRange = isVerseInRange
-                        currentVerse.segments.forEach((s: any) => {
-                            const isSegmentInRange = isCurrentTimeInRange(currentTime, s[1], s[2])
-                            if (isSegmentInRange) {
-                                vt.wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
-                                wordLocation = makeWordLocation(currentVerse.verse_key, s[0])
-                                vt.verseNumber = s[0]
-                                // verseNumber = s[0]
-                                return;
-                            }
-
-                        })
-                        return
-                    })
-                }
+                    const isSegmentInRange = isCurrentTimeInRange(currentTime, vt[1], vt[2])
+                    if (isSegmentInRange) {
+                        audioPlayerStore.verseTiming = {
+                            chapterId: getChapterIdfromKey(currentVerseTimingData.verse_key),
+                            verseKey: currentVerseTimingData.verse_key,
+                            inRange: isSegmentInRange,
+                            verseNumber: getVerseNumberFromKey(currentVerseTimingData.verse_key),
+                            wordLocation: makeWordLocation(currentVerseTimingData.verse_key, vt[0]),
+                            wordPosition: vt[0],
+                            audioSrc: audioPlayerStore.audioPayLoadSrc
+                        }
+                    }
+                })
             }
-            // Reader Components Word Data
-            if (props.audioPlayer) [
-                audioPlayerStore.verseTiming = {
-                    chapterId: props.audioPlayer?.audioID,
-                    verseKey: currentVerse.verse_key,
-                    verseNumber: getVerseNumberFromKey(currentVerse.verse_key),
-                    inRange: isVerseInRange, wordLocation,
-                    audioSrc: audioPlayerStore.audioPayLoadSrc
-                }
-            ]
-
         }
     }
 })
+
 
 //run when audio is paused by user
 const playbackPlaying = () => {
@@ -222,7 +203,7 @@ const cleanupListeners = () => {
 }
 
 onBeforeMount(() => {
-    const state = getStorage('audio-player')    
+    const state = getStorage('audio-player')
     if (state) {
         // Muted
         if (state.isMuted) {
@@ -234,13 +215,13 @@ onBeforeMount(() => {
             setAudioPlayBackRate(state.playbackRate)
         }
         // Media Volume
-        if (state.mediaVolume) {            
-            mediaVolume.value = state.mediaVolume            
+        if (state.mediaVolume) {
+            mediaVolume.value = state.mediaVolume
         }
         // AutoScroll | tooltip
         if (state.experience) {
             //audioPlayerSetting.
-           // settingS.audioExperience = state.experience
+            // settingS.audioExperience = state.experience
         }
     }
 })

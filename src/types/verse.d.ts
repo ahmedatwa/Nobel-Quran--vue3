@@ -1,4 +1,4 @@
-type Verse = {
+interface Verse {
   id: 1;
   chapter_id: number;
   manzil_number: number;
@@ -16,32 +16,34 @@ type Verse = {
   text_uthmani_simple: string;
   text_indopak: string;
   bookmarked?: boolean;
-  words: {
-    id: number;
-    verse_key: string;
-    position: number;
-    audio_url: string;
-    char_type_name: string;
-    line_number: number;
-    page_number: number;
-    location: string;
-    code_v1: string;
-    text_uthmani: string;
-    text_indopak: string;
-    text_imlaei: string;
-    text: string;
-    code_v1: string;
-    code_v2: string;
-    translation: {
-      text: string;
-      language_name: string;
-    };
-    transliteration: {
-      text: string;
-      language_name: string;
-    };
-  }[];
+  words: VerseWord[];
   translations: VerseTranslation[];
+}
+
+type VerseWord = {
+  id: number;
+  verse_key: string;
+  position: number;
+  audio_url: string;
+  char_type_name: string;
+  line_number: number;
+  page_number: number;
+  location: string;
+  code_v1: string;
+  text_uthmani: string;
+  text_indopak: string;
+  text_imlaei: string;
+  text: string;
+  code_v1: string;
+  code_v2: string;
+  translation: {
+    text: string;
+    language_name: string;
+  };
+  transliteration: {
+    text: string;
+    language_name: string;
+  };
 };
 
 interface VerseTranslation {
@@ -55,7 +57,7 @@ interface VerseTranslation {
 }
 
 type MapVersesByPage = {
-  [key:string]: Verse[]
-}
+  [key: string]: Verse[];
+};
 
-export { Verse, MapVersesByPage };
+export { Verse, MapVersesByPage, VerseWord, VerseTranslation };

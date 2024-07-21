@@ -9,6 +9,10 @@ interface AudioFile {
   duration: number;
 }
 
+type VerseTimingSegments = {
+  [key: number]: number
+}
+
 interface VerseTimings {
   duration: number;
   timestamp_from: number;
@@ -17,15 +21,16 @@ interface VerseTimings {
   inRange?: boolean;
   wordLocation?: string;
   verseNumber?: number | string;
-  segments: object[];
+  segments: VerseTimingSegments[];
 }
 
 type VerseTimingsProps = {
   chapterId: number;
   verseKey: String;
   verseNumber: number;
-  inRange: boolean;
+  inRange?: boolean;
   wordLocation: string;
+  wordPosition: string | number;
   audioSrc?: string;
 };
 
@@ -68,4 +73,5 @@ export {
   VerseTimingsProps,
   IsAudioPlayingProps,
   PlayAudioEmit,
+  VerseTimingSegments,
 };
