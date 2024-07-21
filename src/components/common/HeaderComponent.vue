@@ -7,7 +7,6 @@ import { useTheme } from "vuetify";
 import { setStorage } from "@/utils/storage";
 import { localizeNumber } from "@/utils/number";
 import { LANGUAGES } from "@/utils/locale"
-import { useWindowScroll } from "@/utils/useWindowScroll";
 
 // types
 import type { ChapterHeaderData } from "@/types/chapter";
