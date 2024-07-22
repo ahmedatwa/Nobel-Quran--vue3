@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from "vue"
 // stores
-import { useChapterStore } from "@/stores";
+import { useChapterStore, useSettingStore } from "@/stores";
 // utils
 import { localizeNumber } from "@/utils/number"
 // types
 import type { Chapter } from "@/types/chapter";
 
 const chapterStore = useChapterStore()
-
+const settingStore = useSettingStore()
 const chaptersSearchValue = ref("")
 const chaptersCurrentSortDir = ref("asc");
 const chaptersCurrentSort = ref("id");
@@ -68,6 +68,10 @@ const chaptersSort = (s: string) => {
 };
 
 const getSelected = (value: Chapter) => {
+    settingStore.isAppLoading = true
+    setTimeout(() => {
+        settingStore.isAppLoading = false
+    }, 700);
     chapterStore.selectedChapter = value
     emit("update:selectedChapter", value)
 }
