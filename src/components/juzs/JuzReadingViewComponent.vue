@@ -9,11 +9,13 @@ import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
 import { getChapterNameByJuzId, getFirstVerseOfJuzByPage } from "@/utils/juz"
+import { getWordDataByLocation } from "@/utils/verse"
 
 const juzStore = useJuzStore()
 const isIntersecting = ref(false)
 const headerData = ref<JuzHeaderData | null>(null);
 const intersectingJuzVerseNumber = ref<number>()
+const shouldShowChapterHeader = ref(false)
 const verses = computed(() => {
     if (juzStore.selectedJuz) {
         return juzStore.selectedJuz.verses?.sort((a, b) => a.verse_number - b.verse_number)
@@ -59,6 +61,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     // const chapterId = entries[0].target.dataset.chapterId
     if (intersecting && entries[0].intersectionRatio >= 0.8) {
+        const target = entries[0].target
         intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
         let newHeaderData: JuzHeaderData | null = null
         // emit header data
@@ -80,6 +83,13 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             currentVerseNumber: intersectingJuzVerseNumber.value,
             lastVerseNumber: juzStore.getLastVerseOfJuz
         })
+
+        // test 
+        console.log(target.dataset.firstWord);
+        
+        const firstWordData = getWordDataByLocation(target.dataset.firstWord);
+        shouldShowChapterHeader.value = firstWordData[1] === '1' && firstWordData[2] === '1';
+
 
     }
 }
@@ -116,13 +126,14 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                             class="verse-row" justify="center" :align="'end'">
                             <v-col cols="12">
                                 <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="index"
-                                    @update:play-audio="$emit('update:playAudio', $event)" :verse-key="getFirstVerseOfJuzByPage(verses)"
+                                    @update:play-audio="$emit('update:playAudio', $event)"
+                                    :verse-key="getFirstVerseOfJuzByPage(verses)"
                                     :audio-src="`juz-reading-${juzStore.selectedJuz?.id}`" isInfoDialog>
                                     <template #title>
-                                        <h2>{{ $tr.rtl
+                                        <h2>{{ shouldShowChapterHeader ? $tr.rtl
                                             ? getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.nameArabic
                                             : getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.nameSimple
-                                            }}
+                                            : '' }}
                                         </h2>
                                     </template>
 
@@ -134,13 +145,13 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                                     </template>
                                 </title-buttons-component>
                             </v-col>
-                            <v-col class="verse-col" :id="`page-${page}`"
-                                cols="10">
+                            <v-col class="verse-col" :id="`page-${page}`" cols="10">
                                 <div class="d-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
-                                    :id="`page-${page}-line-${verse.verse_number}`" :data-page-number="verse.page_number"
-                                    :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
-                                    :data-juz-number="verse.juz_number" :data-verse-number="verse.verse_number"
-                                    v-intersect.quite="{
+                                    :id="`page-${page}-line-${verse.verse_number}`"
+                                    :data-page-number="verse.page_number" :data-hizb-number="verse.hizb_number"
+                                    :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
+                                    :data-first-word="verse.words[0].location" :data-verse-number="verse.verse_number"
+                                    v-intersect="{
                                         handler: onIntersect,
                                         options: {
                                             threshold: [0, 0.5, 1.0],

@@ -82,7 +82,7 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
           juzNumber: target.dataset.juzNumber || "",
         },
       };
-      
+
       if (newHeaderData !== headerData.value) {
         headerData.value = newHeaderData
         emit("update:headerData", headerData.value);
@@ -121,7 +121,7 @@ const setBookmarked = (verseNumber: number) => {
   });
 };
 
-// Highlight Active Words
+
 const isWordHighlighted = (word: VerseWord) => {
   if (props.verseTiming && props.isTranslationsView) {
     return props.verseTiming.wordLocation === word.location
@@ -131,42 +131,41 @@ const isWordHighlighted = (word: VerseWord) => {
 // watchers
 // auto mode with verse timing and feed header data
 watchEffect(async () => {
-  if (props.verseTiming) {
-    if (props.audioExperience.autoScroll) {
-      const currentVerseNumber = props.verseTiming.verseNumber
-      const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
+  if (props.audioExperience.autoScroll) {
+    const currentVerseNumber = props.verseTiming?.verseNumber
+    const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
+
+    if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
+      // fetch more Verses
+      if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
+        if (chapterStore.selectedChapterPagination?.next_page) {
+          await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
+        }
+      }
+
+      // Scroll into View
+      const verseElement = `#verse-row-${currentVerseNumber}`
+      if (verseElement) {
+        if (props.verseTiming?.verseNumber !== intersectingVerseNumber.value) {
 
 
-      if (props.isAudioPlaying?.isPlaying) {
-        // fetch more Verses
-        if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
-          if (chapterStore.selectedChapterPagination?.next_page) {
-            await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
+          if (mobile.value) {
+            scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
+          } else {
+            scrollToElement(verseElement)
           }
         }
-
-        // Scroll into View
-        const verseElement = `#verse-row-${props.verseTiming.verseNumber}`
-        if (verseElement) {
-          if (props.verseTiming.verseNumber !== intersectingVerseNumber.value) {
-
-            if (mobile.value) {
-              scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
-            } else {
-              scrollToElement(verseElement)
-            }
-          }
-        }
-
       }
-      // toggle active state
-      const element = document.querySelector(`#active-${props.verseTiming.verseNumber}`)
-      if (element) {
-        //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
-      }
+
     }
-
+    // toggle active state
+    const element = document.querySelector(`#active-${currentVerseNumber}`)
+    if (element) {
+      //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
+    }
   }
+
+
 });
 
 
@@ -245,8 +244,8 @@ watchEffect(() => {
                   :data-verse-number="verse.verse_number" :data-chapter-id="verse.chapter_id"
                   :data-juz-number="verse.juz_number" :data-page-number="verse.page_number" class="item">
                   <v-list-item-title class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
-                    ? wordColor
-                    : ''">
+                    ? wordColor : ''">
+                   
                     <h3 v-if="word.char_type_name === 'end'">
                       ({{ word.text_uthmani }})
                     </h3>

@@ -132,12 +132,11 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
 
 // auto mode with verse timing and feed header data
 watchEffect(async () => {
-  if (props.verseTiming) {
     if (props.audioExperience.autoScroll) {
-      const currentVerseNumber = props.verseTiming.verseNumber
+      const currentVerseNumber = props.verseTiming?.verseNumber
       const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
 
-      if (props.isAudioPlaying?.isPlaying) {
+      if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
         // fetch more Verses
         if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
           if (chapterStore.selectedChapterPagination?.next_page) {
@@ -145,9 +144,9 @@ watchEffect(async () => {
           }
         }
         // Scroll into View
-        const verseElement = `#verse-row-${props.verseTiming.verseNumber}`
+        const verseElement = `#verse-row-${currentVerseNumber}`
         if (verseElement) {
-          if (props.verseTiming.verseNumber !== intersectingVerseNumber.value) {
+          if (currentVerseNumber !== intersectingVerseNumber.value) {
 
             if (mobile.value) {
               scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
@@ -158,7 +157,6 @@ watchEffect(async () => {
         }
       }
     }
-  }
 });
 
 /**

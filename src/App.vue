@@ -99,7 +99,8 @@ watch(selectedLanguage, (newLang) => {
         :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
         :intersecting-page-verse-number="intersectingPageVerseNumber"
         @update:model-value="navigationModelValue = $event"
-        @update:selected-verse-number="chapterSelectedVerseNumber = $event"></navigation-component>
+        @update:selected-verse-number="chapterSelectedVerseNumber = $event">
+      </navigation-component>
       <v-main>
 
         <quran-component :selected="tab" v-if="selected" @update:header-data="headerData = $event"

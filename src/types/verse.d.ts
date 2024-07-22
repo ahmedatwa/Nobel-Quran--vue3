@@ -44,6 +44,7 @@ type VerseWord = {
     text: string;
     language_name: string;
   };
+  inRange?: boolean
 };
 
 interface VerseTranslation {

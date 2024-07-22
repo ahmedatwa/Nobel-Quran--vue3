@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect } from "vue";
+import { ref, inject, watchEffect, onMounted } from "vue";
 // components
 import { SettingDrawerComponent } from "@/components/common";
 import { useTheme } from "vuetify";
@@ -80,11 +80,18 @@ watchEffect(() => {
   }
 });
 
+onMounted(( ) => {
+  document.querySelector("#app-bar")?.addEventListener("resize", (e) => {
+    console.log(e);
+    
+  })
+})
+
 </script>
 <template>
-  <v-app-bar :elevation="2" density="comfortable" scroll-behavior="hide" extension-height="40" :scroll-threshold="100">
-    <template #prepend >
-      <v-app-bar-title class="ms-2" >
+  <v-app-bar :elevation="2" density="comfortable" scroll-behavior="hide" extension-height="40">
+    <template #prepend>
+      <v-app-bar-title class="ms-2">
         <template #text>
           <v-btn class="quran-header-title" @click="$emit('updateHome', true)" variant="flat"
             :text="$tr.line('common.headingTitle')">
@@ -116,7 +123,7 @@ watchEffect(() => {
     <template #extension v-if="headerDataValue">
       <v-btn @click="navigationModelValue = !navigationModelValue"
         :append-icon="navigationModelValue ? 'mdi-menu-down' : 'mdi-menu-up'">
-        {{ headerDataValue.left }} 
+        {{ headerDataValue.left }}
       </v-btn>
       <v-sheet class="ms-auto me-4 text-body-2">
         {{ $tr.line("common.headerSurahData", [

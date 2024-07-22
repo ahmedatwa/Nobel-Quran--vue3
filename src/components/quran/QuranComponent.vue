@@ -7,6 +7,7 @@ import { PagesComponent } from "@/components/pages";
 import { TranslationListComponent } from "@/components/translations";
 import { JuzsComponent } from "@/components/juzs";
 import { ChaptersComponent } from "@/components/chapters";
+
 // stores
 import {
   useTranslationsStore,
@@ -97,7 +98,6 @@ const updateTranslations = ($event: number[]) => {
 // });
 </script>
 <template>
-
   <!-- Juz -->
   <juzs-component :selected="selected === 'juzs'" :selected-tab="selectedTab" :audio-player="audioPlayer"
     :css-vars="quranCssVars" @update:translation-drawer="translationDrawer = $event"

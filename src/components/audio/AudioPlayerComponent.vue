@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onUnmounted, inject, watchEffect } from "vue";
-import { computed, onBeforeMount } from "vue";
+import { computed, onBeforeMount, watch } from "vue";
 // components
 import { AudioPlayerControlsComponent } from "@/components/audio"
 // stores
@@ -13,7 +13,7 @@ import { getLangFullLocale } from "@/utils/locale"
 import { makeWordLocation, getVerseNumberFromKey, getChapterIdfromKey } from "@/utils/verse"
 import { secondsFormatter, milliSecondsToSeconds, secondsToMilliSeconds } from "@/utils/datetime"
 // types
-import type { VerseTimings, VerseTimingSegments } from "@/types/audio"
+import type { VerseTimings, VerseTimingSegments, BottomSheetProps } from "@/types/audio"
 
 const audioPlayerStore = useAudioPlayerStore()
 const metaStore = useMetaStore()
@@ -44,6 +44,11 @@ const isPlaying = ref(false);
 const isMuted = ref(false);
 const loopAudio = ref("none")
 const currentTimestamp = ref(0)
+const bottomSheetProps = ref<BottomSheetProps>({
+    scrim: false,
+    scrollStrategy: "none",
+    noClickAnimation: true
+})
 
 
 // get verse timing
@@ -61,12 +66,6 @@ const getVerseTiming = computed((): VerseTimings[] | undefined => {
     }
 })
 
-
-/**
- * Buffering when 1s away from download progress
- * and put the audio in `almostEnded` state when 1s away from ending
- */
-const AUDIO_DURATION_TOLERANCE = 1; // 1s ,
 
 /**
  * check if currentTime is within range timestampFrom and timestampTo
@@ -90,10 +89,10 @@ const playbackListener = () => {
 
         if (audioPlayerStore.audioFiles) {
             listenerActive.value = true;
-            currentTimestamp.value = Math.ceil(audioPlayerRef.value.currentTime - AUDIO_DURATION_TOLERANCE)
+            currentTimestamp.value = audioPlayerRef.value.currentTime
             duration.value = milliSecondsToSeconds(audioPlayerStore.audioFiles.duration)
-            elapsedTime.value = secondsFormatter((duration.value - currentTimestamp.value), getLangFullLocale($tr?.locale.value))
-            progressTimer.value = secondsToMilliSeconds(currentTimestamp.value)
+            elapsedTime.value = secondsFormatter((duration.value - (currentTimestamp.value - 1)), getLangFullLocale($tr?.locale.value))
+            progressTimer.value = secondsToMilliSeconds(currentTimestamp.value - 1)
 
         }
     }
@@ -102,8 +101,7 @@ const playbackListener = () => {
 
 watchEffect(() => {
     if (getVerseTiming) {
-        // set current time to millseconds
-        const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
+        const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value - 3))
         // Find current verse Key 
         const currentVerseTimingData = getVerseTiming.value?.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
         if (currentVerseTimingData) {
@@ -156,6 +154,23 @@ const playbackPaused = () => {
         })
     }
 }
+
+// Scrim screen on repeat
+watch(loopAudio, (newLoop) => {
+    if (newLoop === "repeat") {
+        bottomSheetProps.value = {
+            scrim: true,
+            scrollStrategy: "block",
+            noClickAnimation: false
+        }
+    } else {
+        bottomSheetProps.value = {
+            scrim: false,
+            scrollStrategy: "none",
+            noClickAnimation: true
+        }
+    }
+})
 
 //run when audio play reaches the end of file
 const playbackEnded = async () => {
@@ -463,14 +478,17 @@ const closePlayer = () => {
     if (audioPlayerRef.value) {
         audioPlayerRef.value.pause();
     }
-    // audioPlayerStore.audioFiles = null
     audioPlayerStore.chapterId = 0
     audioPlayerStore.selectedVerseKey = ""
     cleanupListeners()
     emit('update:modelValue', false)
     emit('update:isAudio', null)
-    // disable autoscroll as page will be stuck after player is unmounted
-    //audioPlayerStore.audioExperience.autoScroll = false
+    // Reset bottom sheet value
+    bottomSheetProps.value = {
+        scrim: false,
+        scrollStrategy: "none",
+        noClickAnimation: true
+    }
 }
 
 const muteAudio = () => {
@@ -501,8 +519,8 @@ const changeMediaVolume = (volume: number) => {
 
 <template>
     <v-bottom-sheet :model-value="modelValue" @update:model-value="closePlayer" :inset="!audioPlayerSetting.fullwidth"
-        :scrim="false" persistent no-click-animation scroll-strategy="none" @keyup.up="keyboardVolumUp"
-        @keyup.down="keyboardVolumDown">
+        :scrim="bottomSheetProps.scrim" persistent :no-click-animation="bottomSheetProps.noClickAnimation"
+        :scroll-strategy="bottomSheetProps.scrollStrategy" @keyup.up="keyboardVolumUp" @keyup.down="keyboardVolumDown">
         <v-card>
             <v-progress-linear v-model="progressTimer" clickable :height="7" @click="playbackSeek" hide-details
                 buffer-color="orange" :buffer-value="audioBuffer"
