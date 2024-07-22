@@ -151,7 +151,6 @@ watchEffect(async () => {
     // toggle active state
     const element = document.getElementById(`verse-row-${currentVerseNumber}`)
     if (element) {
-      element.focus()
       isHoveringElement.value = Number(currentVerseNumber)
     }
   }
@@ -197,7 +196,7 @@ const scroll = (el: string) => {
     if (mobile.value) {
       scrollToElement(el, 50, SMOOTH_SCROLL_TO_CENTER, 300)
     } else {
-      scroll(el)
+      scrollToElement(el)
     }
   }
 }
@@ -217,7 +216,7 @@ const scroll = (el: string) => {
             @update:play-audio="$emit('update:playAudio', $event)">
           </title-buttons-component>
         </v-col>
-        <v-col cols="12" class="mb-2" v-for="verse in verses" :key="verse.verse_key"
+        <v-col cols="12" class="mb-2" v-for="(verse, index) in verses" :key="verse.verse_key"
           :data-hizb-number="verse.hizb_number" :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id"
           :data-verse-number="verse.verse_number" :data-verse-key="verse.verse_key"
           :data-page-number="verse.page_number" :data-intersecting="isIntersecting"
@@ -227,7 +226,7 @@ const scroll = (el: string) => {
               threshold: [0, 0.8, 1.0],
             },
           }">
-          <v-row :id="`verse-row-${verse.verse_number}`" :class="`active-${verse.verse_number}`">
+          <v-row :id="`verse-row-${verse.verse_number}`" :class="`active-verse-row`" :tabindex="index">
 
             <!-- Actions -->
             <v-col class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1"
@@ -294,4 +293,5 @@ const scroll = (el: string) => {
 :deep(.v-list-item--density-default:not(.v-list-item--nav).v-list-item--one-line) {
   padding-inline: 3px;
 }
+
 </style>
