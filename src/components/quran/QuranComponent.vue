@@ -57,9 +57,7 @@ const emit = defineEmits<{
 
 }>();
 
-const playAudio = (event: PlayAudioEmit) => {  
-  console.log(event);
-  
+const playAudio = (event: PlayAudioEmit) => {    
   audioPlayerStore.getAudio(event);
   audioPlayer.value = event
   audioPlayerModelValue.value = true;
