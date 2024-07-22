@@ -10,8 +10,8 @@ interface AudioFile {
 }
 
 type VerseTimingSegments = {
-  [key: number]: number
-}
+  [key: number]: number;
+};
 
 interface VerseTimings {
   duration: number;
@@ -65,6 +65,12 @@ type IsAudioPlayingProps = {
 
 type PlayAudioEmit = { audioID: number; audioSrc?: string; verseKey?: string };
 
+type BottomSheetProps = {
+  scrim: boolean;
+  scrollStrategy: NonNullable<"none" | "block">;
+  noClickAnimation: boolean;
+};
+
 export {
   VerseTimings,
   AudioFile,
@@ -73,5 +79,6 @@ export {
   VerseTimingsProps,
   IsAudioPlayingProps,
   PlayAudioEmit,
+  BottomSheetProps,
   VerseTimingSegments,
 };

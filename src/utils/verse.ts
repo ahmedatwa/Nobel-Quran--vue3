@@ -142,6 +142,7 @@ export const getChapterIdfromKey = (key: string) => {
   return Number(key.split(COLON_SPLITTER)[0]);
 };
 
+
 export const verseFields = [
   "id",
   "chapter_id",
