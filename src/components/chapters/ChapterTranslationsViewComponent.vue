@@ -13,7 +13,7 @@ import type { VerseWord } from "@/types/verse"
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 
 // utils
-import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport } from "@/utils/useScrollToElement";
 import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
@@ -144,31 +144,19 @@ watchEffect(async () => {
       }
 
       // Scroll into View
-      const verseElement = `#verse-row-${currentVerseNumber}`
-      if (verseElement) {
-        if (props.verseTiming?.verseNumber !== intersectingVerseNumber.value) {
-
-
-          if (mobile.value) {
-            scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
-          } else {
-            scrollToElement(verseElement)
-          }
-        }
-      }
+      scroll(`#verse-row-${currentVerseNumber}`)
 
     }
+
     // toggle active state
-    const element = document.querySelector(`#active-${currentVerseNumber}`)
+    const element = document.getElementById(`verse-row-${currentVerseNumber}`)
     if (element) {
-      //isHoveringElement.value = `active-${props.verseTiming.verseNumber}`
+      element.focus()
     }
   }
 
 
 });
-
-
 
 // emitting header data on mounted so 
 // access to dismiss the navigation menu is available
@@ -199,6 +187,19 @@ watchEffect(() => {
   }
 });
 
+// commit scroll to verse
+const scroll = (el: string) => {
+  const element = document.querySelector(el) as HTMLElement
+  if (isInViewport(element)) {
+    return;
+  } else {
+    if (mobile.value) {
+      scrollToElement(el, 50, SMOOTH_SCROLL_TO_CENTER, 300)
+    } else {
+      scroll(el)
+    }
+  }
+}
 
 
 </script>
@@ -245,7 +246,7 @@ watchEffect(() => {
                   :data-juz-number="verse.juz_number" :data-page-number="verse.page_number" class="item">
                   <v-list-item-title class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
                     ? wordColor : ''">
-                   
+
                     <h3 v-if="word.char_type_name === 'end'">
                       ({{ word.text_uthmani }})
                     </h3>

@@ -42,8 +42,9 @@ export const isElementVisibleInViewport = (
 };
 
 export const isInViewport = (element: HTMLElement) => {
-  var rect = element.getBoundingClientRect();
-  var html = document.documentElement;
+
+  let rect = element.getBoundingClientRect();
+  let html = document.documentElement;
   return (
     rect.top >= 0 &&
     rect.left >= 0 &&
