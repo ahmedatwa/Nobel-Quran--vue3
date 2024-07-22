@@ -100,7 +100,7 @@ const playbackListener = () => {
 
 watchEffect(() => {
     if (getVerseTiming) {
-        const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
+        const currentTime = Math.ceil(secondsToMilliSeconds(Math.ceil(currentTimestamp.value -1)))
         // Find current verse Key 
         const currentVerseTimingData = getVerseTiming.value?.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
         if (currentVerseTimingData) {
