@@ -21,8 +21,8 @@ import { useMetaStore, useSettingStore } from "@/stores"
 
 // Stores
 const _theme = useTheme();
-const metadataStore = useMetaStore()
-const settingStore = useSettingStore()
+const { pageTitle, metaData } = useMetaStore()
+const { isAppLoading } = useSettingStore()
 const selectedLanguage = ref("en");
 const settingsDrawer = ref(false);
 const headerData = ref<{ key: string, value: ChapterHeaderData | JuzHeaderData | PageHeaderData } | null>(null);
@@ -78,16 +78,15 @@ watch(selectedLanguage, (newLang) => {
 </script>
 
 <template>
-  <teleport to="head title">{{ metadataStore.pageTitle }}</teleport>
+  <teleport to="head title">{{ pageTitle }}</teleport>
   <teleport to="head">
-    <meta v-for="(metaItem, i) in metadataStore.metaData" :key="i" :name="metaItem.name" :property="metaItem.property"
+    <meta v-for="(metaItem, i) in metaData" :key="i" :name="metaItem.name" :property="metaItem.property"
       :content="metaItem.content">
   </teleport>
   <v-app>
     <v-locale-provider :rtl="$tr.rtl.value">
-      <v-overlay :model-value="settingStore.isAppLoading" class="align-center justify-center">
+      <v-overlay :model-value="isAppLoading" class="align-center justify-center">
         <v-progress-circular color="primary" size="64" indeterminate>
-          <template v-slot:default> {{ settingStore.appIntervalValue }} % </template>
         </v-progress-circular>
       </v-overlay>
 
