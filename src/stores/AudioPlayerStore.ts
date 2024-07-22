@@ -14,7 +14,7 @@ import { useChapterStore, useSettingStore } from "@/stores";
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
   const settingStore = useSettingStore();
-  const { getChapterNameByChapterId, TOTAL_CHAPTERS, chaptersList } =
+  const { getChapterNameByChapterId, TOTAL_CHAPTERS, getChapter } =
     useChapterStore();
   const isLoading = ref(false);
   const audioFiles = ref<AudioFile | null>(null);
@@ -64,27 +64,37 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const getAudio = async (payload: PlayAudioEmit, audioSrc?: string) => {
     //https://api.qurancdn.com/api/qdc/audio/reciters/9/audio_files?chapter=1&segments=true
     // if (payload.audioID === chapterId.value) return;
-    const chapter = chaptersList.find((c) => c.id === payload.audioID);
+    const chapter = getChapter(payload.audioID);
     chapterId.value = payload.audioID;
     selectedVerseKey.value = payload.verseKey;
     audioPayLoadSrc.value = payload.audioSrc ? payload.audioSrc : audioSrc;
-    // stop the api call if audio files are already loaded 
+    // stop the api call if audio files are already loaded
     // to chapter from prev api call
-    if (chapter?.audioFile) {
+    if (
+      chapter?.audioFile?.reciterId === selectedReciter.value.id &&
+      chapter?.audioFile.chapter_id === payload.audioID
+    ) {
       audioFiles.value = chapter.audioFile;
       return;
     }
-    
+
     isLoading.value = true;
     await instance
       .get(makeGetAudioRecitersUrl(selectedReciter.value.id, payload.audioID))
       .then((response) => {
         // this triggers verseTiming computed func in audioPlayer Component
         audioFiles.value = null;
-        audioFiles.value = response.data.audio_files[0];
+
+        audioFiles.value = {
+          reciterId: selectedReciter.value.id,
+          ...response.data.audio_files[0],
+        };
         // push audio chapter data
         if (chapter) {
-          chapter.audioFile = audioFiles.value;
+          chapter.audioFile = {
+            reciterId: selectedReciter.value.id,
+            ...response.data.audio_files[0],
+          };
         }
       })
       .catch((e) => {
