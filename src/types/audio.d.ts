@@ -1,5 +1,6 @@
 interface AudioFile {
   id: number;
+  reciterId?: number;
   chapter_id: number;
   file_size: number | null;
   format: string | null;
