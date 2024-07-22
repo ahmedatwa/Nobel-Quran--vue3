@@ -27,7 +27,8 @@ const emit = defineEmits<{
 
 const playAudio = (payload: PlayAudioEmit) => {
     activeAudioData.value = payload
-    emit('update:playAudio', payload)
+    // pause if playing
+    emit('update:playAudio', { ...payload, pause: isPlaying.value ? false : true })
 }
 
 const isPlaying = computed(() => {
@@ -38,6 +39,8 @@ const isPlaying = computed(() => {
     }
     return false
 })
+
+
 </script>
 
 <template>

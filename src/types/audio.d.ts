@@ -64,7 +64,7 @@ type IsAudioPlayingProps = {
   format?: string;
 } | null;
 
-type PlayAudioEmit = { audioID: number; audioSrc?: string; verseKey?: string };
+type PlayAudioEmit = { audioID: number; audioSrc?: string; verseKey?: string, pause?: boolean };
 
 type BottomSheetProps = {
   scrim: boolean;
