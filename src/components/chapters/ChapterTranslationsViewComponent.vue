@@ -36,7 +36,7 @@ const verses = computed(() => {
   }
 });
 
-const isHoveringElement = ref("")
+const isHoveringElement = ref<number | string>("")
 
 const chapterAudioId = computed(() => {
   if (chapterStore.selectedChapter) {
@@ -152,6 +152,7 @@ watchEffect(async () => {
     const element = document.getElementById(`verse-row-${currentVerseNumber}`)
     if (element) {
       element.focus()
+      isHoveringElement.value = Number(currentVerseNumber)
     }
   }
 
@@ -206,7 +207,7 @@ const scroll = (el: string) => {
 
 <template>
   <v-container fluid class="smooth-scroll-behaviour" id="chapters-translations-container">
-    <v-card>
+    <v-card flat>
       <v-row :align="'center'" justify="center" dense>
         <v-col cols="12">
           <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors"
@@ -226,7 +227,9 @@ const scroll = (el: string) => {
               threshold: [0, 0.8, 1.0],
             },
           }">
-          <v-row :id="`verse-row-${verse.verse_number}`">
+          <v-row :id="`verse-row-${verse.verse_number}`" :class="`active-${verse.verse_number}`">
+
+            <!-- Actions -->
             <v-col class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1"
               :cols="$vuetify.display.smAndDown ? '12' : '1'">
               <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)" size="small"
@@ -239,7 +242,10 @@ const scroll = (el: string) => {
               :id="`active-${verse.verse_number}`">
               <!-- overLay -->
               <v-overlay :key="`overlay-${verse.verse_number}`" contained scrim="#CFD8DC" opacity="0.1"
-                :model-value="isHoveringElement === `active-${verse.verse_number}` ? true : false"></v-overlay>
+                v-if="isHoveringElement === verse.verse_number" :model-value="true"
+                :activator="`#active-${verse.verse_number}`">
+              </v-overlay>
+
               <v-list class="quran-translation-view" dense>
                 <v-list-item v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
                   :data-verse-number="verse.verse_number" :data-chapter-id="verse.chapter_id"
@@ -271,7 +277,6 @@ const scroll = (el: string) => {
                 </v-list-item>
               </v-list>
             </v-col>
-
           </v-row>
           <v-col cols="12" class="my-3">
             <v-divider></v-divider>
