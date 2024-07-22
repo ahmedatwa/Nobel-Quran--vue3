@@ -20,7 +20,7 @@ const metaStore = useMetaStore()
 const { audioPlayerSetting } = useSettingStore()
 const $tr = inject(langKey)
 
-defineProps<{
+const props = defineProps<{
     audioPlayer: { audioID: number, verseKey?: string, format?: string, isPlaying?: boolean, pause?: boolean } | null,
     modelValue: boolean
 }>()
@@ -359,9 +359,11 @@ const loadMetaData = () => {
             }
         })
 
+        // Play next
         navigator.mediaSession.setActionHandler("nexttrack", () => {
             audioPlayerStore.playNext()
         })
+        // Play prev
         navigator.mediaSession.setActionHandler("previoustrack", () => {
             audioPlayerStore.playPrevious()
         })
