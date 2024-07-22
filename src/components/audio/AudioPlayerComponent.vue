@@ -38,11 +38,11 @@ const progressTimer = ref<number>(0);
 const elapsedTime = ref("00:00");
 const audioDuration = ref("");
 const duration = ref(0)
-const audioBuffer = ref(0)
 const mediaVolume = ref(1);
 const isPlaying = ref(false);
 const isMuted = ref(false);
 const loopAudio = ref("none")
+const audioBuffer = ref()
 const currentTimestamp = ref(0)
 const bottomSheetProps = ref<BottomSheetProps>({
     scrim: false,
@@ -100,7 +100,7 @@ const playbackListener = () => {
 
 watchEffect(() => {
     if (getVerseTiming) {
-        const currentTime = Math.ceil(secondsToMilliSeconds(Math.ceil(currentTimestamp.value -1)))
+        const currentTime = Math.ceil(secondsToMilliSeconds(currentTimestamp.value))
         // Find current verse Key 
         const currentVerseTimingData = getVerseTiming.value?.find((vt) => currentTime >= vt.timestamp_from && currentTime <= vt.timestamp_to)
         if (currentVerseTimingData) {
@@ -120,6 +120,7 @@ watchEffect(() => {
                             wordPosition: vt[0],
                             audioSrc: audioPlayerStore.audioPayLoadSrc
                         }
+                        return;
                     }
                 })
             }
@@ -244,15 +245,24 @@ onUnmounted(() => {
     cleanupListeners()
 })
 
-const buffer = () => {
-    if (audioPlayerRef.value) {
-        if (audioPlayerRef.value.buffered && audioPlayerRef.value.buffered.length) {
-            const lastIndex = audioPlayerRef.value.buffered.length - 1;
-            const timestamp = audioPlayerRef.value.buffered.end(lastIndex);
-            audioBuffer.value = timestamp
-        }
-
+// visualize Buffer
+watch(progressTimer, (newVal) => {
+    if (newVal) {
+        setTimeout(() => {
+            audioBuffer.value = (newVal -1) * 100
+        }, 2000);
     }
+})
+
+
+const onProgress = () => {
+    if (audioPlayerRef.value?.buffered && audioPlayerRef.value.buffered.length) {
+        const lastIndex = audioPlayerRef.value.buffered.length - 1;
+        return audioPlayerRef.value.buffered.end(lastIndex);
+        // audioBuffer.value = timestamp *100
+    }
+
+    return 0;
 }
 const canPlayThrough = () => {
     if (audioPlayerStore.audioFiles)
@@ -260,7 +270,7 @@ const canPlayThrough = () => {
     if (audioPlayerRef.value) {
         audioPlayerRef.value.volume = mediaVolume.value
     }
-    audioPlayerRef.value?.addEventListener("buffer", buffer,)
+    //audioPlayerRef.value?.addEventListener("buffer", buffer,)
     audioPlayerRef.value?.addEventListener("seeked", () => {
         if (audioPlayerRef.value) {
             for (let i = 0; i < audioPlayerRef.value?.buffered.length; i++) {
@@ -557,7 +567,7 @@ const changeMediaVolume = (volume: number) => {
                             :type="`audio/${audioPlayerStore.audioFiles.format}`" @pause="playbackPaused"
                             @playing="playbackPlaying" @ended="playbackEnded" @canplaythrough="canPlayThrough"
                             @timeupdate="playbackListener" @seek="playbackSeek" @loadeddata="loadedData"
-                            @loadedmetadata="loadMetaData">
+                            @loadedmetadata="loadMetaData" @progress="onProgress">
                         </audio>
                     </div>
                 </div>
