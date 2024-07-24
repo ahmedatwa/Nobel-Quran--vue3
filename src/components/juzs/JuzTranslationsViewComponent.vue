@@ -16,7 +16,7 @@ import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 import { _range } from "@/utils/number";
 
 const juzStore = useJuzStore()
-const { getChapterNameByChapterId } = useChapterStore()
+const { getChapterNameByChapterId, getChapterNameByFirstVerse } = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
 const headerData = ref<JuzHeaderData | null>(null);
@@ -234,8 +234,8 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                     :audio-src="`juz-Translations-${juzStore.selectedJuz?.id}`"
                     @update:play-audio="$emit('update:playAudio', $event)">
                     <template #title>
-                        <h2>{{ getChapterNameByChapterId(chapterId)?.nameArabic }}</h2>
-                        <h3>{{ getChapterNameByChapterId(chapterId)?.bismillahPre ? $tr.line("quranReader.textBismillah") : '' }}</h3>
+                        <h2>{{ getChapterNameByFirstVerse(verses[0])?.nameArabic }}</h2>
+                        <h3>{{ getChapterNameByFirstVerse(verses[0])?.bismillahPre ? $tr.line("quranReader.textBismillah") : '' }}</h3>
                     </template>
                 </title-buttons-component>
             </v-col>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from "vue";
-import { useJuzStore } from "@/stores";
+import { useJuzStore, useChapterStore } from "@/stores";
 import { TitleButtonsComponent } from "@/components/quran"
 // types
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz"
@@ -12,10 +12,10 @@ import { getChapterNameByJuzId, getFirstVerseOfJuzByPage } from "@/utils/juz"
 import { getWordDataByLocation } from "@/utils/verse"
 
 const juzStore = useJuzStore()
+const { getChapterNameByFirstVerse } = useChapterStore()
 const isIntersecting = ref(false)
 const headerData = ref<JuzHeaderData | null>(null);
 const intersectingJuzVerseNumber = ref<number>()
-const shouldShowChapterHeader = ref(false)
 const verses = computed(() => {
     if (juzStore.selectedJuz) {
         return juzStore.selectedJuz.verses?.sort((a, b) => a.verse_number - b.verse_number)
@@ -84,13 +84,6 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
             lastVerseNumber: juzStore.getLastVerseOfJuz
         })
 
-        // test 
-        console.log(target.dataset.firstWord);
-        
-        const firstWordData = getWordDataByLocation(target.dataset.firstWord);
-        shouldShowChapterHeader.value = firstWordData[1] === '1' && firstWordData[2] === '1';
-
-
     }
 }
 
@@ -130,16 +123,15 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                                     :verse-key="getFirstVerseOfJuzByPage(verses)"
                                     :audio-src="`juz-reading-${juzStore.selectedJuz?.id}`" isInfoDialog>
                                     <template #title>
-                                        <h2>{{ shouldShowChapterHeader ? $tr.rtl
-                                            ? getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.nameArabic
-                                            : getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.nameSimple
-                                            : '' }}
+                                        <h2>{{ $tr.rtl
+                                            ? getChapterNameByFirstVerse(verses[0])?.nameArabic
+                                            : getChapterNameByFirstVerse(verses[0])?.nameSimple
+                                            }}
                                         </h2>
                                     </template>
-
                                     <template #subtitle>
                                         <h3 class="quran-content-title my-3"> {{
-                                            getChapterNameByJuzId(juzStore.selectedJuz?.id, index)?.bismillahPre ?
+                                            getChapterNameByFirstVerse(verses[0])?.bismillahPre ?
                                                 $tr.line('quranReader.textBismillah') : '' }}
                                         </h3>
                                     </template>
@@ -166,7 +158,7 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                                             " class="word">
                                             <div v-if="word.char_type_name === 'end'" style="font-family: p3-v1;">({{
                                                 word.text_uthmani
-                                                }})
+                                            }})
                                             </div>
                                             <div :style="[defaultStyles, cssVars]" v-else>{{ word.text_uthmani }}</div>
                                         </div>

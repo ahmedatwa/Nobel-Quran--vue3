@@ -30,9 +30,9 @@ export const useChapterStore = defineStore("chapter-store", () => {
 
   const selectedChapterPagination = computed(() => {
     if (selectedChapter.value) {
-      return selectedChapter.value.pagination
+      return selectedChapter.value.pagination;
     }
-  })
+  });
   const chapterInfo = ref<ChapterInfo | null>(null);
   const perPage = ref(10);
   // url fields
@@ -104,14 +104,14 @@ export const useChapterStore = defineStore("chapter-store", () => {
    * @param chapterId
    * @returns
    */
-  const getChapter = (chapterId: number) => {
+  const getChapter = (chapterId: number | string) => {
     if (chaptersList.value) {
       return chaptersList.value.find((chapter) => chapter.id === chapterId);
     }
   };
 
-  const getChapterNameByChapterId = (chapterId: number) => {
-    const chapter = getChapter(chapterId);
+  const getChapterNameByChapterId = (chapterId: number | string) => {
+    const chapter = getChapter(Number(chapterId));
     if (chapter) {
       return {
         nameSimple: chapter.nameSimple,
@@ -221,9 +221,9 @@ export const useChapterStore = defineStore("chapter-store", () => {
       const found = chaptersList.value.find((c) => c.id === chapterId);
       if (found) {
         return {
-          ar: found.nameArabic,
-          en: found.nameSimple,
-          bismillah: found.bismillahPre,
+          nameArabic: found.nameArabic,
+          nameSimple: found.nameSimple,
+          bismillahPre: found.bismillahPre,
         };
       }
     }
@@ -283,6 +283,14 @@ export const useChapterStore = defineStore("chapter-store", () => {
       };
     }
   });
+
+  const getChapterNameByFirstVerse = (verse: Verse) => {
+    const [chapterId, verseNumber] = verse.verse_key.split(":");
+    if (Number(verseNumber) === 1) {
+      return getChapterNameByChapterId(chapterId);
+    }
+  };
+
   return {
     chapters,
     searchValue,
@@ -302,6 +310,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
     selectedChapterVerses,
     TOTAL_CHAPTERS,
     selectedChapterPagination,
+    getChapterNameByFirstVerse,
     getChapterName,
     getchapterInfo,
     getVerses,

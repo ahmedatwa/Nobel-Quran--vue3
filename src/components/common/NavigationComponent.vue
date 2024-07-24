@@ -50,39 +50,39 @@ const { currentScrollPos } = useWindowScroll(300)
 
 </script>
 <template>
-    <v-navigation-drawer :model-value="navigationModelValue" width="300" 
-         :temporary="$vuetify.display.smAndDown"
+    <v-navigation-drawer :model-value="navigationModelValue" width="300" :temporary="$vuetify.display.smAndDown"
         @update:model-value="$emit('update:modelValue', $event)" :permanent="$vuetify.display.mdAndUp"
         disable-resize-watcher id="v-navigation-drawer">
-         <div :style="{ marginBlockStart: currentScrollPos >= 300 ? '55px' : '17px' }">
-        <v-tabs v-model="navigationTab" align-tabs="center" :show-arrows="false" hide-slider class="mt-4"
-            density="comfortable" color="primary" grow>
-            <v-tab value="chapters" slim class="me-2">{{ $tr.line("navigation.textSurah")
-                }}</v-tab>
-            <v-tab value="juzs" slim class="me-2">{{ $tr.line("navigation.textJuz")
-                }}</v-tab>
-            <v-tab value="pages" slim>{{ $tr.line("navigation.textPage") }}</v-tab>
-            
-        </v-tabs>
-        <v-divider color="primary" :thickness="2"></v-divider>
-        <v-tabs-window v-model="navigationTab">
-            <v-tabs-window-item value="chapters">
-                <chapters-nav-component :intersecting-data="chapterIntersectingData"
-                    @update:selected-verse-number="$emit('update:selectedVerseNumber', $event)">
-                </chapters-nav-component>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="juzs">
-                <juzs-nav-component :manual-intersecting="juzManualIntersecting" :active-juz-number="activeJuzNumber"
-                    class="pb-5" @update:selected-verse-number="$emit('update:selectedVerseNumber', $event)">
-                </juzs-nav-component>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="pages">
-                <pages-nav-component :active-page-number="activePageNumber" class="pb-5"
-                    :intersecting-page-verse-number="intersectingPageVerseNumber"
-                    @update:selected-page="$emit('update:selectedPage', $event)"></pages-nav-component>
-            </v-tabs-window-item>
-        </v-tabs-window>
-    </div>
+        <div :style="{ marginBlockStart: currentScrollPos >= 300 ? '55px' : '17px' }">
+            <v-tabs v-model="navigationTab" align-tabs="center" :show-arrows="false" hide-slider class="mt-4"
+                density="comfortable" color="primary" grow>
+                <v-tab value="chapters" slim class="me-2">{{ $tr.line("navigation.textSurah")
+                    }}</v-tab>
+                <v-tab value="juzs" slim class="me-2">{{ $tr.line("navigation.textJuz")
+                    }}</v-tab>
+                <v-tab value="pages" slim>{{ $tr.line("navigation.textPage") }}</v-tab>
+
+            </v-tabs>
+            <v-divider color="primary" :thickness="2"></v-divider>
+            <v-tabs-window v-model="navigationTab">
+                <v-tabs-window-item value="chapters">
+                    <chapters-nav-component :intersecting-data="chapterIntersectingData"
+                        @update:selected-verse-number="$emit('update:selectedVerseNumber', $event)">
+                    </chapters-nav-component>
+                </v-tabs-window-item>
+                <v-tabs-window-item value="juzs">
+                    <juzs-nav-component :manual-intersecting="juzManualIntersecting"
+                        :active-juz-number="activeJuzNumber" class="pb-5"
+                        @update:selected-verse-number="$emit('update:selectedVerseNumber', $event)">
+                    </juzs-nav-component>
+                </v-tabs-window-item>
+                <v-tabs-window-item value="pages">
+                    <pages-nav-component :active-page-number="activePageNumber" class="pb-5"
+                        :intersecting-page-verse-number="intersectingPageVerseNumber"
+                        @update:selected-page="$emit('update:selectedPage', $event)"></pages-nav-component>
+                </v-tabs-window-item>
+            </v-tabs-window>
+        </div>
     </v-navigation-drawer>
 </template>
 <style scoped>

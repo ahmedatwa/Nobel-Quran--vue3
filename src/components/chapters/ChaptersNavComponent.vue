@@ -149,10 +149,7 @@ const getVerseByKey = async (verseKey: string) => {
 
 </script>
 <template>
-  <!-- <v-container fluid class="pa-0 mt-2">
-    <v-row no-gutters dense>
-      <v-col cols="7"> -->
-  <v-card density="compact" flat style="overflow: initial; z-index: initial" height="700">
+  <v-card density="compact" flat  height="700">
     <v-container fluid class="pa-1">
       <v-row no-gutters dense>
         <v-col cols="7">
@@ -196,15 +193,5 @@ const getVerseByKey = async (verseKey: string) => {
         </v-col>
       </v-row>
     </v-container>
-
-
-
   </v-card>
-  <!-- </v-col> -->
-
-  <!-- <v-col cols="5"> -->
-
-  <!-- </v-col>
-    </v-row>
-  </v-container> -->
 </template>
