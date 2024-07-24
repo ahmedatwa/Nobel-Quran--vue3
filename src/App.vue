@@ -97,7 +97,7 @@ watch(selectedLanguage, (newLang) => {
         :chapter-intersecting-data="chapterIntersectingData" :juz-manual-intersecting="juzManualIntersecting"
         :active-juz-number="activeJuzNumber" :active-page-number="activePageNumber"
         :intersecting-page-verse-number="intersectingPageVerseNumber"
-        @update:model-value="navigationModelValue = $event"
+        @update:model-value="navigationModelValue = $event" @update:selected-tab="tab = $event"
         @update:selected-verse-number="chapterSelectedVerseNumber = $event">
       </navigation-component>
       <v-main>
