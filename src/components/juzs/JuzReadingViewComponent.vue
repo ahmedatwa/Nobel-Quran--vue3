@@ -9,7 +9,6 @@ import type { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
 import { getChapterNameByJuzId, getFirstVerseOfJuzByPage } from "@/utils/juz"
-import { getWordDataByLocation } from "@/utils/verse"
 
 const juzStore = useJuzStore()
 const { getChapterNameByFirstVerse } = useChapterStore()
@@ -61,16 +60,16 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     // const chapterId = entries[0].target.dataset.chapterId
     if (intersecting && entries[0].intersectionRatio >= 0.8) {
-        const target = entries[0].target
-        intersectingJuzVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
+        const target = entries[0].dataset
+        intersectingJuzVerseNumber.value = Number(target.verseNumber)
         let newHeaderData: JuzHeaderData | null = null
         // emit header data
         newHeaderData = {
-            left: getChapterNameByJuzId(juzStore.selectedJuz?.id, entries[0].target.dataset.chapterId),
+            left: getChapterNameByJuzId(juzStore.selectedJuz?.id, target.chapterId),
             right: {
-                pageNumber: entries[0].target.dataset.pageNumber,
-                hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: entries[0].target.dataset.juzNumber,
+                pageNumber: target.pageNumber,
+                hizbNumber: target.hizbNumber,
+                juzNumber: target.juzNumber,
             }
         }
         if (newHeaderData !== headerData.value) {
