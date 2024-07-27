@@ -7,6 +7,7 @@ import type { ChapterInfo } from '@/types';
 import { PlayAudioEmit } from "@/types/audio"
 
 const infoDialog = ref(false)
+const translationsDrawer = ref(false)
 const activeAudioData = ref<PlayAudioEmit | null>(null)
 
 const props = defineProps<{
@@ -62,7 +63,8 @@ const isPlaying = computed(() => {
                             {{ groupedTranslationsAuthors }}</span>
                     </div> <v-btn icon="mdi-filter-menu" color="primary"
                         v-tooltip="$tr.line('quranReader.buttonFilter')"
-                        @click="$emit('update:translationsDrawer', true)" variant="plain">
+                        @click="$emit('update:translationsDrawer', translationsDrawer = !translationsDrawer)"
+                        variant="plain">
                     </v-btn>
                 </v-sheet>
             </v-col>
