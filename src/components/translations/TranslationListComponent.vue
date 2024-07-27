@@ -5,7 +5,7 @@ import { useTranslationsStore } from "@/stores/TranslationsStore";
 
 const translationsStore = useTranslationsStore()
 const selectedTranslationIds = ref<number[]>([131]);
-const translationDrawer = inject("translationDrawer")
+const translationDrawer = inject<boolean>("translationDrawer")
 
 const emit = defineEmits<{
     "update:translationDrawer": [value: boolean];
