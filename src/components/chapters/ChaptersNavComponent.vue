@@ -85,7 +85,7 @@ watchEffect(async () => {
     }
 
 
-    scrollToElement(`#verse-list-${selectedVerseID.value}`, 50);
+    scrollToElement(`#verse-list-${selectedVerseID.value}`, 20);
 
     if (
       intersectingData.currentVerseNumber ===
@@ -149,7 +149,7 @@ const getVerseByKey = async (verseKey: string) => {
 
 </script>
 <template>
-  <v-card density="compact" flat  height="700">
+  <v-card density="compact" flat>
     <v-container fluid class="pa-1">
       <v-row no-gutters dense>
         <v-col cols="7">
