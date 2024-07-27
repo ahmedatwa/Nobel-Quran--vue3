@@ -7,7 +7,7 @@ import { _range, localizeNumber } from "@/utils/number";
 import { isVerseKeyWithinRanges } from "@/utils/verse";
 // types
 import type { Chapter, IntersectingData } from "@/types/chapter";
-import { scrollToElement, SMOOTH_SCROLL_TO_TOP } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
 
 // Stores
 const chapterStore = useChapterStore();
@@ -35,14 +35,11 @@ onMounted(async () => {
     if (!chapterStore.selectedChapter.verses?.length) {
       await chapterStore.getVerses(chapterStore.selectedChapterId, true)
     }
+    scrollToElement(`#chapter-${chapterStore.selectedChapterId}`, 600, SMOOTH_SCROLL_TO_CENTER);
+  } else {
+    scrollToElement(`#chapter-${chapterStore.selectedChapterId}`, 600, SMOOTH_SCROLL_TO_CENTER);
   }
 });
-
-watch(() => chapterStore.selectedChapterId, (newId) => {
-  if (newId) {
-    scrollToElement(`#chapter${chapterStore.selectedChapterId}`, 700, SMOOTH_SCROLL_TO_TOP);
-  }
-}, { once: true });
 
 /**
  * creates range from verse count
@@ -163,7 +160,7 @@ const getVerseByKey = async (verseKey: string) => {
             <v-list lines="two" height="650" class="overflow-y-auto">
               <v-list-item v-for="chapter in chapterStore.chapters" :key="chapter.id" :value="chapter.nameSimple"
                 :active="chapterStore.selectedChapterId === chapter.id" @click="getSelectedChapter(chapter)"
-                :id="`chapter${chapter.id}`" @mouseenter="mouseEnter('chapter', chapter)">
+                :id="`chapter-${chapter.id}`" @mouseenter="mouseEnter('chapter', chapter)">
                 <template #title>
                   <span v-if="$tr.rtl.value">{{ localizeNumber(chapter.id, $tr.locale.value) }}-
                     {{ chapter.nameArabic }}</span>
