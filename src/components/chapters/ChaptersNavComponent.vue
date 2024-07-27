@@ -146,7 +146,7 @@ const getVerseByKey = async (verseKey: string) => {
 
 </script>
 <template>
-  <v-card density="compact" flat position="fixed">
+  <v-card density="compact" flat position="fixed" width="300">
     <v-container fluid class="pa-1">
       <v-row no-gutters dense>
         <v-col cols="7">
