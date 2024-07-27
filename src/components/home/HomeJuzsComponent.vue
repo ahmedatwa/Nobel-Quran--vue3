@@ -14,7 +14,7 @@ const { getChapter } = useChapterStore()
 const juzSearchValue = ref("")
 const juzCurrentSortDir = ref("asc");
 const juzCurrentSort = ref("juzNumber");
-const juzPageSize = ref(12)
+const juzPageSize = ref(21)
 const juzCurrentPage = ref(1)
 const totalJuzs = ref(30)
 const juzsPaginationLength = computed(() => {
