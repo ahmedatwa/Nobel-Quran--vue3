@@ -144,12 +144,12 @@ watchEffect(async () => {
       }
 
       // Scroll into View
-      scroll(`#verse-row-${currentVerseNumber}`)
+      scroll(`#active-${currentVerseNumber}`)
 
     }
 
     // toggle active state
-    const element = document.getElementById(`verse-row-${currentVerseNumber}`)
+    const element = document.getElementById(`active-${currentVerseNumber}`)
     if (element) {
       isHoveringElement.value = Number(currentVerseNumber)
     }
@@ -183,18 +183,20 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
  */
 watchEffect(() => {
   if (props.selectedVerseNumber) {
-    scrollToElement(`#verse-row-${props.selectedVerseNumber}`)
+    scrollToElement(`#active-${props.selectedVerseNumber}`)
   }
 });
 
 // commit scroll to verse
 const scroll = (el: string) => {
   const element = document.querySelector(el) as HTMLElement
+  console.log(isInViewport(element));
+  
   if (isInViewport(element)) {
     return;
   } else {
     if (mobile.value) {
-      scrollToElement(el, 50, SMOOTH_SCROLL_TO_CENTER, 300)
+      scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 120)
     } else {
       scrollToElement(el)
     }
@@ -245,7 +247,7 @@ const scroll = (el: string) => {
                 :activator="`#active-${verse.verse_number}`">
               </v-overlay>
 
-              <v-list class="quran-translation-view" dense>
+              <v-list class="quran-translation-view" dense :id="`verse-container-${verse.verse_number}`">
                 <v-list-item v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
                   :data-verse-number="verse.verse_number" :data-chapter-id="verse.chapter_id"
                   :data-juz-number="verse.juz_number" :data-page-number="verse.page_number" class="item">
