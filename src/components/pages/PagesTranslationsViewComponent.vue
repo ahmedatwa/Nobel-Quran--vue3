@@ -147,7 +147,7 @@ const getPrevPage = async () => {
         // scroll to first verese row 
         if (getFirstVerseRow.value) {
             nextTick(() => {
-                scrollToElement(`#verse-row${getFirstVerseRow.value}`)
+                scrollToElement(`#page-verse-row${getFirstVerseRow.value}`)
             })
         }
     }
@@ -171,7 +171,7 @@ const getNextPage = async () => {
         // scroll to first verese row 
         if (getFirstVerseRow.value) {
             nextTick(() => {
-                scrollToElement(`#verse-row${getFirstVerseRow.value}`)
+                scrollToElement(`#page-verse-row${getFirstVerseRow.value}`)
             })
         }
     }
@@ -179,7 +179,7 @@ const getNextPage = async () => {
 
 const getStartOfPage = () => {
     if (getFirstVerseRow.value) {
-        scrollToElement(`#verse-row${getFirstVerseRow.value}`)
+        scrollToElement(`#page-verse-row${getFirstVerseRow.value}`)
     }
 }
 
