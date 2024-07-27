@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect, onMounted, watch } from "vue";
+import { ref, computed, watchEffect, onMounted } from "vue";
 // stores
 import { useChapterStore } from "@/stores";
 // utils
