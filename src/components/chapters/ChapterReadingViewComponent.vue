@@ -11,7 +11,7 @@ import type { ChapterHeaderData, IntersectingData } from "@/types/chapter";
 import type { MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 // utils
-import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport } from "@/utils/useScrollToElement";
 
 const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
@@ -144,14 +144,14 @@ watchEffect(async () => {
           }
         }
         // Scroll into View
-        const verseElement = `#verse-row-${currentVerseNumber}`
+        const verseElement = `#line-${currentVerseNumber}`
         if (verseElement) {
           if (currentVerseNumber !== intersectingVerseNumber.value) {
 
             if (mobile.value) {
-              scrollToElement(verseElement, 50, SMOOTH_SCROLL_TO_CENTER, 250)
+              scroll(verseElement)
             } else {
-              scrollToElement(verseElement)
+              scroll(verseElement)
             }
           }
         }
@@ -165,10 +165,25 @@ watchEffect(async () => {
  */
 watchEffect(() => {
   if (props.selectedVerseNumber) {
-    console.log(props.selectedVerseNumber);
-    scrollToElement(`#verse-row-${props.selectedVerseNumber}`)
+    scroll(`#line-${props.selectedVerseNumber}`)
   }
 });
+
+
+// commit scroll to verse
+const scroll = (el: string) => {
+  const element = document.querySelector(el) as HTMLElement  
+  if (isInViewport(element)) {
+    return;
+  } else {
+    if (mobile.value) {
+      scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 120)
+    } else {
+      scrollToElement(el)
+    }
+  }
+}
+
 
 </script>
 
