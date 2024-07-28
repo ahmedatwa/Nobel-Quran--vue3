@@ -22,6 +22,9 @@ export default {
     close: "Close Player",
     autoScroll: "Auto Scroll",
     tooltip: "Show tooltip when playing audio",
+    repeatNone: "Repeat None",
+    repeatOnce: "Repeat Once",
+    repeatAll: "Repeat All"
   },
   common: {
     headingTitle: "The Noble Quran",

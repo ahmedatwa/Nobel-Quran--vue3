@@ -73,14 +73,14 @@ const changeMediaVolume = (newVol: number) => {
                 @update:playback-rate="$emit('update:playbackRate', $event)">
             </audio-player-menu-component>
         </v-sheet>
-        <v-sheet class="">
-            <v-btn density="compact" variant="text" v-if="loopAudio === 'none'"
+        <v-sheet>
+            <v-btn density="compact" variant="text" v-if="loopAudio === 'none'" v-tooltip:top="$tr.line('audio.repeatNone')"
                 @click="$emit('update:loopAudio', 'repeat')" icon="mdi-repeat-off"></v-btn>
             <v-btn density="compact" variant="text" v-else-if="loopAudio === 'repeat'"
-                @click="$emit('update:loopAudio', 'once')" icon="mdi-repeat"
+                @click="$emit('update:loopAudio', 'once')" icon="mdi-repeat" v-tooltip:top="$tr.line('audio.repeatAll')"
                 :color="loopAudio === 'repeat' ? 'primary' : ''"></v-btn>
             <v-btn density="compact" variant="text" v-else-if="loopAudio === 'once'"
-                @click="$emit('update:loopAudio', 'none')" icon="mdi-repeat-once"
+                @click="$emit('update:loopAudio', 'none')" icon="mdi-repeat-once" v-tooltip:top="$tr.line('audio.repeatOnce')"
                 :color="loopAudio === 'once' ? 'primary' : ''"></v-btn>
 
             <v-btn icon="mdi-rewind" density="compact" class="me-2" variant="text"
