@@ -41,6 +41,7 @@ export default {
     textBismillah: "بسم الله الرحمن الرحيم",
     textTranslatedBy: "Translated By :",
     buttonFilter: "Filter Translations",
+    buttonChapterInfo: "Chapter Info",
     buttonPlay: "Play Audio",
     textSurahInfo: "Surah Info",
     textPage: "Page",
