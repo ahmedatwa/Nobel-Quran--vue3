@@ -60,17 +60,6 @@ const mapVersesByPage = computed((): MapVersesByPage | undefined => {
     }
 })
 
-const getLastVerseNumberOfJuz = computed(() => {
-    if (juzStore.selectedJuz?.verses) {
-        const verse = juzStore.selectedJuz.verses.slice(-1)[0];
-        if (verse) {
-            return verse.verse_number;
-        }
-    }
-    return 0;
-})
-
-
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     // const chapterId = entries[0].target.dataset.chapterId
@@ -107,7 +96,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
 watchEffect(async () => {
     if (props.audioExperience.autoScroll) {
         const currentVerseNumber = props.verseTiming?.verseNumber
-        const lastVerseNumber = getLastVerseNumberOfJuz.value
+        const lastVerseNumber = juzStore.getLastVerseOfJuz
 
         if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
             // fetch more Verses
