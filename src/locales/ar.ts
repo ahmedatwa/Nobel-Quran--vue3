@@ -22,6 +22,9 @@ export default {
     experience: "تجربة",
     autoScroll: "التمرير التلقائي",
     tooltip: "إظهار تلميح الأداة عند تشغيل الصوت",
+    repeatNone: "لا تكرر شيئا",
+    repeatOnce: "كرر مرة واحدة",
+    repeatAll: "كرر الكل"
   },
   common: {
     headingTitle: "القرآن الكريم",
