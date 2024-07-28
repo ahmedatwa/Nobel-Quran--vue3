@@ -65,9 +65,9 @@ const juzReadingVerseTiming = computed(() => {
                 </juz-translations-view-component>
             </v-tabs-window-item>
             <v-tabs-window-item value="juzReadingTab">
-                <juz-reading-view-component :audio-player="audioPlayer" :css-vars="cssVars"
+                <juz-reading-view-component :is-audio-playing="audioPlayer" :css-vars="cssVars"
                     :selected-juz-tab="selectedJuzTab" :verse-timing="juzReadingVerseTiming"
-                    @update:header-data="emit('update:headerData', $event)"
+                    :audio-experience="audioPlayerSetting" @update:header-data="emit('update:headerData', $event)"
                     @update:manual-intersecting="emit('update:manualIntersecting', $event)"
                     @update:play-audio="emit('update:playAudio', $event)">
                 </juz-reading-view-component>
