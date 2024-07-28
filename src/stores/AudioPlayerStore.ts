@@ -3,8 +3,12 @@ import { ref, onMounted, computed } from "vue";
 // utils
 import { setLoadingIInterval, clearLoadingInterval } from "@/utils/interval";
 //axios
-import { instance, makeGetAudioRecitersUrl } from "@/axios";
-import { makeGetRecitationsUrl } from "@/axios";
+import { instance } from "@/axios";
+import {
+  audioRecitersUrl,
+  recitationsUrl,
+  AVATAR_PLACEHOLDER_API,
+} from "@/axios/url";
 // types
 import type { AudioFile, Recitations } from "@/types/audio";
 import type { mapRecitions, PlayAudioEmit } from "@/types/audio";
@@ -12,7 +16,6 @@ import { VerseTimingsProps } from "@/types/audio";
 import { useChapterStore, useSettingStore } from "@/stores";
 
 export const useAudioPlayerStore = defineStore("audio-player-store", () => {
-  const AVATAR_PLACEHOLDER_API = "https://ui-avatars.com/api/";
   const settingStore = useSettingStore();
   const { getChapterNameByChapterId, TOTAL_CHAPTERS, getChapter } =
     useChapterStore();
@@ -80,7 +83,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
 
     isLoading.value = true;
     await instance
-      .get(makeGetAudioRecitersUrl(selectedReciter.value.id, payload.audioID))
+      .get(audioRecitersUrl(selectedReciter.value.id, payload.audioID))
       .then((response) => {
         // this triggers verseTiming computed func in audioPlayer Component
         audioFiles.value = null;
@@ -108,7 +111,7 @@ export const useAudioPlayerStore = defineStore("audio-player-store", () => {
   const getRecitations = async () => {
     // https://api.qurancdn.com/api/qdc/audio/reciters?locale=en
     await instance
-      .get(makeGetRecitationsUrl())
+      .get(recitationsUrl)
       .then((response) => {
         recitations.value = response.data.reciters;
       })

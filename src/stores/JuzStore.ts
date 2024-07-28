@@ -4,15 +4,11 @@ import { ref, computed, onBeforeMount, watch } from "vue";
 import { useTranslationsStore, useChapterStore } from "@/stores";
 // axios
 import { instance } from "@/axios";
+import { getVersesUrl } from "@/axios/url";
 // types
 import type { Juz, juzVersesByPageMap } from "@/types/juz";
 import type { Verse } from "@/types/verse";
 // utils
-import {
-  verseWordFields,
-  verseFields,
-  verseTranslationFields,
-} from "@/utils/verse";
 import { _range } from "@/utils/number";
 
 export const useJuzStore = defineStore("juz-store", () => {
@@ -26,14 +22,6 @@ export const useJuzStore = defineStore("juz-store", () => {
   const currentSort = ref("id");
   const searchValue = ref("");
   const perPage = ref(10);
-  // url fields
-  const urlFields = computed(() => {
-    return `&words=true&translation_fields=${verseTranslationFields.join(
-      ","
-    )}&fields=${verseFields.join(",")}&word_fields=${verseWordFields.join(
-      ","
-    )}`;
-  });
 
   /**
    * map Juz by chapter id
@@ -94,7 +82,13 @@ export const useJuzStore = defineStore("juz-store", () => {
 
     await instance
       .get(
-        `/verses/by_juz/${juzNumber}?translations=${translationsStore.selectedTranslationsIdsString}&page=${page}&per_page=${limit}&${urlFields.value}`
+        getVersesUrl(
+          "by_juz",
+          juzNumber,
+          translationsStore.selectedTranslationsIdsString,
+          page,
+          limit
+        )
       )
       .then((response) => {
         const juz = juzList.value.find((s) => s.juz_number === juzNumber);
@@ -210,7 +204,7 @@ export const useJuzStore = defineStore("juz-store", () => {
 
   const getLastVerseOfJuz = computed(() => {
     if (selectedJuz.value) {
-      const verse = selectedJuz.value.verses?.slice(-1)[0];      
+      const verse = selectedJuz.value.verses?.slice(-1)[0];
       if (verse) {
         return verse.verse_number;
       }

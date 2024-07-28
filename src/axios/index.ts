@@ -30,18 +30,3 @@ instance.interceptors.response.use(
   }
 );
 
-// Urls
-// Audio
-const audioUrl = import.meta.env.VITE_API_QDC_URL + "/audio/reciters/";
-export const makeGetAudioRecitersUrl = (
-  reciterID: number,
-  audioID: number
-): string => {
-  return (
-    audioUrl + reciterID + "/audio_files?chapter=" + audioID + "&segments=true"
-  );
-};
-
-export const makeGetRecitationsUrl = (locale: string = "en"): string => {
-  return audioUrl + "?locale=" + locale;
-};
