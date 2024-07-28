@@ -56,17 +56,11 @@ const isPlaying = computed(() => {
                     prepend-icon="mdi-information-outline">
                     {{ $tr.line("quranReader.textSurahInfo") }}
                 </v-btn>
-                <v-sheet v-if="groupedTranslationsAuthors">
-                    {{ $tr.line("quranReader.textTranslatedBy") }}
-                    <div class="d-inline">
-                        <span class="me-1">
-                            {{ groupedTranslationsAuthors }}</span>
-                    </div> <v-btn icon="mdi-filter-menu" color="primary"
-                        v-tooltip="$tr.line('quranReader.buttonFilter')"
-                        @click="$emit('update:translationsDrawer', translationsDrawer = !translationsDrawer)"
-                        variant="plain">
-                    </v-btn>
-                </v-sheet>
+                <v-btn v-if="groupedTranslationsAuthors" v-tooltip="$tr.line('quranReader.buttonFilter')"
+                    @click="$emit('update:translationsDrawer', translationsDrawer = !translationsDrawer)"
+                    prepend-icon="mdi-translate">
+                    {{ groupedTranslationsAuthors }}
+                </v-btn>
             </v-col>
             <v-col>
                 <v-slide-x-reverse-transition>
