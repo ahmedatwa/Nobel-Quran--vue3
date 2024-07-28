@@ -38,7 +38,6 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps<{
-    audioPlayer: { audioID: number, isPlaying?: boolean, format?: string } | null;
     isAudioPlaying: IsAudioPlayingProps
     verseTiming?: VerseTimingsProps
     audioExperience: { autoScroll: boolean; tooltip: boolean };
@@ -176,7 +175,7 @@ const scroll = (el: string) => {
                         <v-row v-for="(verses, page, index) in mapVersesByPage" :key="page" :data-page-id="page"
                             class="verse-row" justify="center" :align="'end'">
                             <v-col cols="12">
-                                <title-buttons-component :is-audio-player="audioPlayer" :chapter-id="index"
+                                <title-buttons-component :is-audio-player="isAudioPlaying" :chapter-id="index"
                                     @update:play-audio="$emit('update:playAudio', $event)"
                                     :verse-key="getFirstVerseOfJuzByPage(verses)"
                                     :audio-src="`juz-reading-${juzStore.selectedJuz?.id}`" isInfoDialog>
