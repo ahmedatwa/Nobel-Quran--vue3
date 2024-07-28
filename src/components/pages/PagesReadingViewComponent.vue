@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, inject } from "vue";
+import { ref, computed, inject, watchEffect } from "vue";
 import { nextTick, reactive, watch } from "vue";
+import { useDisplay } from "vuetify";
 // stores
 import { useChapterStore, usePageStore } from "@/stores";
 // components
@@ -10,11 +11,12 @@ import type { PageHeaderData } from "@/types/page"
 import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
-import { scrollToElement } from "@/utils/useScrollToElement"
+import { scrollToElement, isInViewport, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement"
 import { DEFAULT_NUMBER_OF_PAGES } from "@/utils/pages"
 
 
 const pageStore = usePageStore()
+const { mobile } = useDisplay()
 const { getChapterNameByChapterId } = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
@@ -38,12 +40,6 @@ const defaultStyles = reactive({
     fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 
-// const chapterAudioId = computed(() => {
-//     if (pageStore.selectedPage) {
-//         return pageStore.selectedPage
-//     }
-//     return 0
-// })
 const emit = defineEmits<{
     "update:playAudio": [value: PlayAudioEmit]
     "update:headerData": [value: PageHeaderData]
@@ -54,8 +50,8 @@ const emit = defineEmits<{
 const props = defineProps<{
     isAudioPlaying: { audioID: number, isPlaying?: boolean, format?: string } | null;
     groupedTranslationsAuthors?: string;
+    audioExperience: { autoScroll: boolean; tooltip: boolean };
     verseTiming?: VerseTimingsProps;
-    audioExperience: { autoScroll: boolean, tooltip: boolean }
     cssVars?: Record<"fontSize" | "fontFamily", string>
 }>()
 
@@ -65,35 +61,78 @@ const isWordHighlighted = (location: string, verseKey: string) => {
         return props.verseTiming.wordLocation === location && verseKey === props.verseTiming.verseKey
 }
 
+const getLastVerseNumberOfPage = computed(() => {
+    if (pageStore.selectedPage) {
+        const verse = pageStore.selectedPage.verses.slice(-1)[0];
+        if (verse) {
+            return verse.verse_number;
+        }
+    }
+    return 0;
+})
+
 const onIntersect = async (intersecting: boolean, entries: any) => {
     isIntersecting.value = intersecting
     let newHeaderData: PageHeaderData | null = null
     if (intersecting && entries[0].intersectionRatio === 1) {
-        const chapterId: number = entries[0].target.dataset.chapterId
-        // emit header data
-        newHeaderData = {
-            left: getChapterNameByChapterId(chapterId),
-            right: {
-                pageNumber: pageStore.selectedPage?.pageNumber || 0,
-                hizbNumber: entries[0].target.dataset.hizbNumber,
-                juzNumber: entries[0].target.dataset.juzNumber,
-            },
-        };
+        const target = entries[0].target as HTMLDivElement
 
-        if (newHeaderData !== headerData.value) {
-            headerData.value = newHeaderData
-            // emit header Data
-            emit("update:headerData", headerData.value)
-        }
-        if (entries[0].intersectionRatio === 0.5) {
-            intersectingPageVerseNumber.value = Number(entries[0].target.dataset.verseNumber)
-            // emit verse id for scroll in verses list 
-            // help to fetch new verses 
-            emit('update:intersectingPageVerseNumber', intersectingPageVerseNumber.value)
+        if (target) {
+            const chapterId = Number(target.dataset.chapterId)
+            // emit header data
+            newHeaderData = {
+                left: getChapterNameByChapterId(chapterId),
+                right: {
+                    pageNumber: pageStore.selectedPage?.pageNumber || "",
+                    hizbNumber: target.dataset.hizbNumber || "",
+                    juzNumber: target.dataset.juzNumber || "",
+                },
+            };
 
+            if (newHeaderData !== headerData.value) {
+                headerData.value = newHeaderData
+                // emit header Data
+                emit("update:headerData", headerData.value)
+            }
+            if (entries[0].intersectionRatio === 0.5) {
+                intersectingPageVerseNumber.value = Number(target.dataset.verseNumber)
+                // emit verse id for scroll in verses list 
+                // help to fetch new verses 
+                emit('update:intersectingPageVerseNumber', intersectingPageVerseNumber.value)
+
+            }
         }
     }
 }
+
+// auto mode with verse timing and feed header data
+watchEffect(async () => {
+    if (props.audioExperience.autoScroll) {
+        const currentVerseNumber = props.verseTiming?.verseNumber
+        const lastVerseNumber = getLastVerseNumberOfPage.value
+
+        if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
+            // fetch more Verses
+            if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
+                if (pageStore.selectedPage?.pagination?.next_page) {
+                    await pageStore.getVerses(pageStore.selectedPage.pageNumber, true, pageStore.selectedPage.pagination.next_page)
+                }
+            }
+            // Scroll into View
+            const verseElement = `#line-${currentVerseNumber}`
+            if (verseElement) {
+                if (currentVerseNumber !== intersectingPageVerseNumber.value) {
+
+                    if (mobile.value) {
+                        scroll(verseElement)
+                    } else {
+                        scroll(verseElement)
+                    }
+                }
+            }
+        }
+    }
+});
 
 const getFirstVerseRow = computed(() => {
     if (pageStore.selectedPage) {
@@ -123,7 +162,7 @@ const getPrevPage = async () => {
             console.log(getFirstVerseRow.value);
 
             nextTick(() => {
-                scrollToElement(`#line-${getFirstVerseRow.value}`)
+                scroll(`#line-${getFirstVerseRow.value}`)
             })
         }
     }
@@ -146,9 +185,8 @@ const getNextPage = async () => {
         emit("update:activePageNumber", pageStore.selectedPage.pageNumber)
         // scroll to first verese row 
         if (getFirstVerseRow.value) {
-            console.log(getFirstVerseRow.value);
             nextTick(() => {
-                scrollToElement(`#line-${getFirstVerseRow.value}`)
+                scroll(`#line-${getFirstVerseRow.value}`)
             })
         }
     }
@@ -156,7 +194,7 @@ const getNextPage = async () => {
 
 const getStartOfPage = () => {
     if (getFirstVerseRow.value) {
-        scrollToElement(`#line-${getFirstVerseRow.value}`)
+        scroll(`#line-${getFirstVerseRow.value}`)
     }
 }
 
@@ -169,6 +207,20 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
         emit('update:headerData', headerData.value)
     }
 }, { once: true })
+
+// commit scroll to verse
+const scroll = (el: string) => {
+    const element = document.querySelector(el) as HTMLElement
+    if (isInViewport(element)) {
+        return;
+    } else {
+        if (mobile.value) {
+            scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 120)
+        } else {
+            scrollToElement(el)
+        }
+    }
+}
 </script>
 
 <template>
@@ -193,7 +245,7 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                                 </title-buttons-component>
                             </v-col>
                             <v-col class="verse-col" :id="`row-${chapterId}`" cols="10">
-                                <div class="d-flex flex-wrap justify-center" v-for="verse in verses" :key="verse.id"
+                                <div class="reading-view-word-wrapper" v-for="verse in verses" :key="verse.id"
                                     :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
                                     :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number"
                                     :data-verse-number="verse.verse_number" v-intersect.quite="{
@@ -202,8 +254,9 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
                                             threshold: [0, 0.5, 1.0],
                                         },
                                     }">
-                                    <h3 v-for="word in verse.words" :key="word.id" :data-word-position="word.position"
-                                        class="" :data-hizb-number="verse.hizb_number" :style="[defaultStyles, cssVars]"
+                                    <h3 class="d-flex flex-wrap d-inline-flex" v-for="word in verse.words"
+                                        :key="word.id" :data-word-position="word.position"
+                                        :data-hizb-number="verse.hizb_number" :style="[defaultStyles, cssVars]"
                                         :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id">
                                         <div :class="isWordHighlighted(word.position, word.verse_key)
                                             ? 'text-blue'
