@@ -189,7 +189,7 @@ watchEffect(() => {
           </h2>
         </template>
         <template #subtitle>
-          <h3>{{ chapterStore.selectedChapter?.bismillahPre
+          <h3 class="bismillah-subtitle">{{ chapterStore.selectedChapter?.bismillahPre
             ? $tr.line("quranReader.textBismillah")
             : "" }}
           </h3>
@@ -198,7 +198,7 @@ watchEffect(() => {
           <v-row class="verse-row" no-gutters justify="center" :align="'start'"
             v-for="(verses, page) in mapVersesByPage" :key="page" :id="`row-page-${page}`">
             <v-col class="verse-col" :id="`page-${page}`" cols="10">
-              <div class="" v-for="verse in verses" :key="verse.id" :id="`line-${verse.verse_number}`"
+              <div class="reading-view-word-wrapper" v-for="verse in verses" :key="verse.id" :id="`line-${verse.verse_number}`"
                 :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
                 :data-juz-number="verse.juz_number" :data-page-number="page" :data-verse-number="verse.verse_number"
                 v-intersect.quite="{
