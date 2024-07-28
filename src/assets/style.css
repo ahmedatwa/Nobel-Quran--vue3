@@ -102,7 +102,7 @@
 
 .quran-reader-container h3 {
   font-family: var(--quran-content-title) !important;
-  font-weight: var(--font-weight-semibold) !important;
+  font-weight: var(--font-weight-medium) !important;
   font-size: var(--quran-font-size-4) !important;
   word-spacing: var(--spacing-xxsmall);
 }
@@ -125,6 +125,10 @@
   padding: 0px 3px;
 }
 
+.verse-col {
+  padding-inline-start: 2px;
+  padding-inline-end: 2px;
+}
 .verse-col .word h3:hover {
   color: #2196f3;
 }
@@ -146,4 +150,16 @@
 
 .smooth-scroll-behaviour {
   transform: translate3d(0, 0, 0);
+}
+
+
+.reading-view-word-wrapper {
+  display: inline;
+  flex-wrap: nowrap;
+  text-align: right;
+  direction: rtl;
+}
+
+.bismillah-subtitle {
+  line-height: 2.425;
 }
