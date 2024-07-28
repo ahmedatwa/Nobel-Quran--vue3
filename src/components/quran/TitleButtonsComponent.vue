@@ -52,13 +52,13 @@ const isPlaying = computed(() => {
                 <slot name="subtitle"> </slot>
             </v-col>
             <v-col :class="$tr.rtl.value ? 'ms-auto text-right' : 'text-left me-auto'">
-                <v-btn v-if="isInfoDialog" @click.stop="infoDialog = !infoDialog"
-                    prepend-icon="mdi-information-outline">
+                <v-btn v-if="isInfoDialog" @click.stop="infoDialog = !infoDialog" :block="$vuetify.display.smAndDown"
+                    prepend-icon="mdi-information-outline" v-tooltip="$tr.line('quranReader.buttonChapterInfo')">
                     {{ $tr.line("quranReader.textSurahInfo") }}
                 </v-btn>
                 <v-btn v-if="groupedTranslationsAuthors" v-tooltip="$tr.line('quranReader.buttonFilter')"
                     @click="$emit('update:translationsDrawer', translationsDrawer = !translationsDrawer)"
-                    prepend-icon="mdi-translate">
+                    prepend-icon="mdi-translate" :block="$vuetify.display.smAndDown">
                     {{ groupedTranslationsAuthors }}
                 </v-btn>
             </v-col>
@@ -66,7 +66,7 @@ const isPlaying = computed(() => {
                 <v-slide-x-reverse-transition>
                     <v-sheet :class="$tr.rtl.value ? 'text-left' : 'text-right'">
                         <v-btn variant="outlined" @click="playAudio({ audioID: Number(chapterId), audioSrc, verseKey })"
-                            color="primary">
+                            color="primary" :block="$vuetify.display.smAndDown">
                             <v-icon :icon="isPlaying ? 'mdi-pause' : 'mdi-play'"></v-icon>{{
                                 $tr.line("quranReader.buttonPlay") }}
                         </v-btn>
