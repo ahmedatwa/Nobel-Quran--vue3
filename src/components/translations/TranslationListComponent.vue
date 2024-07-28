@@ -24,7 +24,8 @@ watch(selectedTranslationIds, (selected) => {
     <v-navigation-drawer location="right" v-model="translationDrawer" disable-resize-watcher
         @update:model-value="translationDrawer =  $event">
         <div class="d-flex ma-2">
-            <v-sheet class="me-auto my-auto text-h6">{{ $tr.line('translationNav.Translations') }}</v-sheet>
+            <v-sheet class="me-auto my-auto text-h6">
+               <v-icon icon="mdi-translate"></v-icon> {{ $tr.line('translationNav.Translations') }}</v-sheet>
             <v-btn icon="mdi-close" variant="text" class="my-auto"
                 @click="translationDrawer = false"></v-btn>
         </div>

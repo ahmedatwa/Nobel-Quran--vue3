@@ -40,7 +40,7 @@ export default {
     textReading: "Reading",
     textBismillah: "بسم الله الرحمن الرحيم",
     textTranslatedBy: "Translated By :",
-    buttonFilter: "Filter",
+    buttonFilter: "Filter Translations",
     buttonPlay: "Play Audio",
     textSurahInfo: "Surah Info",
     textPage: "Page",
