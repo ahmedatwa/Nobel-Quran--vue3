@@ -1,22 +1,31 @@
 import { defineStore } from "pinia";
 import { ref, computed, onBeforeMount, watch } from "vue";
-import { instance } from "@/axios";
 // types
-import { Translation, TranslationReduceMap } from "@/types";
+import { Translation, TranslationReduceMap } from "@/types/translations";
 
 export const useTranslationsStore = defineStore("translations-store", () => {
   const isLoading = ref(false);
-  const translationsList = ref<Translation[] | null>(null);
+  const translationsList = ref<Translation[]>([]);
   const selectedTranslationIds = ref<number[]>([131]);
   const selectedTranslations = ref<Translation[]>([]);
 
+  const getAllTranslations = (): Promise<Translation[]> => {
+    return new Promise((resolve, reject) => {
+      try {
+        import("@/json/translations.json").then((response) => {
+          resolve(response.translations);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
   const getTranslations = async () => {
-    // Get List of Translators
     isLoading.value = true;
-    await instance
-      .get("/resources/translations?language=en")
+    await getAllTranslations()
       .then((response) => {
-        translationsList.value = response.data.translations;
+        response.forEach((res) => translationsList.value?.push({...res}));
       })
       .catch((error) => {
         throw error;
@@ -24,16 +33,7 @@ export const useTranslationsStore = defineStore("translations-store", () => {
       .finally(() => {
         isLoading.value = false;
       });
-  }
-
-  // const getSingleTranslation = async (
-  //   translationId: number,
-  //   chapterID: number
-  // ) => {
-  //   return await instance.get(
-  //     `/quran/translations/${translationId}?chapter_number=${chapterID}&fields=resource_name,id,language_id,resource_name,verse_id,verse_key,verse_number`
-  //   );
-  // };
+  };
 
   // Group translators by language
   const translations = computed(() => {
@@ -48,8 +48,8 @@ export const useTranslationsStore = defineStore("translations-store", () => {
     }
   });
 
-  onBeforeMount(() => {
-    getTranslations();
+  onBeforeMount(async () => {
+    await getTranslations();
   });
 
   const selectedTranslationsAuthors = computed(() => {
@@ -89,8 +89,8 @@ export const useTranslationsStore = defineStore("translations-store", () => {
     }
   });
 
-  watch(translationsList, (val) => {
-    if (val) {
+  watch(translationsList.value, (val) => {
+    if (val) {      
       const found = val.find((tr) => tr.id === 131);
       if (found) {
         selectedTranslations.value.push(found);
@@ -107,7 +107,6 @@ export const useTranslationsStore = defineStore("translations-store", () => {
     selectedTranslationIds,
     selectedTranslationsIdsString,
     groupedTranslationsAuthors,
-   // getSingleTranslation,
     getTranslations,
   };
 });

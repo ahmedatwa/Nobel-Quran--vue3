@@ -4,13 +4,11 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useTranslationsStore } from "@/stores";
 // axios
 import { instance } from "@/axios";
+import { getVersesUrl, makeChapterInfoUrl } from "@/axios/url";
 // types
 import type { Chapter, ChapterInfo } from "@/types/chapter";
 import type { Loading } from "@/types/chapter";
 import type { Verse } from "@/types/verse";
-// utils
-import { verseWordFields, verseFields } from "@/utils/verse";
-import { verseTranslationFields } from "@/utils/verse";
 
 export const useChapterStore = defineStore("chapter-store", () => {
   const translationsStore = useTranslationsStore();
@@ -35,14 +33,6 @@ export const useChapterStore = defineStore("chapter-store", () => {
   });
   const chapterInfo = ref<ChapterInfo | null>(null);
   const perPage = ref(10);
-  // url fields
-  const urlFields = computed(() => {
-    return `&words=true&translation_fields=${verseTranslationFields.join(
-      ","
-    )}&fields=${verseFields.join(",")}&word_fields=${verseWordFields.join(
-      ","
-    )}`;
-  });
 
   const chapters = computed((): Chapter[] | undefined => {
     if (chaptersList.value) {
@@ -135,7 +125,13 @@ export const useChapterStore = defineStore("chapter-store", () => {
     isLoading.value.length = perPage.value;
     await instance
       .get(
-        `/verses/by_chapter/${id}?translations=${translationsStore.selectedTranslationsIdsString}&page=${page}&per_page=${limit}&${urlFields.value}`
+        getVersesUrl(
+          "by_chapter",
+          id,
+          translationsStore.selectedTranslationsIdsString,
+          page,
+          limit
+        )
       )
       .then((response) => {
         const chapter = chaptersList.value.find((s) => s.id === id);
@@ -171,7 +167,11 @@ export const useChapterStore = defineStore("chapter-store", () => {
     isLoading.value.length = 1;
     await instance
       .get(
-        `/verses/by_key/${verseKey}?translations=${translationsStore.selectedTranslationsIdsString}&${urlFields.value}`
+        getVersesUrl(
+          "by_key",
+          verseKey,
+          translationsStore.selectedTranslationsIdsString
+        )
       )
       .then((response) => {
         const chapter = chaptersList.value.find((s) => s.id === id);
@@ -199,7 +199,7 @@ export const useChapterStore = defineStore("chapter-store", () => {
   });
 
   const getchapterInfo = async (id: number, lang: string = "en") => {
-    return await instance.get(`/chapters/${id}/info?language=${lang}`);
+    return await instance.get(makeChapterInfoUrl(id, lang));
   };
 
   // Add New Translations

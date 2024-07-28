@@ -4,18 +4,13 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useChapterStore, useTranslationsStore } from "@/stores";
 // axios
 import { instance } from "@/axios";
+import { getVersesUrl } from "@/axios/url";
 // utils
 import { _range } from "@/utils/number";
 import { getAllPages } from "@/utils/pages";
 // types
 import type { Page } from "@/types/page";
 import type { Verse } from "@/types/verse";
-// utils
-import {
-  verseWordFields,
-  verseFields,
-  verseTranslationFields,
-} from "@/utils/verse";
 
 export const usePageStore = defineStore("page-store", () => {
   const isLoading = ref(false);
@@ -36,14 +31,7 @@ export const usePageStore = defineStore("page-store", () => {
       });
     }
   });
-  // url fields
-  const urlFields = computed(() => {
-    return `&words=true&translation_fields=${verseTranslationFields.join(
-      ","
-    )}&fields=${verseFields.join(",")}&word_fields=${verseWordFields.join(
-      ","
-    )}`;
-  });
+
   const getVerses = async (
     id: number,
     loading: boolean,
@@ -54,7 +42,13 @@ export const usePageStore = defineStore("page-store", () => {
     selectedPageId.value = id;
     await instance
       .get(
-        `/verses/by_page/${id}?translations=${translationsStore.selectedTranslationsIdsString}&page=${page}&per_page=${limit}&${urlFields.value}`
+        getVersesUrl(
+          "by_page",
+          id,
+          translationsStore.selectedTranslationsIdsString,
+          page,
+          limit,
+        )
       )
       .then((response) => {
         const page = pagesList.value?.find((p) => p.pageNumber === id);
