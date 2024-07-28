@@ -190,7 +190,6 @@ watchEffect(() => {
 // commit scroll to verse
 const scroll = (el: string) => {
   const element = document.querySelector(el) as HTMLElement
-  console.log(isInViewport(element));
   
   if (isInViewport(element)) {
     return;
