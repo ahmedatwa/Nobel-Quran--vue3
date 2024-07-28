@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect, reactive } from "vue";
 import { useDisplay } from "vuetify";
-
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -79,7 +78,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
   isIntersecting.value = intersecting;
   if (intersecting && entries[0].intersectionRatio === 1) {
     const target = entries[0].target as HTMLDivElement
-
+        
     if (target) {
       intersectingVerseNumber.value = Number(target.dataset.verseNumber);
 
