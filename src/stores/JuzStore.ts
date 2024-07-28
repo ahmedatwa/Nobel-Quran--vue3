@@ -212,7 +212,7 @@ export const useJuzStore = defineStore("juz-store", () => {
     if (selectedJuz.value) {
       const verse = selectedJuz.value.verses?.slice(-1)[0];      
       if (verse) {
-        return verse.id;
+        return verse.verse_number;
       }
     }
     return 0;
