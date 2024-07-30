@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue"
+import { onMounted, ref, watchEffect } from "vue"
+import { useDisplay } from "vuetify";
 // components
 import { ChaptersNavComponent } from "@/components/chapters";
 import { JuzsNavComponent } from "@/components/juzs";
@@ -12,6 +13,7 @@ import type { ChapterAutoScrollData, IntersectingData } from "@/types/chapter"
 import type { JuzVersesIntersecting } from "@/types/juz"
 
 const navigationTab = ref("chapters")
+const { mobile } = useDisplay()
 
 const props = defineProps<{
     selected: string
@@ -47,7 +49,11 @@ watchEffect(() => {
 // same Threshold applied to v-navigation-drawer scroll behaviour
 const { currentScrollPos } = useWindowScroll(300)
 
-
+onMounted(() => {
+    if (mobile.value) {
+        emit('update:modelValue', false)
+    }
+})
 </script>
 <template>
     <v-navigation-drawer :model-value="navigationModelValue" width="300" :temporary="$vuetify.display.smAndDown"

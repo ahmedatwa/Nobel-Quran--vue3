@@ -13,7 +13,8 @@ import type { VerseWord } from "@/types/verse"
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 
 // utils
-import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport, isElementVisibleInViewport } from "@/utils/useScrollToElement";
+import { useWindowScroll } from "@/utils/useWindowScroll";
 import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
@@ -24,7 +25,7 @@ const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
-  fontSize: mobile.value ? "var(--quran-font-size-1)" : "var(--quran-font-size-3)",
+  fontSize: "var(--quran-font-size-3)",
   fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 
@@ -62,6 +63,10 @@ const emit = defineEmits<{
   "update:intersectionData": [value: IntersectingData];
 }>();
 
+const scrollMrginTop = ref("0")
+const { isScrollingUp } = useWindowScroll(300)
+
+
 // Manual Mode Scroll
 const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]) => {
   isIntersecting.value = intersecting;
@@ -95,6 +100,20 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
         currentVerseNumber: intersectingVerseNumber.value
       });
     }
+
+    // if (currentScrollPos.value === 0) {
+    //   scrollMrginTop.value = '135px'
+    // } else {
+    //   scrollMrginTop.value = '56px'
+    // }
+
+    // if (isScrollingUp.value) {
+    //   scrollMrginTop.value = '92px'
+    // } else {
+    //   scrollMrginTop.value = '86px'
+
+    // }
+
   }
 };
 
@@ -154,8 +173,6 @@ watchEffect(async () => {
       isHoveringElement.value = Number(currentVerseNumber)
     }
   }
-
-
 });
 
 // emitting header data on mounted so 
@@ -190,15 +207,12 @@ watchEffect(() => {
 // commit scroll to verse
 const scroll = (el: string) => {
   const element = document.querySelector(el) as HTMLElement
-  
-  if (isInViewport(element)) {
-    return;
-  } else {
-    if (mobile.value) {
-      scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 120)
-    } else {
-      scrollToElement(el)
+  if (mobile.value) {
+    if (!isInViewport(element)) {
+      scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 150)
     }
+  } else {
+    if (!isInViewport(element)) { scrollToElement(el) }
   }
 }
 
@@ -228,7 +242,6 @@ const scroll = (el: string) => {
             },
           }">
           <v-row :id="`verse-row-${verse.verse_number}`" :class="`active-verse-row`" :tabindex="index">
-
             <!-- Actions -->
             <v-col class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1"
               :cols="$vuetify.display.smAndDown ? '12' : '1'">
@@ -241,10 +254,10 @@ const scroll = (el: string) => {
             <v-col cols="11" class="text-right pt-3" :order="$tr.rtl.value ? 1 : 2" style="position: relative;"
               :id="`active-${verse.verse_number}`">
               <!-- overLay -->
-              <v-overlay :key="`overlay-${verse.verse_number}`" contained scrim="#CFD8DC" opacity="0.1"
+              <!-- <v-overlay :key="`overlay-${verse.verse_number}`" contained scrim="#CFD8DC" opacity="0.1"
                 v-if="isHoveringElement === verse.verse_number" :model-value="true"
                 :activator="`#active-${verse.verse_number}`">
-              </v-overlay>
+              </v-overlay> -->
 
               <v-list class="quran-translation-view" dense :id="`verse-container-${verse.verse_number}`">
                 <v-list-item v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
@@ -295,4 +308,7 @@ const scroll = (el: string) => {
   padding-inline: 3px;
 }
 
+.test {
+  top: calc(100% - 200px) !important;
+}
 </style>

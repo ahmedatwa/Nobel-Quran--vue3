@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, onMounted } from "vue";
+import { ref, inject, watchEffect } from "vue";
 // components
 import { SettingDrawerComponent } from "@/components/common";
 import { useTheme } from "vuetify";
@@ -79,18 +79,13 @@ watchEffect(() => {
     }
   }
 });
-
-onMounted(( ) => {
-  document.querySelector("#app-bar")?.addEventListener("resize", (e) => {
-    console.log(e);
-    
-  })
-})
-
+ 
+ 
 </script>
 <template>
-  <v-app-bar :elevation="2" density="comfortable" scroll-behavior="hide" extension-height="40">
-    <template #prepend>
+  <v-app-bar :elevation="2" density="comfortable" scroll-behavior="hide" extension-height="40" scroll-threshold="300" id="navbar">
+
+    <template #prepend >
       <v-app-bar-title class="ms-2">
         <template #text>
           <v-btn class="quran-header-title" @click="$emit('updateHome', true)" variant="flat"
@@ -103,6 +98,7 @@ onMounted(( ) => {
       </v-app-bar-title>
     </template>
     <template #append>
+
       <v-btn icon="mdi-theme-light-dark" :color="_theme.global.name.value === 'dark' ? 'primary' : ''"
         @click="toggleTheme"></v-btn>
       <v-btn @click.stop="settingsDrawer = !settingsDrawer" icon="mdi-cog"></v-btn>
@@ -139,7 +135,10 @@ onMounted(( ) => {
   </setting-drawer-component>
 </template>
 <style scoped>
+
 .quran-header-title {
   cursor: pointer
 }
+
+
 </style>

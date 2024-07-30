@@ -8,15 +8,21 @@ export const scrollToElement = async (
   if (el) {
     await delay(timeout);
     if (overLayHeight) {
-      el.setAttribute("style", `scroll-margin-height:${overLayHeight}px`);
-    } 
+     
+      
+      if (!el.classList.contains(`scroll-margin-top:${overLayHeight}px`)) {
+      //  el.setAttribute("style", `scroll-margin-top:${overLayHeight}px`);
+      } else {
+        return;
+      }
+    }
     el.scrollIntoView(options);
   }
 };
 
 export const SMOOTH_SCROLL_TO_CENTER = {
   block: "center", // 'block' relates to vertical alignment. see: https://stackoverflow.com/a/48635751/1931451 for nearest.
-  behavior:"smooth"
+  behavior: "smooth",
 } as ScrollIntoViewOptions;
 
 export const SMOOTH_SCROLL_TO_TOP = {
@@ -42,7 +48,6 @@ export const isElementVisibleInViewport = (
 };
 
 export const isInViewport = (element: HTMLElement) => {
-
   let rect = element.getBoundingClientRect();
   let html = document.documentElement;
   return (
