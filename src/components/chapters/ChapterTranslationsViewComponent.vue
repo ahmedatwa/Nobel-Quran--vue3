@@ -14,7 +14,6 @@ import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/ty
 
 // utils
 import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport } from "@/utils/useScrollToElement";
-import { useWindowScroll } from "@/utils/useWindowScroll";
 import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
@@ -62,9 +61,6 @@ const emit = defineEmits<{
   "update:headerData": [value: ChapterHeaderData];
   "update:intersectionData": [value: IntersectingData];
 }>();
-
-const scrollMrginTop = ref("0")
-const { isScrollingUp } = useWindowScroll(300)
 
 
 // Manual Mode Scroll
