@@ -11,15 +11,16 @@ export const useWindowScroll = (threshold: number) => {
   const update = (_event: any) => {
     currentScrollPos.value = window.scrollY;
     //scrollTop.value = wi
-    if (currentScrollPos.value >= threshold) {
+    if (currentScrollPos.value > 0 && prevScrollpos <= currentScrollPos.value) {
       scrollDirection.value = "d";
-      //prevScrollpos = currentScrollPos.value;
-      isScrollingUp.value = prevScrollpos < currentScrollPos.value;
+      prevScrollpos = currentScrollPos.value;
+      isScrollingUp.value = false
     } else {
+      prevScrollpos = currentScrollPos.value;
       scrollDirection.value = "u";
-      isScrollingUp.value = prevScrollpos < currentScrollPos.value;
+      isScrollingUp.value = true
     }
-    prevScrollpos = currentScrollPos.value;
+    
   };
 
   onMounted(() => window.addEventListener("scroll", update));
