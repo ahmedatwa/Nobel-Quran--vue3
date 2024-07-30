@@ -13,7 +13,7 @@ import type { VerseWord } from "@/types/verse"
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 
 // utils
-import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport, isElementVisibleInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport } from "@/utils/useScrollToElement";
 import { useWindowScroll } from "@/utils/useWindowScroll";
 import { setStorage } from "@/utils/storage";
 
