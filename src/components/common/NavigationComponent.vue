@@ -47,7 +47,7 @@ watchEffect(() => {
 })
 
 // same Threshold applied to v-navigation-drawer scroll behaviour
-const { currentScrollPos } = useWindowScroll(300)
+const { currentScrollPos } = useWindowScroll()
 
 onMounted(() => {
     if (mobile.value) {

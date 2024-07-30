@@ -1,6 +1,6 @@
 import { ref, onMounted, onUnmounted } from "vue";
 
-export const useWindowScroll = (threshold: number) => {
+export const useWindowScroll = () => {
   let prevScrollpos = window.scrollY;
 
   const currentScrollPos = ref(0);
