@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, inject, watchEffect } from "vue";
+import { useTheme } from "vuetify";
 // components
 import { SettingDrawerComponent } from "@/components/common";
-import { useTheme, useDisplay } from "vuetify";
 // utils
 import { setStorage } from "@/utils/storage";
 import { localizeNumber } from "@/utils/number";
@@ -15,7 +15,6 @@ import type { PageHeaderData } from "@/types/page";
 import { langKey } from "@/types/symbols";
 
 const _theme = useTheme();
-const { smAndDown } = useDisplay()
 const $lang = inject(langKey);
 const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
@@ -74,9 +73,6 @@ watchEffect(() => {
           }
         }
         break;
-
-      default:
-        break;
     }
   }
 });
@@ -103,12 +99,11 @@ watchEffect(() => {
       <v-btn icon="mdi-theme-light-dark" :color="_theme.global.name.value === 'dark' ? 'primary' : ''"
         @click="toggleTheme"></v-btn>
       <v-btn @click.stop="settingsDrawer = !settingsDrawer" icon="mdi-cog"></v-btn>
-      <v-btn variant="text" :append-icon="smAndDown ? '' : 'mdi-web'">
+      <v-btn variant="text" append-icon="mdi-web">
         <v-menu activator="parent">
           <v-list>
             <v-list-item v-for="i in LANGUAGES" :key="i.key" :value="i.key" :active="$tr.locale.value === i.key">
-              <v-list-item-title @click="$tr.setLocale(i.key, i.rtl)">
-                <v-icon :icon="i.key === 'en' ? 'mdi-alpha-e' : 'mdi-abjad-arabic'"></v-icon> {{ i.value }}
+              <v-list-item-title @click="$tr.setLocale(i.key, i.rtl)">{{ i.value }}
               </v-list-item-title>
             </v-list-item>
           </v-list>
