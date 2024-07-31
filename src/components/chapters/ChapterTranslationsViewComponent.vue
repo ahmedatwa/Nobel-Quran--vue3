@@ -13,7 +13,6 @@ import type { VerseWord } from "@/types/verse"
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 
 // utils
-import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport } from "@/utils/useScrollToElement";
 import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
@@ -194,7 +193,7 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
  */
 watchEffect(() => {
   if (props.selectedVerseNumber) {
-    scrollToElement(`#active-${props.selectedVerseNumber}`)
+    scroll(`#active-${props.selectedVerseNumber}`)
   }
 });
 
@@ -205,7 +204,7 @@ watch(intersectingVerseNumber, (newVerseNumber) => {
   }
 })
 // commit scroll to verse
-const scroll = (el: string, currentVerseNumber: number) => {
+const scroll = (el: string, currentVerseNumber?: number) => {
   console.log(el);
 
   const element = document.querySelector(el) as HTMLElement
