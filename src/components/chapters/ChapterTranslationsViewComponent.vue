@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect, onMounted, onUnmounted } from "vue";
+import { ref, inject, watchEffect } from "vue";
 import { computed, watch, reactive } from "vue";
 import { useDisplay } from "vuetify";
 // stores
@@ -190,20 +190,7 @@ watch(intersectingVerseNumber, (newVerseNumber) => {
   }
 })
 
-onMounted(() => {
-  console.log(intersectingVerseNumber.value);
 
-  const el = document.querySelector(".smooth-scroll-behaviour")
-  if (el) el.addEventListener("scroll", (event) => {
-    console.log("scroll", event);
-
-  })
-})
-
-onUnmounted(() => {
-  intersectingVerseNumber.value = undefined
-
-})
 // commit scroll to verse
 const scroll = (el: string, _currentVerseNumber?: number) => {
   if(smAndDown.value) {
