@@ -118,7 +118,7 @@ const onMouseEnter = async (chapter: Chapter) => {
                             </span>
                             <div class="ms-auto">
                                 <div class="d-flex" style="flex-direction: column;">
-                                    <span>{{ chapter.nameArabic }}</span>
+                                    <span class="text-right">{{ chapter.nameArabic }}</span>
                                     <br />
                                     <small>{{ localizeNumber(chapter.versesCount,
                                         $tr.locale.value) }}

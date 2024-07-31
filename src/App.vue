@@ -21,7 +21,7 @@ import { useMetaStore, useSettingStore } from "@/stores"
 
 // Stores
 const _theme = useTheme();
-const { pageTitle, metaData } = useMetaStore()
+const metaStore = useMetaStore()
 const { isAppLoading } = useSettingStore()
 const selectedLanguage = ref("en");
 const settingsDrawer = ref(false);
@@ -78,9 +78,9 @@ watch(selectedLanguage, (newLang) => {
 </script>
 
 <template>
-  <teleport to="head title">{{ pageTitle }}</teleport>
+  <teleport to="head title">{{ metaStore.pageTitle }}</teleport>
   <teleport to="head">
-    <meta v-for="(metaItem, i) in metaData" :key="i" :name="metaItem.name" :property="metaItem.property"
+    <meta v-for="(metaItem, i) in metaStore.metaData" :key="i" :name="metaItem.name" :property="metaItem.property"
       :content="metaItem.content">
   </teleport>
   <v-app>

@@ -7,10 +7,11 @@ import { useDisplay } from "vuetify";
 
 export const useSettingStore = defineStore("setting-store", () => {
   const versesPages = ref([10, 20, 30, 40, 50]);
+  const { smAndDown } = useDisplay();
   const isAppLoading = ref(false);
   const appIntervalValue = computed(() => loadingIntervalValue.value);
   const VersesPerPage = ref(10);
-  const highlightedWordColor = ref("blue-darken-2")
+  const highlightedWordColor = ref("blue-darken-2");
   const audioPlayerSetting = ref({
     fullwidth: false,
     autoPlay: true,
@@ -20,12 +21,11 @@ export const useSettingStore = defineStore("setting-store", () => {
   });
 
   const cssVars = ref<CssVars>({
-    quranFrontSize: useDisplay().mobile ? 1 : 3,
+    quranFrontSize: smAndDown.value ? 1 : 3,
     quranFontFamily: "Noto-Kufi",
-    translationsFontSize: useDisplay().mobile ? 1 : 3,
+    translationsFontSize: smAndDown.value ? 1 : 3,
     translationsFontFamily: "1",
   });
-
 
   const fontFamilyGroup = ref([
     "Amiri",
@@ -62,13 +62,13 @@ export const useSettingStore = defineStore("setting-store", () => {
   });
 
   return {
-    versesPages,
-    VersesPerPage,
-    audioPlayerSetting,
     cssVars,
-    highlightedWordColor,
+    versesPages,
     isAppLoading,
-    appIntervalValue,
+    VersesPerPage,
     fontFamilyGroup,
+    appIntervalValue,
+    audioPlayerSetting,
+    highlightedWordColor,
   };
 });

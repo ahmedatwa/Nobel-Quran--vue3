@@ -1,22 +1,19 @@
 export const scrollToElement = async (
   elID: string,
-  timeout: number = 10,
+  timeout: number = 100,
   options: ScrollIntoViewOptions = SMOOTH_SCROLL_TO_CENTER,
   overLayHeight?: number
 ) => {
-  const el = document.querySelector(elID);
-  if (el) {
+  const el = document.querySelector(elID) as HTMLDivElement;
+  if (el && !isInViewport(el)) {
     await delay(timeout);
     if (overLayHeight) {
-     
-      
       if (!el.classList.contains(`scroll-margin-top:${overLayHeight}px`)) {
-      //  el.setAttribute("style", `scroll-margin-top:${overLayHeight}px`);
-      } else {
-        return;
       }
     }
     el.scrollIntoView(options);
+  } else {
+    return;
   }
 };
 
@@ -34,20 +31,7 @@ export const SCROLL_TO_NEAREST_ELEMENT = {
   block: "nearest",
 } as ScrollIntoViewOptions;
 
-export const isElementVisibleInViewport = (
-  el: HTMLElement,
-  partiallyVisible = false
-) => {
-  const { top, left, bottom, right } = el.getBoundingClientRect();
-  const { innerHeight, innerWidth } = window;
-  return partiallyVisible
-    ? ((top > 0 && top < innerHeight) ||
-        (bottom > 0 && bottom < innerHeight)) &&
-        ((left > 0 && left < innerWidth) || (right > 0 && right < innerWidth))
-    : top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
-};
-
-export const isInViewport = (element: HTMLElement) => {
+const isInViewport = (element: HTMLElement) => {
   let rect = element.getBoundingClientRect();
   let html = document.documentElement;
   return (

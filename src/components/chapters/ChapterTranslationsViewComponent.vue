@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, inject, watchEffect } from "vue";
+import { ref, inject, watchEffect, onMounted, onUnmounted } from "vue";
 import { computed, watch, reactive } from "vue";
-import { useDisplay, useGoTo } from "vuetify";
+import { useDisplay } from "vuetify";
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -14,10 +14,10 @@ import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/ty
 
 // utils
 import { setStorage } from "@/utils/storage";
+import { SMOOTH_SCROLL_TO_CENTER, scrollToElement } from "@/utils/useScrollToElement";
 
 const chapterStore = useChapterStore();
-const { mobile } = useDisplay()
-const goTo = useGoTo()
+const { smAndDown } = useDisplay()
 const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
@@ -25,7 +25,7 @@ const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
   fontFamily: "var(--font-family-noto-kufi)",
-  fontSize: mobile.value ? "var(--font-size-mobile)" : "var(--font-size-2)"
+  fontSize: "var(--font-size-2)"
 })
 
 const verses = computed(() => {
@@ -138,7 +138,6 @@ watchEffect(async () => {
     const currentVerseNumber = props.verseTiming?.verseNumber
     const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
     intersectingVerseNumber.value = Number(props.verseTiming?.verseNumber)
-    
 
     if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
       // fetch more Verses
@@ -147,19 +146,7 @@ watchEffect(async () => {
           await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
         }
       }
-
-      // Scroll into View
-      // goTo(`#verse-container-${currentVerseNumber}`, {
-      //   //container: `#active-${currentVerseNumber}`,
-      //   duration: 300,
-      //   easing: 'easeInOutCubic',
-      //   offset: 100,
-      // })
-      //scroll(`#verse-container-${currentVerseNumber}`)
-      
-
     }
-
     // toggle active state
     const element = document.getElementById(`active-${currentVerseNumber}`)
     if (element) {
@@ -191,40 +178,40 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
  * watch if user selected verse number 
  * scroll to the verse after fetching
  */
-watchEffect(() => {
-  if (props.selectedVerseNumber) {
+watch(() => props.selectedVerseNumber, (newVerseSelection) => {
+  if (newVerseSelection) {
     scroll(`#active-${props.selectedVerseNumber}`)
   }
 });
 
 watch(intersectingVerseNumber, (newVerseNumber) => {
-  if(newVerseNumber) {
-    console.log(newVerseNumber);
-        scroll(`#active-${newVerseNumber}`, newVerseNumber)
+  if (newVerseNumber) {
+    scroll(`#verse-container-${newVerseNumber}`, newVerseNumber)
   }
+})
+
+onMounted(() => {
+  console.log(intersectingVerseNumber.value);
+
+  const el = document.querySelector(".smooth-scroll-behaviour")
+  if (el) el.addEventListener("scroll", (event) => {
+    console.log("scroll", event);
+
+  })
+})
+
+onUnmounted(() => {
+  intersectingVerseNumber.value = undefined
+
 })
 // commit scroll to verse
 const scroll = (el: string, _currentVerseNumber?: number) => {
-  console.log(el);
-
-  //const element = document.querySelector(el) as HTMLElement
-  // if (!isInViewport(element)) {
-    goTo(el, {
-      //container: `#active-${currentVerseNumber}`,
-      duration: 300,
-      easing: 'easeInOutCubic',
-      offset: -130,
-    })
-  // }
-  // if (mobile.value) {
-  //   if (!isInViewport(element)) {
-  //     scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 150)
-  //   }
-  // } else {
-  //   if (!isInViewport(element)) { scrollToElement(el) }
-  // }
+  if(smAndDown.value) {
+    scrollToElement(el, 300, SMOOTH_SCROLL_TO_CENTER, 156)
+  } else {
+    scrollToElement(el, 300)
+  }
 }
-
 
 </script>
 
@@ -244,7 +231,7 @@ const scroll = (el: string, _currentVerseNumber?: number) => {
           :data-hizb-number="verse.hizb_number" :data-juz-number="verse.juz_number" :data-chapter-id="verse.chapter_id"
           :data-verse-number="verse.verse_number" :data-verse-key="verse.verse_key"
           :data-page-number="verse.page_number" :data-intersecting="isIntersecting"
-          :id="`verse-col-number-${verse.verse_number}`" v-intersect="{
+          :id="`verse-col-number-${verse.verse_number}`" v-intersect.quite="{
             handler: onIntersect,
             options: {
               threshold: [0, 0.8, 1.0],
@@ -275,10 +262,10 @@ const scroll = (el: string, _currentVerseNumber?: number) => {
                   <div class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
                     ? wordColor : ''">
 
-                    <h3 v-if="word.char_type_name === 'end'" >
+                    <h3 v-if="word.char_type_name === 'end'">
                       ({{ word.text_uthmani }})
                     </h3>
-                    <h3 :style="defaultStyles" :data-word-location="word.location" v-else> {{
+                    <h3 :style="[defaultStyles, cssVars]" :data-word-location="word.location" v-else> {{
                       word.text_uthmani }}
                       <v-tooltip v-if="audioExperience.tooltip" activator="parent" :target="`#word-tooltip-${word.id}`"
                         :model-value="isWordHighlighted(word)" location="top center" origin="bottom center"
