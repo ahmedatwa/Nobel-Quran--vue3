@@ -123,7 +123,6 @@
   cursor: pointer;
   white-space: nowrap;
   padding: 0px 3px;
-  margin-inline: 2px;
 }
 
 .verse-col {
@@ -139,6 +138,7 @@
   display: flex;
   direction: rtl;
   flex-wrap: wrap;
+  line-height: 9.8vh;
 }
 
 .quran-translation-view h3 {
