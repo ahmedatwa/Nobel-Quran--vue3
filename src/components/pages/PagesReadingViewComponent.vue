@@ -11,12 +11,12 @@ import type { PageHeaderData } from "@/types/page"
 import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 
 // utils
-import { scrollToElement, isInViewport, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement"
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement"
 import { DEFAULT_NUMBER_OF_PAGES } from "@/utils/pages"
 
 
 const pageStore = usePageStore()
-const { mobile } = useDisplay()
+const { smAndDown } = useDisplay()
 const { getChapterNameByChapterId } = useChapterStore()
 const isIntersecting = ref(false)
 const translationsDrawer = inject("translationDrawer")
@@ -122,12 +122,7 @@ watchEffect(async () => {
             const verseElement = `#line-${currentVerseNumber}`
             if (verseElement) {
                 if (currentVerseNumber !== intersectingPageVerseNumber.value) {
-
-                    if (mobile.value) {
-                        scroll(verseElement)
-                    } else {
-                        scroll(verseElement)
-                    }
+                    scroll(verseElement)
                 }
             }
         }
@@ -210,15 +205,10 @@ watch(() => pageStore.getInitialHeaderData, (newHeaderData) => {
 
 // commit scroll to verse
 const scroll = (el: string) => {
-    const element = document.querySelector(el) as HTMLElement
-    if (isInViewport(element)) {
-        return;
+    if (smAndDown.value) {
+        scrollToElement(el, 300, SMOOTH_SCROLL_TO_CENTER, 120)
     } else {
-        if (mobile.value) {
-            scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 120)
-        } else {
-            scrollToElement(el)
-        }
+        scrollToElement(el, 300)
     }
 }
 </script>

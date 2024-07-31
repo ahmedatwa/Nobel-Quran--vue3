@@ -11,11 +11,11 @@ import type { MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps, PlayAudioEmit, IsAudioPlayingProps } from "@/types/audio";
 
 // utils
-import { scrollToElement, isInViewport, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement"
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement"
 import { getChapterNameByJuzId, getFirstVerseOfJuzByPage } from "@/utils/juz"
 
 const juzStore = useJuzStore()
-const { mobile } = useDisplay()
+const { smAndDown } = useDisplay()
 const { getChapterNameByFirstVerse } = useChapterStore()
 const isIntersecting = ref(false)
 const headerData = ref<JuzHeaderData | null>(null);
@@ -109,12 +109,7 @@ watchEffect(async () => {
             const verseElement = `#line-${currentVerseNumber}`
             if (verseElement) {
                 if (currentVerseNumber !== intersectingJuzVerseNumber.value) {
-
-                    if (mobile.value) {
-                        scroll(verseElement)
-                    } else {
-                        scroll(verseElement)
-                    }
+                    scroll(verseElement)
                 }
             }
         }
@@ -142,15 +137,11 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
 
 // commit scroll to verse
 const scroll = (el: string) => {
-    const element = document.querySelector(el) as HTMLElement
-    if (isInViewport(element)) {
-        return;
+    if (smAndDown.value) {
+        scrollToElement(el, 300, SMOOTH_SCROLL_TO_CENTER, 120)
     } else {
-        if (mobile.value) {
-            scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 120)
-        } else {
-            scrollToElement(el)
-        }
+        scrollToElement(el)
+
     }
 }
 </script>

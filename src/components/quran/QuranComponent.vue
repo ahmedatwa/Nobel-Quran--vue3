@@ -81,8 +81,8 @@ watch(
 const quranCssVars = computed(() => {
   if (settingStore.cssVars) {
     return {
-      fontFamily: `var(--quran-font-family-${settingStore.cssVars.quranFontFamily.toLowerCase()})`,
-      fontSize: `var(--quran-font-size-${settingStore.cssVars.quranFrontSize})`,
+      fontFamily: `var(--font-family-${settingStore.cssVars.quranFontFamily.toLowerCase()})`,
+      fontSize: `var(--font-size-${settingStore.cssVars.quranFrontSize})`,
     };
   }
 });

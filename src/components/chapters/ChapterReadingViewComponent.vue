@@ -10,16 +10,16 @@ import type { ChapterHeaderData, IntersectingData } from "@/types/chapter";
 import type { MapVersesByPage } from "@/types/verse";
 import type { VerseTimingsProps, IsAudioPlayingProps, PlayAudioEmit } from "@/types/audio"
 // utils
-import { scrollToElement, SMOOTH_SCROLL_TO_CENTER, isInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement, SMOOTH_SCROLL_TO_CENTER } from "@/utils/useScrollToElement";
 
 const chapterStore = useChapterStore();
 const isIntersecting = ref(false);
-const { mobile } = useDisplay()
+const { smAndDown } = useDisplay()
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
-  fontSize: mobile.value ? "var(--quran-font-size-1)" : "var(--quran-font-size-3)",
+  fontSize: smAndDown.value ? "var(--quran-font-size-1)" : "var(--quran-font-size-3)",
   fontFamily: "var(--quran-font-family-noto-kufi)"
 })
 
@@ -78,7 +78,7 @@ const onIntersect = async (intersecting: boolean, entries: any) => {
   isIntersecting.value = intersecting;
   if (intersecting && entries[0].intersectionRatio === 1) {
     const target = entries[0].target as HTMLDivElement
-        
+
     if (target) {
       intersectingVerseNumber.value = Number(target.dataset.verseNumber);
 
@@ -131,31 +131,26 @@ watch(() => chapterStore.getFirstVerseOfChapter, (newVal) => {
 
 // auto mode with verse timing and feed header data
 watchEffect(async () => {
-    if (props.audioExperience.autoScroll) {
-      const currentVerseNumber = props.verseTiming?.verseNumber
-      const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
+  if (props.audioExperience.autoScroll) {
+    const currentVerseNumber = props.verseTiming?.verseNumber
+    const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
 
-      if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
-        // fetch more Verses
-        if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
-          if (chapterStore.selectedChapterPagination?.next_page) {
-            await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
-          }
+    if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
+      // fetch more Verses
+      if (currentVerseNumber === lastVerseNumber || currentVerseNumber >= lastVerseNumber - 5) {
+        if (chapterStore.selectedChapterPagination?.next_page) {
+          await chapterStore.getVerses(chapterStore.selectedChapterId, true, chapterStore.selectedChapterPagination.next_page)
         }
-        // Scroll into View
-        const verseElement = `#line-${currentVerseNumber}`
-        if (verseElement) {
-          if (currentVerseNumber !== intersectingVerseNumber.value) {
-
-            if (mobile.value) {
-              scroll(verseElement)
-            } else {
-              scroll(verseElement)
-            }
-          }
+      }
+      // Scroll into View
+      const verseElement = `#line-${currentVerseNumber}`
+      if (verseElement) {
+        if (currentVerseNumber !== intersectingVerseNumber.value) {
+          scroll(verseElement)
         }
       }
     }
+  }
 });
 
 /**
@@ -171,15 +166,10 @@ watchEffect(() => {
 
 // commit scroll to verse
 const scroll = (el: string) => {
-  const element = document.querySelector(el) as HTMLElement  
-  if (isInViewport(element)) {
-    return;
+  if (smAndDown.value) {
+    scrollToElement(el, 300, SMOOTH_SCROLL_TO_CENTER, 120)
   } else {
-    if (mobile.value) {
-      scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 120)
-    } else {
-      scrollToElement(el)
-    }
+    scrollToElement(el, 300)
   }
 }
 
@@ -212,10 +202,10 @@ const scroll = (el: string) => {
           <v-row class="verse-row" no-gutters justify="center" :align="'start'"
             v-for="(verses, page) in mapVersesByPage" :key="page" :id="`row-page-${page}`">
             <v-col class="verse-col" :id="`page-${page}`" cols="10">
-              <div class="reading-view-word-wrapper" v-for="verse in verses" :key="verse.id" :id="`line-${verse.verse_number}`"
-                :data-hizb-number="verse.hizb_number" :data-chapter-id="verse.chapter_id"
-                :data-juz-number="verse.juz_number" :data-page-number="page" :data-verse-number="verse.verse_number"
-                v-intersect.quite="{
+              <div class="reading-view-word-wrapper" v-for="verse in verses" :key="verse.id"
+                :id="`line-${verse.verse_number}`" :data-hizb-number="verse.hizb_number"
+                :data-chapter-id="verse.chapter_id" :data-juz-number="verse.juz_number" :data-page-number="page"
+                :data-verse-number="verse.verse_number" v-intersect.quite="{
                   handler: onIntersect,
                   options: {
                     threshold: [0, 0.5, 1.0],

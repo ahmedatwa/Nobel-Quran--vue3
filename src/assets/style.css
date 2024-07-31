@@ -10,8 +10,7 @@
   /* Noto Naskh Arabic Variable', serif */
   --quran-reader-direction: rtl;
   --quran-content-title: "Gulzar", serif;
-  --font-size-mobile: 4.5vw;
-  --font-size-1: 3.1vh;
+  --font-size-1: 4.5vw;
   --font-size-2: 3.2vh;
   --font-size-3: 3.4vh;
   --font-size-4: 3.7vh;
@@ -143,8 +142,7 @@
 }
 
 .quran-translation-view h3 {
-  font-weight: var(--font-weight-normal);
-  /* word-spacing: var(--spacing-xxsmall); */
+  font-weight: var(--font-weight-medium);
   margin-inline:var( --spacing-micro);
 }
 .quran-translations-font {

@@ -9,7 +9,7 @@ import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/
 import type { PageHeaderData, GroupVersesByChapterID } from "@/types/page";
 import { VerseTimingsProps, PlayAudioEmit } from "@/types/audio";
 // utils
-import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement } from "@/utils/useScrollToElement";
 
 const pageStore = usePageStore()
 const { getChapterNameByChapterId } = useChapterStore()
@@ -107,17 +107,7 @@ watchEffect(async () => {
     if (props.verseTiming) {
         if (props.audioExperience.autoScroll) {
             const el = document.querySelector(`#verse-word${props.verseTiming.verseKey}`) as HTMLDivElement
-            if (!isInViewport(el)) {
-                // headerData.value = {
-                //     //left: ,
-                //     right: {
-                //         pageNumber: el.getAttribute("data-page-number") || '',
-                //         hizbNumber: el.getAttribute("data-hizb-number") || '',
-                //         juzNumber: el.getAttribute("data-juz-number") || '',
-                //     }
-                // }
-                // emit header Data
-                // emit('update:headerData', headerData.value)
+            if (el) {
                 // Scroll into View
                 if (props.isAudioPlaying?.isPlaying) {
                     scrollToElement(`#verse-row${props.verseTiming.verseKey}`)

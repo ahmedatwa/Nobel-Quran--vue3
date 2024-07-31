@@ -8,7 +8,7 @@ import { TitleButtonsComponent, ButtonsActionListComponent } from "@/components/
 // utils
 import { getFirstVerseNumberInJuz } from "@/utils/verse"
 import { getChapterNameByJuzId } from "@/utils/juz"
-import { scrollToElement, isInViewport } from "@/utils/useScrollToElement";
+import { scrollToElement } from "@/utils/useScrollToElement";
 
 // types
 import type { JuzHeaderData, JuzVersesIntersecting } from "@/types/juz";
@@ -109,7 +109,7 @@ watchEffect(() => {
         if (props.selectedJuzTab === "juzTranslationsTab") {
             if (props.audioExperience.autoScroll) {
                 const el = document.querySelector(`#verse-word${props.verseTiming.verseKey}`) as HTMLDivElement
-                if (!isInViewport(el)) {
+                if (el) {
                     let newHeaderData: JuzHeaderData | null = null
                     const chapterId = el.getAttribute("data-chapter-id") || null
                     newHeaderData = {
@@ -235,7 +235,8 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                     @update:play-audio="$emit('update:playAudio', $event)">
                     <template #title>
                         <h2>{{ getChapterNameByFirstVerse(verses[0])?.nameArabic }}</h2>
-                        <h3>{{ getChapterNameByFirstVerse(verses[0])?.bismillahPre ? $tr.line("quranReader.textBismillah") : '' }}</h3>
+                        <h3>{{ getChapterNameByFirstVerse(verses[0])?.bismillahPre ?
+                            $tr.line("quranReader.textBismillah") : '' }}</h3>
                     </template>
                 </title-buttons-component>
             </v-col>
@@ -250,47 +251,50 @@ watch(() => juzStore.getFirstVerseOfJuz, (newVal) => {
                             threshold: [0, 0.5, 1.0]
                         }
                     }">
-                     <v-row :id="`verse-row-${verse.verse_number}`"> 
-                    <v-col :cols="$vuetify.display.smAndDown ? '12' : '1'" class="action-list verse-col" :order="$tr.rtl.value ? 2 : 1">
-                        <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)"
-                            size="small" :is-audio-player="isAudioPlaying" :verse="verse"
-                            @update:bookmarked="setBookmarked"
-                            :audio-src="`juz-Translations-${juzStore.selectedJuz?.id}`">
-                        </buttons-action-list-component>
-                    </v-col>
-                    <v-col cols="11" class="text-right pt-3" :order="$tr.rtl.value ? 1 : 2">
-                        <v-list class="quran-translation-view" dense>
-                            <v-list-item v-for="word in verse.words" :key="word.id" :id="`verse-word${verse.verse_key}`"
-                                :data-hizb-number="verse.hizb_number" :data-verse-number="verse.verse_number"
-                                class="item">
-                                <v-list-item-title class="word" :id="`word-tooltip${word.id}`"
-                                    :data-verse-key="verse.verse_key"
-                                    :class="isWordHighlighted(word.location, word.verse_key) ? 'text-blue' : ''">
-                                    <h3 v-if="word.char_type_name === 'end'">
-                                        ({{ word.text_uthmani }})
-                                    </h3>
-                                    <h3 :style="[defaultStyles, cssVars]" v-else>{{ word.text_uthmani }}
-                                        <v-tooltip activator="parent" :target="`#target${word.id}`"
-                                            v-if="audioExperience.tooltip"
-                                            :model-value="isWordHighlighted(word.location, word.verse_key)"
-                                            location="top center" origin="bottom center" :text="word.translation.text">
-                                        </v-tooltip>
-                                        <v-tooltip activator="parent" :target="`#target${word.id}`" v-else
-                                            location="top center" origin="bottom center" :text="word.translation.text">
-                                        </v-tooltip>
-                                    </h3>
-                                </v-list-item-title>
-                            </v-list-item>
-                        </v-list>
-                        <v-list>
-                            <v-list-item class="text-left" v-for="translation in verse.translations"
-                                :key="translation.id">
-                                <div class="translation" v-html="translation.text"></div>
-                                <v-sheet class="text-caption mt-2 text-disabled">
-                                    -- {{ translation.resource_name }}</v-sheet>
-                            </v-list-item>
-                        </v-list>
-                    </v-col>
+                    <v-row :id="`verse-row-${verse.verse_number}`">
+                        <v-col :cols="$vuetify.display.smAndDown ? '12' : '1'" class="action-list verse-col"
+                            :order="$tr.rtl.value ? 2 : 1">
+                            <buttons-action-list-component @update:play-audio="$emit('update:playAudio', $event)"
+                                size="small" :is-audio-player="isAudioPlaying" :verse="verse"
+                                @update:bookmarked="setBookmarked"
+                                :audio-src="`juz-Translations-${juzStore.selectedJuz?.id}`">
+                            </buttons-action-list-component>
+                        </v-col>
+                        <v-col cols="11" class="text-right pt-3" :order="$tr.rtl.value ? 1 : 2">
+                            <v-list class="quran-translation-view" dense>
+                                <v-list-item v-for="word in verse.words" :key="word.id"
+                                    :id="`verse-word${verse.verse_key}`" :data-hizb-number="verse.hizb_number"
+                                    :data-verse-number="verse.verse_number" class="item">
+                                    <v-list-item-title class="word" :id="`word-tooltip${word.id}`"
+                                        :data-verse-key="verse.verse_key"
+                                        :class="isWordHighlighted(word.location, word.verse_key) ? 'text-blue' : ''">
+                                        <h3 v-if="word.char_type_name === 'end'">
+                                            ({{ word.text_uthmani }})
+                                        </h3>
+                                        <h3 :style="[defaultStyles, cssVars]" v-else>{{ word.text_uthmani }}
+                                            <v-tooltip activator="parent" :target="`#target${word.id}`"
+                                                v-if="audioExperience.tooltip"
+                                                :model-value="isWordHighlighted(word.location, word.verse_key)"
+                                                location="top center" origin="bottom center"
+                                                :text="word.translation.text">
+                                            </v-tooltip>
+                                            <v-tooltip activator="parent" :target="`#target${word.id}`" v-else
+                                                location="top center" origin="bottom center"
+                                                :text="word.translation.text">
+                                            </v-tooltip>
+                                        </h3>
+                                    </v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                            <v-list>
+                                <v-list-item class="text-left" v-for="translation in verse.translations"
+                                    :key="translation.id">
+                                    <div class="translation" v-html="translation.text"></div>
+                                    <v-sheet class="text-caption mt-2 text-disabled">
+                                        -- {{ translation.resource_name }}</v-sheet>
+                                </v-list-item>
+                            </v-list>
+                        </v-col>
                     </v-row>
                     <v-divider class="mb-3"></v-divider>
                 </v-row>

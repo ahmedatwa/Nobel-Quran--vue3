@@ -2,7 +2,7 @@
 import { ref, inject, watchEffect } from "vue";
 // components
 import { SettingDrawerComponent } from "@/components/common";
-import { useTheme } from "vuetify";
+import { useTheme, useDisplay } from "vuetify";
 // utils
 import { setStorage } from "@/utils/storage";
 import { localizeNumber } from "@/utils/number";
@@ -15,6 +15,7 @@ import type { PageHeaderData } from "@/types/page";
 import { langKey } from "@/types/symbols";
 
 const _theme = useTheme();
+const { smAndDown } = useDisplay()
 const $lang = inject(langKey);
 const navigationModelValue = inject("navigationModelValue");
 const settingsDrawer = ref(false);
@@ -79,13 +80,13 @@ watchEffect(() => {
     }
   }
 });
- 
- 
+
+
 </script>
 <template>
-  <v-app-bar :elevation="2" density="comfortable" scroll-behavior="hide" extension-height="40" scroll-threshold="300" id="navbar">
-
-    <template #prepend >
+  <v-app-bar :elevation="2" density="comfortable" scroll-behavior="hide" extension-height="40" scroll-threshold="300"
+    id="navbar">
+    <template #prepend>
       <v-app-bar-title class="ms-2">
         <template #text>
           <v-btn class="quran-header-title" @click="$emit('updateHome', true)" variant="flat"
@@ -102,7 +103,7 @@ watchEffect(() => {
       <v-btn icon="mdi-theme-light-dark" :color="_theme.global.name.value === 'dark' ? 'primary' : ''"
         @click="toggleTheme"></v-btn>
       <v-btn @click.stop="settingsDrawer = !settingsDrawer" icon="mdi-cog"></v-btn>
-      <v-btn variant="text" append-icon="mdi-web">
+      <v-btn variant="text" :append-icon="smAndDown ? '' : 'mdi-web'">
         <v-menu activator="parent">
           <v-list>
             <v-list-item v-for="i in LANGUAGES" :key="i.key" :value="i.key" :active="$tr.locale.value === i.key">
@@ -135,10 +136,7 @@ watchEffect(() => {
   </setting-drawer-component>
 </template>
 <style scoped>
-
 .quran-header-title {
   cursor: pointer
 }
-
-
 </style>

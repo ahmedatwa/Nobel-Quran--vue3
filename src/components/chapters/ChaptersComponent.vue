@@ -53,8 +53,6 @@ const chapterReadingVerseTiming = computed(() => {
     }
   }
 })
-
-
 /**
  * initial emit for header data 
  * as it will be lost when switching tabs 
