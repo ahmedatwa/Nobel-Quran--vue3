@@ -279,11 +279,11 @@ const scroll = (el: string, _currentVerseNumber?: number) => {
                 </div>
               </div>
               <div>
-                <v-list-item class="text-left" v-for="translation in verse.translations" :key="translation.id">
+                <div class="text-left mt-4" v-for="translation in verse.translations" :key="translation.id">
                   <div class="translation" v-html="translation.text"></div>
                   <v-sheet class="text-caption mt-2 text-disabled quran-translations-font">
                     -- {{ translation.resource_name }}</v-sheet>
-                </v-list-item>
+                  </div>
               </div>
             </v-col>
           </v-row>
