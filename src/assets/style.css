@@ -2,24 +2,25 @@
 
 :root {
   --direct: rtl;
-  --quran-font-family-amiri: "Amiri", serif;
-  --quran-font-family-noto-kufi: "Noto Kufi Arabic Variable", sans-serif;
-  --quran-font-family-hafs-nastaleeq: "hafs-nastaleeq", serif;
-  --quran-font-family-uthman-taha-naskh: "Uthman-Taha-Naskh", serif;
+  --font-family-amiri: "Amiri", serif;
+  --font-family-noto-kufi: "Noto Kufi Arabic Variable", sans-serif;
+  --font-family-hafs-nastaleeq: "hafs-nastaleeq", serif;
+  --font-family-uthman-taha-naskh: "Uthman-Taha-Naskh", serif;
   
   /* Noto Naskh Arabic Variable', serif */
   --quran-reader-direction: rtl;
   --quran-content-title: "Gulzar", serif;
-  --quran-font-size-1: 3.1vh;
-  --quran-font-size-2: 3.2vh;
-  --quran-font-size-3: 3.4vh;
-  --quran-font-size-4: 3.7vh;
-  --quran-font-size-5: 3.95vh;
-  --quran-font-size-6: 5.08vh;
-  --quran-font-size-7: 6.21vh;
-  --quran-font-size-8: 7.34vh;
-  --quran-font-size-9: 8.47vh;
-  --quran-font-size-10: 9.6vh;
+  --font-size-mobile: 4.5vw;
+  --font-size-1: 3.1vh;
+  --font-size-2: 3.2vh;
+  --font-size-3: 3.4vh;
+  --font-size-4: 3.7vh;
+  --font-size-5: 3.95vh;
+  --font-size-6: 5.08vh;
+  --font-size-7: 6.21vh;
+  --font-size-8: 7.34vh;
+  --font-size-9: 8.47vh;
+  --font-size-10: 9.6vh;
   --translation-font-size-1: 0.85rem;
   --translation-font-size-2: 1rem;
   --translation-font-size-3: 1.18rem;
@@ -67,26 +68,26 @@
 
 .aref-ruqaa-regular {
   font-family: "Aref Ruqaa", serif;
-  font-size: var(--quran-font-size-1) !important;
+  font-size: var(--font-size-1) !important;
 }
 
 .aref-ruqaa-bold {
   font-family: "Aref Ruqaa", serif;
   font-weight: var(--font-weight-semibold);
-  font-size: var(--quran-font-size-1) !important;
+  font-size: var(--font-size-1) !important;
 }
 
 /*  */
 .amiri-regular {
   font-family: "Amiri", serif;
   font-weight: var(--font-weight-normal);
-  font-size: var(--quran-font-size-1) !important;
+  font-size: var(--font-size-1) !important;
 }
 
 .amiri-bold {
   font-family: "Amiri", serif;
   font-weight: var(--font-weight-semibold);
-  font-size: var(--quran-font-size-1) !important;
+  font-size: var(--font-size-1) !important;
 }
 
 /* Quran Reader/Translations */
@@ -96,14 +97,14 @@
 .quran-reader-container h2 {
   font-family: var(--quran-content-title) !important;
   font-weight: var(--font-weight-bold) !important;
-  font-size: var(--quran-font-size-5) !important;
+  font-size: var(--font-size-5) !important;
   word-spacing: var(--spacing-xxsmall);
 }
 
 .quran-reader-container h3 {
   font-family: var(--quran-content-title) !important;
   font-weight: var(--font-weight-medium) !important;
-  font-size: var(--quran-font-size-4) !important;
+  font-size: var(--font-size-4) !important;
   word-spacing: var(--spacing-xxsmall);
 }
 
@@ -123,6 +124,7 @@
   cursor: pointer;
   white-space: nowrap;
   padding: 0px 3px;
+  margin-inline: 2px;
 }
 
 .verse-col {
@@ -140,6 +142,11 @@
   flex-wrap: wrap;
 }
 
+.quran-translation-view h3 {
+  font-weight: var(--font-weight-normal);
+  /* word-spacing: var(--spacing-xxsmall); */
+  margin-inline:var( --spacing-micro);
+}
 .quran-translations-font {
   font-size: var(--translation-font-size-3);
 }

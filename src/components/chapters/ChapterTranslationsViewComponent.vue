@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, inject, watchEffect } from "vue";
 import { computed, watch, reactive } from "vue";
-import { useDisplay } from "vuetify";
+import { useDisplay, useGoTo } from "vuetify";
 // stores
 import { useChapterStore } from "@/stores";
 // components
@@ -18,14 +18,15 @@ import { setStorage } from "@/utils/storage";
 
 const chapterStore = useChapterStore();
 const { mobile } = useDisplay()
+const goTo = useGoTo()
 const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
 
 const defaultStyles = reactive({
-  fontSize: "var(--quran-font-size-3)",
-  fontFamily: "var(--quran-font-family-noto-kufi)"
+  fontFamily: "var(--font-family-noto-kufi)",
+  fontSize: mobile.value ? "var(--font-size-mobile)" : "var(--font-size-2)"
 })
 
 const verses = computed(() => {
@@ -97,19 +98,6 @@ const onIntersect = (intersecting: boolean, entries: IntersectionObserverEntry[]
       });
     }
 
-    // if (currentScrollPos.value === 0) {
-    //   scrollMrginTop.value = '135px'
-    // } else {
-    //   scrollMrginTop.value = '56px'
-    // }
-
-    // if (isScrollingUp.value) {
-    //   scrollMrginTop.value = '92px'
-    // } else {
-    //   scrollMrginTop.value = '86px'
-
-    // }
-
   }
 };
 
@@ -143,12 +131,15 @@ const isWordHighlighted = (word: VerseWord) => {
   }
 };
 
+
 // watchers
 // auto mode with verse timing and feed header data
 watchEffect(async () => {
   if (props.audioExperience.autoScroll) {
     const currentVerseNumber = props.verseTiming?.verseNumber
     const lastVerseNumber = chapterStore.getLastVerseNumberOfChapter
+    intersectingVerseNumber.value = Number(props.verseTiming?.verseNumber)
+    
 
     if (props.isAudioPlaying?.isPlaying && currentVerseNumber) {
       // fetch more Verses
@@ -159,7 +150,14 @@ watchEffect(async () => {
       }
 
       // Scroll into View
-      scroll(`#active-${currentVerseNumber}`)
+      // goTo(`#verse-container-${currentVerseNumber}`, {
+      //   //container: `#active-${currentVerseNumber}`,
+      //   duration: 300,
+      //   easing: 'easeInOutCubic',
+      //   offset: 100,
+      // })
+      //scroll(`#verse-container-${currentVerseNumber}`)
+      
 
     }
 
@@ -200,16 +198,32 @@ watchEffect(() => {
   }
 });
 
-// commit scroll to verse
-const scroll = (el: string) => {
-  const element = document.querySelector(el) as HTMLElement
-  if (mobile.value) {
-    if (!isInViewport(element)) {
-      scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 150)
-    }
-  } else {
-    if (!isInViewport(element)) { scrollToElement(el) }
+watch(intersectingVerseNumber, (newVerseNumber) => {
+  if(newVerseNumber) {
+    console.log(newVerseNumber);
+        scroll(`#active-${newVerseNumber}`, newVerseNumber)
   }
+})
+// commit scroll to verse
+const scroll = (el: string, currentVerseNumber: number) => {
+  console.log(el);
+
+  const element = document.querySelector(el) as HTMLElement
+  // if (!isInViewport(element)) {
+    goTo(el, {
+      //container: `#active-${currentVerseNumber}`,
+      duration: 300,
+      easing: 'easeInOutCubic',
+      offset: -130,
+    })
+  // }
+  // if (mobile.value) {
+  //   if (!isInViewport(element)) {
+  //     scrollToElement(el, 20, SMOOTH_SCROLL_TO_CENTER, 150)
+  //   }
+  // } else {
+  //   if (!isInViewport(element)) { scrollToElement(el) }
+  // }
 }
 
 
@@ -255,17 +269,17 @@ const scroll = (el: string) => {
                 :activator="`#active-${verse.verse_number}`">
               </v-overlay> -->
 
-              <v-list class="quran-translation-view" dense :id="`verse-container-${verse.verse_number}`">
-                <v-list-item v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
+              <div class="quran-translation-view" dense :id="`verse-container-${verse.verse_number}`">
+                <div v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
                   :data-verse-number="verse.verse_number" :data-chapter-id="verse.chapter_id"
                   :data-juz-number="verse.juz_number" :data-page-number="verse.page_number" class="item">
-                  <v-list-item-title class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
+                  <div class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
                     ? wordColor : ''">
 
-                    <h3 v-if="word.char_type_name === 'end'">
+                    <h3 v-if="word.char_type_name === 'end'" >
                       ({{ word.text_uthmani }})
                     </h3>
-                    <h3 :style="[defaultStyles, cssVars]" :data-word-location="word.location" v-else> {{
+                    <h3 :style="defaultStyles" :data-word-location="word.location" v-else> {{
                       word.text_uthmani }}
                       <v-tooltip v-if="audioExperience.tooltip" activator="parent" :target="`#word-tooltip-${word.id}`"
                         :model-value="isWordHighlighted(word)" location="top center" origin="bottom center"
@@ -275,16 +289,16 @@ const scroll = (el: string) => {
                         origin="bottom center" :text="word.translation.text">
                       </v-tooltip>
                     </h3>
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-              <v-list>
+                  </div>
+                </div>
+              </div>
+              <div>
                 <v-list-item class="text-left" v-for="translation in verse.translations" :key="translation.id">
                   <div class="translation" v-html="translation.text"></div>
                   <v-sheet class="text-caption mt-2 text-disabled quran-translations-font">
                     -- {{ translation.resource_name }}</v-sheet>
                 </v-list-item>
-              </v-list>
+              </div>
             </v-col>
           </v-row>
           <v-col cols="12" class="my-3">
