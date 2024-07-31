@@ -204,10 +204,10 @@ watch(intersectingVerseNumber, (newVerseNumber) => {
   }
 })
 // commit scroll to verse
-const scroll = (el: string, currentVerseNumber?: number) => {
+const scroll = (el: string, _currentVerseNumber?: number) => {
   console.log(el);
 
-  const element = document.querySelector(el) as HTMLElement
+  //const element = document.querySelector(el) as HTMLElement
   // if (!isInViewport(element)) {
     goTo(el, {
       //container: `#active-${currentVerseNumber}`,
