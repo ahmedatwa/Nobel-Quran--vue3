@@ -1,3 +1,5 @@
+// Credit: https://gist.github.com/jonlabelle/5375315
+
 export const trimSpaces = (str: string) => {
   return str.trim();
 };
