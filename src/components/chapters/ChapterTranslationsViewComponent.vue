@@ -249,7 +249,7 @@ const scroll = (el: string, _currentVerseNumber?: number) => {
                   <div class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
                     ? wordColor : ''">
 
-                    <h3 v-if="word.char_type_name === 'end'">
+                    <h3 v-if="word.char_type_name === 'end'" class="end">
                       ({{ word.text_uthmani }})
                     </h3>
                     <h3 :style="[defaultStyles, cssVars]" :data-word-location="word.location" v-else> {{

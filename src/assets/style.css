@@ -133,6 +133,11 @@
   color: #2196f3;
 }
 
+.end {
+  font-size: smaller !important;
+  word-spacing: 1px;
+}
+
 /* Translations View */
 .quran-translation-view {
   display: flex;
