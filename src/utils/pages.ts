@@ -1,7 +1,5 @@
-import jsonPagesChaptersMappingData from "@/json/page-to-chapter-mappings.json";
 import jsonChaptersData from "@/json/chapters.json";
-import { localizeNumber } from "@/utils/number";
-import type { Page } from "@/types/page";
+import { localizeNumber, _range } from "@/utils/number";
 
 export const DEFAULT_NUMBER_OF_PAGES = 604;
 
@@ -11,8 +9,22 @@ export const DEFAULT_NUMBER_OF_PAGES = 604;
  * @returns {[juz: string]: Page2ChaptersMapping}
  */
 
-export const getPages2ChaptersMappings = () => {
-  return jsonPagesChaptersMappingData;
+type Pages2ChaptersMappings = {
+  [key: string]: string[];
+};
+
+export const getPages2ChaptersMappings =
+  (): Promise<Pages2ChaptersMappings> => {
+    return new Promise((res) => {
+      import("@/json/page-to-chapter-mappings.json").then((data) => {
+        res(data.default);
+      });
+    });
+  };
+
+const getChapterIdsForPage = async (pageId: number) => {
+  const result: Pages2ChaptersMappings = await getPages2ChaptersMappings();
+  return result[pageId];
 };
 /**
  * get the chapter name for page
@@ -24,36 +36,37 @@ type ChaptersMap = {
   nameArabic: string;
   nameSimple: string;
 };
-const getChaptersForPage = (
-  pageId: string | number
-): ChaptersMap[] | undefined => {
-  const chapters = [];
-  const chapter = jsonChaptersData.chapters.find(
-    (chapter) => chapter.id === Number(pageId)
-  );
-  if (chapter) {
-    chapters.push({
-      id: chapter.id,
-      nameArabic: chapter.nameArabic,
-      nameSimple: chapter.nameSimple,
-    });
-  }
-  return chapters;
+const getChaptersForPage = async (pageId: number): Promise<ChaptersMap[]> => {
+  const result: ChaptersMap[] = [];
+  const pageChapters = await getChapterIdsForPage(pageId);
+  pageChapters.forEach((ch) => {
+    const chapter = jsonChaptersData.chapters.find(
+      (chapter) => chapter.id === Number(ch)
+    );
+    if (chapter) {
+      result.push({
+        id: chapter.id,
+        nameArabic: chapter.nameArabic,
+        nameSimple: chapter.nameSimple,
+      });
+    }
+  });
+  return result;
 };
 
 /**
  * return all pages
- * with type property
  */
-export const getAllPages = (lang: string = "en"): Page[] => {
-  return [...Array(DEFAULT_NUMBER_OF_PAGES)].map((__n, index) => {
-    const page = index + 1;
+export const getAllPages = (lang: string = "en") => {
+  const pages = _range(DEFAULT_NUMBER_OF_PAGES, 1).map(async (page) => {
+    const chaptersMap = await getChaptersForPage(page);
     return {
       pageNumber: Number(localizeNumber(page, lang)),
       verses: [],
       pagination: null,
-      chaptersMap: getChaptersForPage(page),
+      chaptersMap,
       audioFile: null,
     };
   });
+  return Promise.all(pages);
 };

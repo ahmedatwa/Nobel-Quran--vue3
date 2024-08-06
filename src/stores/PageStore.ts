@@ -80,9 +80,8 @@ export const usePageStore = defineStore("page-store", () => {
       });
   };
 
-  onMounted(() => {
-    const pages = getAllPages();
-    if (pages) pagesList.value = pages;
+  onMounted(async () => {
+    await getAllPages().then((response) => pagesList.value.push(...response));
   });
 
   watch(
