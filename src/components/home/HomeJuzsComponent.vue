@@ -24,6 +24,7 @@ const juzsPaginationLength = computed(() => {
 const emit = defineEmits<{
     "update:selectedJuz": [value: Juz]
 }>()
+
 const juzsMapWithChapters = computed(() => {
     if (juzStore.juzs) {
         const map = juzStore.juzs.map((juz) => {

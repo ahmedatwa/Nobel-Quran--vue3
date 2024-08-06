@@ -246,8 +246,7 @@ const scroll = (el: string, _currentVerseNumber?: number) => {
                 <div v-for="word in verse.words" :key="word.id" :data-hizb-number="verse.hizb_number"
                   :data-verse-number="verse.verse_number" :data-chapter-id="verse.chapter_id"
                   :data-juz-number="verse.juz_number" :data-page-number="verse.page_number" class="item">
-                  <div class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word)
-                    ? wordColor : ''">
+                  <div class="word" :id="`word-tooltip-${word.id}`" :class="isWordHighlighted(word) ? wordColor : ''">
 
                     <h3 v-if="word.char_type_name === 'end'" class="end">
                       ({{ word.text_uthmani }})

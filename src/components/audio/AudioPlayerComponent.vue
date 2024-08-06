@@ -21,8 +21,8 @@ const { audioPlayerSetting } = useSettingStore()
 const $tr = inject(langKey)
 
 defineProps<{
-    audioPlayer: { audioID: number, verseKey?: string, format?: string, isPlaying?: boolean, pause?: boolean } | null,
     modelValue: boolean
+    audioPlayer?: { audioID: number, verseKey?: string, format?: string, isPlaying?: boolean, pause?: boolean } | null,
 }>()
 
 const emit = defineEmits<{
