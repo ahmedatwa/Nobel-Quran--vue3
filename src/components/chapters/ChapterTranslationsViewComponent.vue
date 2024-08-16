@@ -22,6 +22,7 @@ const isIntersecting = ref(false);
 const translationsDrawer = inject("translationDrawer");
 const headerData = ref<ChapterHeaderData | null>(null);
 const intersectingVerseNumber = ref<number>();
+const cardRef = ref()
 
 const defaultStyles = reactive({
   fontFamily: "var(--font-family-noto-kufi)",
@@ -194,9 +195,9 @@ watch(intersectingVerseNumber, (newVerseNumber) => {
 // commit scroll to verse
 const scroll = (el: string, _currentVerseNumber?: number) => {
   if(smAndDown.value) {
-    scrollToElement(el, 300, SMOOTH_SCROLL_TO_CENTER, 156)
+    scrollToElement(el, 300, cardRef.value.$el, 156)
   } else {
-    scrollToElement(el, 300)
+    scrollToElement(el, cardRef.value.$el, 300)
   }
 }
 
@@ -204,7 +205,7 @@ const scroll = (el: string, _currentVerseNumber?: number) => {
 
 <template>
   <v-container fluid class="smooth-scroll-behaviour" id="chapters-translations-container">
-    <v-card flat>
+    <v-card flat ref="cardRef">
       <v-row :align="'center'" justify="center" dense>
         <v-col cols="12">
           <title-buttons-component :grouped-translations-authors="groupedTranslationsAuthors"
